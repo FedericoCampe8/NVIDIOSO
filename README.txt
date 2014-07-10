@@ -1,5 +1,5 @@
 
-                                      NVIDIOSO
+                                      	NVIDIOSO
                           NVIDIa-based cOnstraint SOlver v. 1.0
  
                                 __CSP/COP REPRESENTATION__
