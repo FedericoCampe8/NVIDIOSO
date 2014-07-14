@@ -4,7 +4,7 @@
  
                                 __CSP/COP REPRESENTATION__
  
-  VARIABLES
+  VARIABLES:
  
   Variable has variable types.
   - bool: true, false
@@ -70,6 +70,11 @@
                   bits of contiguous domain values;
        - REP > 0: each pair of bound is identified as
                   LB, UB (LB = UB if singlet).
+                  If REP = 1, then there is only 1 pair of bounds
+                  represented by {LB, UB}, without any pair in BIT.
+                  If REP > 1, then there are at least 2 pairs in BIT
+                  and the LB/UB fields represent respectively the
+                  min/max values among all the pairs.
  
   OBSERVATIONS (CUDA implementation):
  
@@ -84,9 +89,21 @@
     to represent a pair of bounds) = 5757 pairs separated by at least
     one "hole" from each other -> 5757 * 2 = 11514 such as {0, 1}, {3, 4}, ... .
  
-  It means that when the domains are greater than 11514 then a check must be
-  performed in order to apply multiple copies from global to share memory if
-  needed.
+  @note The above observation means that when the domains are greater 
+        than 11514 then a check must be performed in order to apply 
+        multiple copies from global to share memory if needed.
+  @note A domain such as {300, 450} has 150 values < VECTOR_MAX but it still
+        represented as REP < 0. This is done for efficiency reasons, avoiding to
+        store a further base-offset for contiguous domains of size < VECTOR_MAX.
+  @note When a domain (or subsets of it) is (are) represented using a bitmap,
+        the values are stored from left to right in chunks of 32 bits 
+        (considering a 32bit representation for an unsigned int), where
+        the most significan bit is in the leftmost position of the chuck, 
+        i.e., it is the 31th bit.
+        For example, the domain {0, 63} is store as
+        |31...0|32...63|.
+        The chunk is easily retrieved computing num / 32, while the 
+        position within each chunk can be retrieved by num % 32.
 	
   See refman.pdf for further information about the implementation.
   
