@@ -101,7 +101,7 @@
         the most significan bit is in the leftmost position of the chuck, 
         i.e., it is the 31th bit.
         For example, the domain {0, 63} is store as
-        |31...0|63…32|.
+        |31...0|63...32|.
         The chunk is easily retrieved computing num / 32, while the 
         position within each chunk can be retrieved by num % 32.
 	
