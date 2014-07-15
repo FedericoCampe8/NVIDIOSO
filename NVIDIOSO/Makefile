@@ -8,15 +8,18 @@ ERROR_COLOR=\x1b[31;01m
 WARN_COLOR=\x1b[33;01m
 
 ESC=`echo "\033"`
-OK_COLOR ="${ESC}[0;32m"
-NO_COLOR ="${ESC}[m\017"
+OK_COLOR   ="${ESC}[0;32m"
+WARN_COLOR ="${ESC}[0;33m"
+NO_COLOR   ="${ESC}[m\017"
 
 OK_STRING=${OK_COLOR}[OK]${NO_COLOR}
 OK_DONE =${OK_COLOR}NVIDIOSO compilation succeeded${NO_COLOR}
+CLEAN_DONE =${WARN_COLOR}NVIDIOSO Cleaning succeeded${NO_COLOR}
 
 PRINT_COMPILE = @echo ${OK_STRING}
-PRINT_COMPILE = @echo compile...${OK_STRING}
+PRINT_COMPILE = @echo compiling...${OK_STRING}
 PRINT_DONE    = @echo ${OK_DONE}
+PRINT_CLEAN   = @echo ${CLEAN_DONE}
 
 # ---------------------------------------------------------------------
 # Objects
@@ -93,6 +96,7 @@ $(OBJECTS) : 	%.o : %.cpp
 
 #.PHONY : clean
 clean:
-	rm -f obj/*.o 	
-	rm -f obj/*/*/*.o	
-	rm -f $(TARGET)	
+	@rm -f obj/*.o 	
+	@rm -f obj/*/*/*.o	
+	@rm -f $(TARGET)	
+	$(PRINT_CLEAN)	
