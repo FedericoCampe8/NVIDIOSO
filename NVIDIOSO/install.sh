@@ -5,7 +5,8 @@ echo "(C) Copyright 2014"
 echo "NVIDIOSO is free software."
 
 OBJ=obj
-obj_folder=("src" "base" "constraints" "core" "FZ_parser" "search" "test")
+obj_folder=("base" "constraints" "core" "FZ_parser" "search")
+
 
 #Create obj (main) folder
 if [ ! -d ${OBJ} ];
@@ -25,3 +26,16 @@ done
 
 make clean
 make
+
+exit 0
+#@todo create make.inc here
+echo "#CC = gcc" >> data.txt
+echo "#CC = g++" >> data.txt
+echo "CC = clang++" >> data.txt
+echo "DEBUGFLAG = -W -Wall" >> data.txt
+echo "CCOPT = -m64 -DIL_STD" >> data.txt
+echo "BASE="${obj_folder[0]} >> data.txt
+echo "CONSTRAINTS="${obj_folder[1]} >> data.txt
+echo "CORE="${obj_folder[2]} >> data.txt
+echo "PARSER="${obj_folder[3]} >> data.txt
+echo "CONSTRAINTS="${obj_folder[4]} >> data.txt
