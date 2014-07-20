@@ -108,5 +108,5 @@
   See refman.pdf for further information about the implementation.
   
   Thanks for reading this page.
-  If you've got any further questions, please don't hesitate to contact camp8@nmsu.edu.
+  If you've got any further questions, please don't hesitate to contact campe8@nmsu.edu.
 	
