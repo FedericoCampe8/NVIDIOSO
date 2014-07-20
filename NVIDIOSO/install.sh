@@ -9,7 +9,7 @@ obj_folder=("base" "constraints" "core" "FZ_parser" "search" "exception")
 
 
 #Create obj (main) folder
-if [ ! -d ${OBJ} ];
+if [ ! -d ${OBJ} ]; then
   mkdir ${OBJ}
 fi
 
