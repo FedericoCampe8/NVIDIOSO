@@ -45,6 +45,8 @@
 /* Global classes */
 #include "logger.h"
 #include "id_generator.h"
+#include "statistics.h"
+#include "nvd_exception.h"
 
 /* Environment variable */
 constexpr int VECTOR_MAX = 256;

@@ -5,6 +5,7 @@ echo "(C) Copyright 2014"
 echo "NVIDIOSO is free software."
 
 OBJ=obj
+SRC=src
 obj_folder=("base" "constraints" "core" "FZ_parser" "search" "exception")
 
 
@@ -13,14 +14,18 @@ if [ ! -d ${OBJ} ]; then
   mkdir ${OBJ}
 fi
 
+if [ ! -d ${OBJ}/${SRC} ]; then
+mkdir ${OBJ}/${SRC}
+fi
+
 #Create obj folders
 #@note ${#ArrayName[@]}: length of ArrayName
 for ((k=0; k<${#obj_folder[@]}; k++))
 do
-  if [ -d ${OBJ}/${obj_folder[$k]} ]; then
-    echo ${OBJ}/${obj_folder[$k]} "already exists"
+  if [ -d ${OBJ}/${SRC}/${obj_folder[$k]} ]; then
+    echo ${OBJ}/${SRC}/${obj_folder[$k]} "already exists"
   else
-    mkdir ${OBJ}/${obj_folder[$k]}
+    mkdir ${OBJ}/${SRC}/${obj_folder[$k]}
   fi
 done
 
