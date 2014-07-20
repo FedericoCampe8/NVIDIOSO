@@ -184,7 +184,7 @@ CudaConcreteDomainBitmap::is_singleton () const {
 int
 CudaConcreteDomainBitmap::get_singleton () const {
   if ( !is_singleton() ) {
-    throw new std::string ( _dbg + "Domain not singleton" );
+    throw  NvdException ( (_dbg + "Domain not singleton").c_str() );
   }
   
   return _lower_bound;

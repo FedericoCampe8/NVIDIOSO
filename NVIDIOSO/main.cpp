@@ -80,6 +80,9 @@ int main( int argc, char * argv[] )
   
   logger->message ( dbg + "End solver computation." );
   
+  // Print statistics
+  if ( i_data->verbose() ) statistics->print ();
+  
   /***************************************
    *            CLEAN AND EXIT           *
    ***************************************/

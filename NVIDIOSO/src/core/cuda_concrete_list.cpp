@@ -21,7 +21,7 @@ _domain_size       ( 0 ) {
   }
   
   _max_allowed_pairs = _num_chunks / 2;
-  if ( _max_allowed_pairs < 1) {
+  if ( _max_allowed_pairs < 1 ) {
     set_empty ();
     return;
   }
@@ -490,7 +490,7 @@ CudaConcreteDomainList::is_singleton () const {
 int
 CudaConcreteDomainList::get_singleton () const {
   if ( !is_singleton() ) {
-    throw new std::string ( _dbg + "Domain not singleton" );
+    throw  NvdException ( ( _dbg + "Domain not singleton" ).c_str() );
   }
   
   return _lower_bound;

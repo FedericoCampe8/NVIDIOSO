@@ -5,7 +5,7 @@ echo "(C) Copyright 2014"
 echo "NVIDIOSO is free software."
 
 OBJ=obj
-obj_folder=("base" "constraints" "core" "FZ_parser" "search")
+obj_folder=("base" "constraints" "core" "FZ_parser" "search" "exception")
 
 
 #Create obj (main) folder

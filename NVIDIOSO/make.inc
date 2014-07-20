@@ -55,4 +55,5 @@ CORE=core
 SEARCH=search
 PARSER=FZ_parser
 CONSTRAINTS=constraints
+EXCEPTION=exception
 

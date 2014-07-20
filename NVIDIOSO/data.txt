@@ -1,6 +1,0 @@
-#CC = gcc
-#CC = g++
-CC = clang++
-DEBUGFLAG = -W -Wall
-CCOPT = -m64 -DIL_STD
-BASE=base
