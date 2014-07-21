@@ -42,7 +42,7 @@ int main( int argc, char * argv[] )
   try {
     d_store->init_model();
   } catch (...) {
-    logger->error ( dbg + "Failed to initialize the msodel." );
+    logger->error ( dbg + "Failed to initialize the model." );
     logger->error ( dbg + "Clean and exit." );
     // Clean & exit
     delete d_store;
