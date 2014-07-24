@@ -23,7 +23,7 @@ class CudaConcreteDomain : public ConcreteDomain<int> {
 protected:
   std::string _dbg;
   
-  //! Number of "int" chunks allocated
+  //! Number of allocated (32 bit int) chunks
   int _num_chunks;
   
   //! Lower bound
@@ -32,7 +32,10 @@ protected:
   //! Upper bound
   int _upper_bound;
   
-  //! Concrete domain is represented by an array of (32 bit) integers.
+  /**
+   * Concrete domain is represented by an array of (32 bit) integers.
+   * @note actual internal representation of domain.
+   */
   int * _concrete_domain;
   
   /**
@@ -62,6 +65,12 @@ public:
    */
   CudaConcreteDomain ( size_t size );
   virtual ~CudaConcreteDomain ();
+  
+  //! Returns lower bound
+  int lower_bound () const;
+  
+  //! Returns upper bound
+  int upper_bound () const;
   
   /**
    * Get the number of allocated

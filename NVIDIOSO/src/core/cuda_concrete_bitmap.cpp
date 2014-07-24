@@ -30,7 +30,7 @@ CudaConcreteDomain ( size ) {
 }//CudaConcreteDomainBitmap
 
 CudaConcreteDomainBitmap::CudaConcreteDomainBitmap ( size_t size,
-                                                    int min, int max ) :
+                                                     int min, int max ) :
 CudaConcreteDomainBitmap ( size ) {
   
   // Empty domain if not consistent
@@ -65,6 +65,11 @@ CudaConcreteDomainBitmap ( size ) {
   shrink ( min, max );
 }//CudaConcreteDomainBitmap
 
+unsigned int
+CudaConcreteDomainBitmap::size () const {
+  return _num_valid_bits;
+}//size
+
 void
 CudaConcreteDomainBitmap::shrink ( int min, int max ) {
   
@@ -74,18 +79,39 @@ CudaConcreteDomainBitmap::shrink ( int min, int max ) {
     return;
   }
   
-  int lower_idx = IDX_CHUNK ( min );
-  int upper_idx = IDX_CHUNK ( max );
-  int old_lower_idx = IDX_CHUNK ( _lower_bound );
-  int old_upper_idx = IDX_CHUNK ( _upper_bound );
+  // Check min/max value consistency
+  if ( min == _lower_bound &&
+       max == _upper_bound ) return;
+  
+  // Return if no chages in the domain
+  if ( (min <= _lower_bound) &&
+       (max >= _upper_bound) ) {
+    return;
+  }
+  
+  // Set min/max w.r.t. the current bounds
+  if ( (min < _lower_bound) &&
+       (max < _upper_bound) ) {
+    min = _lower_bound;
+  }
+  
+  if ( (min > _lower_bound) &&
+       (max > _upper_bound) ) {
+    max = _upper_bound;
+  }
+  
+  int lower_idx = _num_chunks - 1 - IDX_CHUNK ( min );
+  int upper_idx = _num_chunks - 1 - IDX_CHUNK ( max );
+  int old_lower_idx = _num_chunks - 1 - IDX_CHUNK ( _lower_bound );
+  int old_upper_idx = _num_chunks - 1 - IDX_CHUNK ( _upper_bound );
   
   // Clear chunks out of the current bounds
-  if ( old_lower_idx < lower_idx )
-    for ( ; old_lower_idx < lower_idx; old_lower_idx++ )
+  if ( old_lower_idx > lower_idx )
+    for ( ; old_lower_idx > lower_idx; old_lower_idx-- )
       _concrete_domain[ old_lower_idx ] = 0;
   
-  if ( old_upper_idx > upper_idx )
-    for ( ; old_upper_idx > upper_idx; old_upper_idx-- )
+  if ( old_upper_idx < upper_idx )
+    for ( ; old_upper_idx < upper_idx; old_upper_idx++ )
       _concrete_domain[ old_upper_idx ] = 0;
   
   /*
@@ -94,8 +120,8 @@ CudaConcreteDomainBitmap::shrink ( int min, int max ) {
    */
   _concrete_domain [ lower_idx ] =
   CudaBitUtils::clear_bits_i_through_0 ( _concrete_domain [ lower_idx ],
-                                        IDX_BIT ( min ) - 1
-                                       );
+                                         IDX_BIT ( min ) - 1
+                                        );
   
   _concrete_domain [ upper_idx ] =
   CudaBitUtils::clear_bits_MSB_through_i (
@@ -141,6 +167,7 @@ CudaConcreteDomainBitmap::add ( int value ) {
   
   // Get the right chunk
   int chunk = IDX_CHUNK ( value );
+  chunk = _num_chunks - 1 - chunk;
   
   // Otherwise set the corresponding bit to 1 and increment size
   _concrete_domain[ chunk ] = CudaBitUtils::set_bit( _concrete_domain[ chunk ],
@@ -172,6 +199,8 @@ CudaConcreteDomainBitmap::get_representation () const {
 bool
 CudaConcreteDomainBitmap::contains ( int value ) const {
   int chunk = IDX_CHUNK ( value );
+  chunk = _num_chunks - 1 - chunk;
+  
   return CudaBitUtils::get_bit( _concrete_domain[ chunk ],
                                 IDX_BIT( value ) );
 }//contains

@@ -43,6 +43,11 @@ _domain_size       ( 0 ) {
   add( min, max );
 }//CudaConcreteDomainList
 
+unsigned int
+CudaConcreteDomainList::size () const {
+  return _domain_size;
+}//size
+
 int
 CudaConcreteDomainList::find_pair ( int val ) const {
   // Scan the pairs to check for val
@@ -86,13 +91,16 @@ CudaConcreteDomainList::shrink ( int min, int max ) {
     return;
   }
   
+  // Check min/max value consistency
+  if ( min == _lower_bound && max == _upper_bound ) return;
+  
   // Return if no chages in the domain
   if ( (min <= _lower_bound) &&
        (max >= _upper_bound) ) {
     return;
   }
   
-  // Fix min/max w.r.t. the current bounds
+  // Set min/max w.r.t. the current bounds
   if ( (min < _lower_bound) &&
        (max < _upper_bound) ) {
     min = _lower_bound;
@@ -102,7 +110,7 @@ CudaConcreteDomainList::shrink ( int min, int max ) {
        (max > _upper_bound) ) {
     max = _upper_bound;
   }
-  
+
   /*
    * There are _num_pairs pairs of contiguous elements.
    * Four cases to consider for both the new lower/upper bounds:
@@ -113,18 +121,22 @@ CudaConcreteDomainList::shrink ( int min, int max ) {
    */
   // Size (num of elements) of the current pair
   int pair_size = 0;
+  
   // Prev (next) sum of vals w.r.t. min (max)
   int  sum_prev_elements = 0;
   int  sum_next_elements = 0;
+  
   // Index of the pair containing min (max)
   int pair_with_min = -1;
   int pair_with_max = -1;
+  
   /*
    * State whether the sum of vals < min (vals > max)
    * is calculated (needed for calc. domain's size)
    */
   bool sum_prev_vals_complete = false;
   bool sum_next_vals_complete = true;
+  
   // Number of valid pairs
   int num_pairs_in_domain = 0;
   for ( int pair_idx = 0; pair_idx <= _num_pairs; pair_idx++ ) {
@@ -495,6 +507,11 @@ CudaConcreteDomainList::get_singleton () const {
   
   return _lower_bound;
 }//get_singleton
+
+const void *
+CudaConcreteDomainList::get_representation () const {
+  return (void *) _concrete_domain;
+}//get_representation
 
 void
 CudaConcreteDomainList::print () const {

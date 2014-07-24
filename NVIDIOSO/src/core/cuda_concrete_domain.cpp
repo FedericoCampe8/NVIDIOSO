@@ -22,9 +22,8 @@ _dbg ( "CudaConcreteDomain -" ) {
   _concrete_domain = (int*) malloc( size );
   
   if ( !_concrete_domain ) {
-    logger->error( _dbg + "Can't allocate concrete domain",
-                   __FILE__, __LINE__ );
-    throw new string( _dbg + "Can't allocate concrete domain" );
+    throw  NvdException ( (_dbg + "Domain not singleton").c_str(),
+                          __FILE__, __LINE__ );
   }
   
   _num_chunks = ((int) size) / sizeof( int );
@@ -33,6 +32,18 @@ _dbg ( "CudaConcreteDomain -" ) {
 CudaConcreteDomain::~CudaConcreteDomain () {
   free( _concrete_domain );
 }//~CudaConcreteDomain
+
+
+int
+CudaConcreteDomain::lower_bound () const {
+  return _lower_bound;
+}//lower_bound
+
+//! Returns upper bound
+int
+CudaConcreteDomain::upper_bound () const {
+  return _upper_bound;
+}//upper_bound
 
 int
 CudaConcreteDomain::get_num_chunks () const {
@@ -60,5 +71,4 @@ bool
 CudaConcreteDomain::is_empty () const {
   return _upper_bound < _lower_bound;
 }//is_empty
-
 

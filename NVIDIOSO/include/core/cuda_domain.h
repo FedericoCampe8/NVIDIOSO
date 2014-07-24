@@ -10,6 +10,7 @@
 #define NVIDIOSO_cuda_domain_h
 
 #include "int_domain.h"
+#include "cuda_concrete_domain.h"
 
 enum class CudaDomainRepresenation {
   BITMAP,
@@ -112,9 +113,23 @@ protected:
   }
   
   /**
-   * Array of int used to represent the actual domain.
-   * Operations are performed on this representation.
-   * See, system_description.h
+   * Actual domain is represented by an object of type
+   * "cuda_concrete_domain".
+   * This domain can be a either bitmap, a list of bounds, or 
+   * a bitmap list, depending on the size of the domain.
+   * Internal switches between domain representations are 
+   * performed automatically as soon as the domain's size
+   * is reduced to a given threshold.
+   * @note system_description.h
+   */
+  CudaConcreteDomainPtr _concrete_domain;
+  
+  /**
+   * Domain is the actual bit domain representation.
+   * Operations are performed on _concrete_domain, status
+   * is stored on _domain.
+   * When another class needs this domain's representation,
+   * _domain will be returned.
    */
   int * _domain;
   
@@ -152,53 +167,10 @@ protected:
   CudaDomainRepresenation get_representation () const;
   
   /**
-   * Updates the size of the domain and the domain itself.
-   * It checks whether the domain contains
-   * "holes", e.g., {1, 2, _, 6, 7, 8} -> size = 5;
-   * Moreover, it switches from list to bitmap 
-   * representation if size < VECTOR_MAX and
-   * representation is not already bitmap.
-   * @note this method could switch between different
-   *       domain representations.
-   */
-  void update_domain ();
-  
-  /**
-   * Update domain's bounds according to min, max and
-   * considering a bitmap representation.
-   * @param min lower bound
-   * @param max upper bound
-   * @param offset_bitmap offset in BIT field where the 
-   *        bitmap begins. Default: BIT_IDX ().
-   *        An offset of n will give a position of BIT_IDX () + n.
-   * @return the number of bits set to one from min to max
-   */
-  int update_bitmap ( int min, int max, int offset_bitmap = BIT_IDX () );
-  
-  //! Update domain considering bitmap list representation
-  void update_bitmap_list ();
-  
-  /**
    * Take the current list representation and switch it to 
    * a bitmap list represenatation.
    */
   void switch_list_to_bitmaplist ();
-  
-  /**
-   * It sets up a pair <LB, UB> and the corresponding bitmap 
-   * representation (all bits set to one).
-   * @param min lower bound to store in idx
-   * @param max upper bound to store in idx + 1
-   * @param idx index position in BIT where to store LB
-   */
-  void prepare_bit_list ( int min, int max, int idx );
-  
-  /**
-   * Update domain considering a list of bounds representation.
-   * It converts into a bitmap representation if
-   * after updating size < VECTOR_MAX.
-   */
-  void update_list ();
   
 public:
   CudaDomain  ();
@@ -243,6 +215,12 @@ public:
    */
    size_t get_size () const;
   
+  //! Get the domain's lower bound
+  int get_lower_bound () const;
+  
+  //! Get the domain's upper bound
+  int get_upper_bound () const;
+  
   /**
    * It specializes the parent method in order to
    * set up the array of (int) values.
@@ -254,25 +232,33 @@ public:
    */
   void set_bounds ( int min, int max );
   
+  /**
+   * The same as set_bounds.
+   * It shrinks the domain to {min, max}.
+   * @param min lower bound
+   * @param max upper bound
+   */
+  void shrink ( int min, int max );
+  
   //! Set domain as singleton
   bool set_singleton ( int );
   
   //! Subtract the element from the domain (see int_domain.h)
-  bool subtract ( int );
+  bool subtract ( int n );
   
   /** 
-   * Add an element to the current domain (see int_domain.h).
-   * @note if the element is out of the initial bounds,
-   *       no element will be added, i.e., the domains
-   *       mantain the original size.
+   * Add an element val to the current domain (see int_domain.h).
+   * @note if the element is out of the current bounds,
+   *       no element will be added, i.e., the domain
+   *       mantains the current size.
    */
-  void add_element ( int val );
+  void add_element ( int n );
   
-  //! Increase the lower_bound (see int_domain.h)
-  void in_min ( int );
+  //! Increase the lower_bound to min (see int_domain.h)
+  void in_min ( int min );
   
-  //! Decrease the upper_bound (see int_domain.h)
-  void in_max ( int );
+  //! Decrease the upper_bound to max (see int_domain.h)
+  void in_max ( int max );
   
   //! Print info about domain
   void print () const;

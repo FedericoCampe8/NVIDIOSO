@@ -8,12 +8,16 @@
 
 #include "cuda_domain.h"
 #include "cuda_utilities.h"
+#include "cuda_concrete_bitmap.h"
+#include "cuda_concrete_list.h"
+#include "cuda_concrete_bitmaplist.h"
 
 using namespace std;
 
 CudaDomain::CudaDomain () :
 _num_allocated_bytes ( 0 ),
-_domain ( nullptr ) {
+_domain          ( nullptr ),
+_concrete_domain ( nullptr ) {
 }//CudaDomain
 
 CudaDomain::~CudaDomain () {
@@ -50,56 +54,60 @@ CudaDomain::init_domain ( int min, int max ) {
   if ( min >= 0 &&  min <= VECTOR_MAX && size <= VECTOR_MAX ) {
     _num_int_chunks = num_chunks ( VECTOR_MAX );
     _num_allocated_bytes = MAX_STATUS_SIZE + (VECTOR_MAX / BITS_IN_BYTE);
-    _domain = new int [ _num_allocated_bytes / sizeof( int ) ];
     
-    // Set everything as available
-    for ( int i = BIT_IDX(); i < BIT_IDX() + _num_int_chunks; i++ )  {
-      _domain[ i ] = 0xffffffff;
-    }
+    // Create domains representations
+    _domain          = new int [ _num_allocated_bytes / sizeof( int ) ];
+    _concrete_domain = make_shared<CudaConcreteDomainBitmap>( _num_allocated_bytes );
     
-    // Set bit-chunks to 0 if smaller than min or bigger than max
-    int lower_idx = IDX_CHUNK ( min ) + BIT_IDX();
-    int upper_idx = IDX_CHUNK ( max ) + BIT_IDX();
-    for ( int i = BIT_IDX(); i < lower_idx; i++ )
-      _domain[ i ] = 0;
-    for ( int i = upper_idx + 1; i < BIT_IDX() + _num_int_chunks; i++ )
-      _domain[ i ] = 0;
-    
-    // Set representation
     set_bit_representation ();
   }
   else {
     _num_allocated_bytes = MAX_BYTES_SIZE;
     _num_int_chunks      = MAX_DOMAIN_VALUES;
-    _domain = new int [ _num_allocated_bytes / sizeof( int ) ];
     
-    // Set representation
-    set_list_representation ();
+    // Create domains representations
+    _domain          = new int [ _num_allocated_bytes / sizeof( int ) ];
+    
+    if ( size <= VECTOR_MAX ) {
+      vector < pair < int, int > > bounds_list;
+      bounds_list.push_back( make_pair( min, max ) );
+      _concrete_domain = make_shared<CudaConcreteBitmapList>( _num_allocated_bytes, bounds_list);
+      set_bitlist_representation ();
+    }
+    else {
+      _concrete_domain = make_shared<CudaConcreteDomainList>( _num_allocated_bytes, min, max );
+      set_list_representation ();
+    }
   }
   
   // Set bounds
-  _lower_bound = min;
-  _upper_bound = max;
-  _domain[ LB_IDX() ] = _lower_bound;
-  _domain[ UB_IDX() ] = _upper_bound;
-  
-  if ( _lower_bound == _upper_bound ) {
+  _domain[ LB_IDX() ] = min;
+  _domain[ UB_IDX() ] = max;
+
+  // Set initial events
+  if ( _domain[ LB_IDX() ] == _domain[ UB_IDX() ] ) {
     event_to_int ( EventType::SINGLETON_EVT );
   }
   else {
     event_to_int ( EventType::NO_EVT );
   }
-  
-  /*
-   * Set size w.r.t. the new bounds.
-   * Change internal domain representation according to 
-   * the current domain's elements.
-   */
-  update_domain ();
 }//init_domain
+
+//! Get the domain's lower bound
+int
+CudaDomain::get_lower_bound () const {
+  return _domain[ LB_IDX() ];
+}//get_lower_bound
+
+//! Get the domain's upper bound
+int
+CudaDomain::get_upper_bound () const {
+  return _domain[ UB_IDX() ];
+}//get_upper_bound
 
 DomainPtr
 CudaDomain::clone_impl () const {
+  //@todo
   return ( shared_ptr<CudaDomain> ( new CudaDomain ( *this ) ) );
 }//clone_impl
 
@@ -191,6 +199,11 @@ CudaDomain::get_size () const {
 }//get_size
 
 void
+CudaDomain::shrink ( int min, int max ) {
+  set_bounds ( min, max );
+}//shrink
+
+void
 CudaDomain::set_bounds ( int min, int max ) {
   
   // Domain failure: non valid min/max
@@ -200,294 +213,44 @@ CudaDomain::set_bounds ( int min, int max ) {
   }
   
   // Domain failure: out or range
-  if ( _upper_bound < min || _lower_bound > max ) {
+  if ( _domain[ UB_IDX() ] < min || _domain[ LB_IDX() ] > max ) {
     event_to_int ( EventType::FAIL_EVT );
     return;
   }
   
   // Trying to enlarge domain has no effect
-  if ( (min <= _lower_bound) && (max >= _upper_bound) ) {
+  if ( (min <= _domain[ LB_IDX() ]) && (max >= _domain[ UB_IDX() ]) ) {
     return;
   }
   
-  if ( _lower_bound < min ) {
-    _lower_bound = min;
-    _domain[ LB_IDX() ] = min;
-  }
-  if ( _upper_bound > max ) {
-    _upper_bound = max;
-    _domain[ UB_IDX() ] = max;
-  }
-  
-  // Event handling
-  if ( _lower_bound == _upper_bound ) {
-    event_to_int ( EventType::SINGLETON_EVT );
-  }
-  else {
-    event_to_int ( EventType::BOUNDS_EVT );
+  // Set bounds on domain's internal representation
+  try {
+    _concrete_domain->shrink( min, max );
+  } catch ( NvdException & e ) {
+    e.what();
+    return;
   }
   
-  /*
-   * Set size w.r.t. the new bounds.
-   * Change internal domain representation according to
-   * the current domain's elements.
-   */
-  update_domain ();
-}//set_bounds
-
-void
-CudaDomain::update_domain () {
-  if ( get_representation () == CudaDomainRepresenation::BITMAP ) {
-    int num_bits = update_bitmap ( _domain[ LB_IDX() ], _domain[ UB_IDX() ] );
-    
-    // Set new domain size
-    _domain [ DSZ_IDX() ] = num_bits;
-    
-    // Set events if singleton or failed
-    if ( num_bits == 1 ) {
-      _domain [ EVT_IDX() ] = INT_SINGLETON_EVT;
-    }
-    else if ( num_bits == 0 ) {
-      _domain [ EVT_IDX() ] = INT_FAIL_EVT;
-    }
-    
-  }
-  else  if ( get_representation () == CudaDomainRepresenation::BITMAP_LIST ) {
-    update_bitmap_list ();
-  }
-  else {
-    update_list ();
-  }
-}//update_size
-
-int
-CudaDomain::update_bitmap ( int min, int max, int offset_bitmap ) {
-  int lower_idx = IDX_CHUNK ( min ) + offset_bitmap;
-  int upper_idx = IDX_CHUNK ( max ) + offset_bitmap;
+  // Check events on current domain
+  _domain[ LB_IDX() ] = min;
+  _domain[ UB_IDX() ] = max;
   
-  /*
-   * Set to zero all the bits < lower_bound and > upper_bound 
-   * in the chunks identified by lower_bound and upper_bound respectively.
-   */
-
-  _domain [ lower_idx ] = CudaBitUtils::clear_bits_i_through_0( _domain [ lower_idx ], IDX_BIT ( min ) - 1 );
+  int new_size = _concrete_domain->size ();
   
-  _domain [ upper_idx ] = CudaBitUtils::clear_bits_MSB_through_i( _domain [ upper_idx ], IDX_BIT ( max ) + 1 );
-  
-  int num_bits = 0;
-  for ( ; lower_idx <= upper_idx; lower_idx++ ) {
-    num_bits += CudaBitUtils::num_1bit( (uint) _domain[ lower_idx ] );
+  if ( _concrete_domain->is_empty() ) {
+    _domain [ EVT_IDX() ] = INT_FAIL_EVT;
+    return;
   }
   
-  return num_bits;
-}//update_bitmap
-
-void
-CudaDomain::update_bitmap_list () {
-  
-}//update_bitmap_list
-
-void
-CudaDomain::update_list () {
-  
-  // Check the length of the list of pairs
-  int num_pairs = _domain[ REP_IDX() ];
-  
-  // There is a single pair of contiguous elements
-  if ( num_pairs == 1 ) {
-    // Calculate new domain size and set it
-    int d_size = _domain[ UB_IDX() ] - _domain[ LB_IDX() ] + 1;
-
-    // Return if singleton or failed
-    if ( d_size == 1 ) {
-      _domain [ EVT_IDX() ] = INT_SINGLETON_EVT;
-      return;
-    } else if ( d_size <= 0 ) {
-      _domain [ EVT_IDX() ] = INT_FAIL_EVT;
-      return;
-    }
-    
-    // Set new domain's size
-    _domain [ DSZ_IDX() ] = d_size;
+  if ( _concrete_domain->is_singleton () ) {
+    _domain [ EVT_IDX() ] = INT_SINGLETON_EVT;
+    return;
   }
-  else {
-    // Base case: singleton
-    if ( _domain[ LB_IDX() ] == _domain[ UB_IDX() ] ) {
-      _domain[ DSZ_IDX() ] = 1;
-      // Bit list representation
-      set_bitlist_representation ( -1 );
-      _domain[ BIT_IDX()     ] = _domain[ LB_IDX() ];
-      _domain[ BIT_IDX() + 1 ] = _domain[ UB_IDX() ];
-      _domain[ BIT_IDX() + 2 ] = ( unsigned int ) 1;
-      return;
-    }
-    
-    /*
-     * There are num_pairs pairs of contiguous elements.
-     * Four cases to consider for both the new lower/upper bounds:
-     * 1) new bound is equal to a lower bound
-     * 2) new bound is equal to an upper bound
-     * 3) new bound is within a pair {lower bound, upper bound}
-     * 4) new bound is betweent to pair of bounds
-     * Therefore, 16 combinations should be considered.
-     * Let us consider that some combinantions are symmetric.
-     */
-    // First check which case is for new bounds
-    bool find_lb_case = false;
-    bool find_ub_case = false;
-    int  lb_case =  4, ub_case =  4; // cases
-    int  lb_idx  = -1, ub_idx  = -1; // index pair with a match for a case
-    int  num_lw  =  0;    // sum elements before match on the left
-    int  num_up  =  0;    // sum elements before match on the right
-    int  curr_pair_size;  // num elements in the current pair
-    for ( int i = 0; i < num_pairs; i++ ) {
-      curr_pair_size = _domain[ BIT_IDX() + 2 * i + 1 ] -
-                       _domain[ BIT_IDX() + 2 * i     ] + 1;
-      // Lower bound
-      if ( (!find_lb_case) &&
-           (_domain[ BIT_IDX() + 2 * i ]    == _domain[ LB_IDX() ]) ) {
-        lb_case = 1;
-        lb_idx  = BIT_IDX() + 2 * i;
-        find_lb_case = true;
-      }
-      if ( (!find_lb_case) &&
-          (_domain[ BIT_IDX() + 2 * i + 1 ] == _domain[ LB_IDX() ]) ) {
-        lb_case = 2;
-        lb_idx  = BIT_IDX() + 2 * i;
-        find_lb_case = true;
-      }
-      if ( (!find_lb_case) &&
-           (_domain[ LB_IDX() ] > _domain[ BIT_IDX() + 2 * i     ] ) &&
-           (_domain[ LB_IDX() ] < _domain[ BIT_IDX() + 2 * i + 1 ] ) ) {
-        lb_case = 3;
-        lb_idx  = BIT_IDX() + 2 * i;
-        find_lb_case = true;
-      }
-      if ( (!find_lb_case) && (i < (num_pairs - 1)) &&
-          (_domain[ LB_IDX() ] > _domain[ BIT_IDX() + 2 * i + 1 ] ) &&
-          (_domain[ LB_IDX() ] < _domain[ BIT_IDX() + 2 * (i + 1) ] ) ) {
-        lb_case = 4;
-        lb_idx  = BIT_IDX() + 2 * (i + 1); //Next one is the valid one
-        find_lb_case = true;
-      }
-      
-      if ( (i > 0) && (!find_lb_case) ) {
-        num_lw += curr_pair_size;
-      }
-      
-      if ( find_ub_case ) {
-        //Start counting the elements on the right
-        num_up += curr_pair_size;
-      }
-      
-      // Upper bound
-      if ( (!find_ub_case) &&
-          (_domain[ BIT_IDX() + 2 * i ]    == _domain[ UB_IDX() ]) ) {
-        ub_case = 1;
-        ub_idx  = BIT_IDX() + 2 * i;
-        find_ub_case = true;
-      }
-      if ( (!find_ub_case) &&
-          (_domain[ BIT_IDX() + 2 * i + 1 ] == _domain[ UB_IDX() ]) ) {
-        ub_case = 2;
-        ub_idx  = BIT_IDX() + 2 * i;
-        find_ub_case = true;
-      }
-      if ( (!find_ub_case) &&
-          (_domain[ UB_IDX() ] > _domain[ BIT_IDX() + 2 * i     ] ) &&
-          (_domain[ UB_IDX() ] < _domain[ BIT_IDX() + 2 * i + 1 ] ) ) {
-        ub_case = 3;
-        ub_idx  = BIT_IDX() + 2 * i;
-        find_ub_case = true;
-      }
-      if ( (!find_ub_case) && (i < (num_pairs - 1)) &&
-          (_domain[ UB_IDX() ] > _domain[ BIT_IDX() + 2 * i + 1 ] ) &&
-          (_domain[ UB_IDX() ] < _domain[ BIT_IDX() + 2 * (i + 1) ] ) ) {
-        ub_case = 4;
-        ub_idx  = BIT_IDX() + 2 * i;
-        find_ub_case = true;
-      }
-    }//i
-    
-    // Find the new number of pairs
-    int num_valid_pairs =
-    ((ub_idx - BIT_IDX()) / 2) -
-    ((lb_idx - BIT_IDX()) / 2) + 1;
-    
-    if ( num_valid_pairs == 0 ) {
-      _domain [ DSZ_IDX() ] = 0;
-      _domain [ EVT_IDX() ] = INT_FAIL_EVT;
-      return;
-    }
-    _domain [ REP_IDX() ] = num_valid_pairs;
-    
-    // Decrease the total number of elements
-    _domain [ DSZ_IDX() ] -= (num_lw + num_up);
-    
-    //Fix pairs w.r.t. each case.
-    if ( lb_case == 2 ) {
-      /*
-       * Lower bound is 23:
-       * ..., {20, 23}, {42, 47}, ... -> ..., {23, 23}, {42, 47}, ...
-       */
-      _domain [ DSZ_IDX() ] -= ( _domain[ lb_idx + 1 ] - _domain[ lb_idx ]);
-      _domain[ lb_idx ] = _domain[ lb_idx + 1 ];
-    }
-    if ( lb_case == 3 ) {
-      /*
-       * Lower bound is 22:
-       * ..., {20, 23}, {42, 47}, ... -> ..., {22, 23}, {42, 47}, ...
-       */
-      _domain [ DSZ_IDX() ] -= ( _domain[ LB_IDX() ] - _domain[ lb_idx ] );
-      _domain[ lb_idx ] = _domain[ LB_IDX() ];
-    }
-    
-    if ( ub_case == 1 ) {
-      /*
-       * Upper bound is 42:
-       * ..., {20, 23}, {42, 47}, ... -> ..., {20, 23}, {42, 42}, ...
-       */
-      _domain [ DSZ_IDX() ] -= (_domain[ ub_idx + 1 ] - _domain[ ub_idx ]);
-      _domain[ ub_idx + 1 ] = _domain[ ub_idx ];
-    }
-    if ( ub_case == 3 ) {
-      /*
-       * Upper bound is 45:
-       * ..., {20, 23}, {42, 47}, ... -> ..., {20, 23}, {42, 45}, ...
-       */
-      _domain [ DSZ_IDX() ] -= (_domain[ ub_idx + 1 ] - _domain[ UB_IDX() ]);
-      _domain[ ub_idx + 1 ] = _domain[ UB_IDX() ];
-    }
-    
-    /*
-     * Copy on the left all the elements from the
-     * current pair to upper bound.
-     * @note this is done only if lb_idx > 0
-     * otherwise the bounds are already in their final positon
-     * and there is no case 4 to consider.
-     * In what follows we consider the following example:
-     * {5, 10}, {20, 23}, {42, 47}, {50, 53}.
-     */
-    if ( lb_idx > 0 ) {
-      /*
-       * lower bound = 20, upper bound = 47 -> 
-       * {20, 23}, {42, 47}
-       */
-      for ( int i = 0; i < num_valid_pairs; i++ ) {
-        _domain[ BIT_IDX() + 2 * i     ] = _domain[ BIT_IDX() + 2 * (lb_idx + i) ];
-        _domain[ BIT_IDX() + 2 * i + 1 ] = _domain[ BIT_IDX() + 2 * (ub_idx + i) + 1 ];
-      }//i
-    }//lb_idx
-    
-    // Set new lower bound / upper bound if domain is reduced
-    if ( _domain [ LB_IDX() ] < _domain[ BIT_IDX()     ] ) {
-      _domain [ LB_IDX() ] = _domain[ BIT_IDX() ];
-    }
-    if ( _domain [ UB_IDX() ] > _domain[ BIT_IDX() + 1 ] ) {
-      _domain [ UB_IDX() ] = _domain[ BIT_IDX() + 1 ];
-    }
-    
-  }//num_pairs
+  
+  if ( new_size < _domain [ DSZ_IDX() ] ) {
+    _domain [ DSZ_IDX() ] = new_size;
+    _domain [ EVT_IDX() ] = INT_BOUNDS_EVT;
+  }
   
   /*
    * Check new domain size:
@@ -497,95 +260,118 @@ CudaDomain::update_list () {
   if ( _domain [ DSZ_IDX() ] <= VECTOR_MAX ) {
     switch_list_to_bitmaplist ();
   }
-}//update_list
+}//set_bounds
 
 void
 CudaDomain::switch_list_to_bitmaplist () {
   
-  // Consistency check
-  if ( _domain [ REP_IDX() ] <= 0 ) return;
+  // Consistency check on current representation
+  if ( get_representation() != CudaDomainRepresenation::LIST ) return;
   
-  // Set number of bitmaps
-  int num_pairs = _domain [ REP_IDX() ];
-  _domain [ REP_IDX() ] *= -1;
+  // Consistency check on bounds
+  assert ( _domain[ LB_IDX() ] == _concrete_domain->lower_bound () );
+  assert ( _domain[ UB_IDX() ] == _concrete_domain->upper_bound () );
   
-  // Avoid useless copies
-  if ( num_pairs == 1 ) {
-    prepare_bit_list ( _domain[ LB_IDX () ],
-                       _domain[ UB_IDX () ],
-                       BIT_IDX() );
-    return;
+  // Prepare list of bounds
+  int * list_representation = (int *) _concrete_domain->get_representation ();
+  vector< pair <int, int> > pairs;
+  
+  /*
+   * Check all the pairs and exit as soon as a pair is 
+   * greater than the upper bound.
+   */
+  for ( int i = 0; i < _concrete_domain->get_num_chunks(); i = i + 2 ) {
+    if ( (list_representation[ i ]     >= _domain[ LB_IDX() ]) &&
+         (list_representation[ i + 1 ] <= _domain[ UB_IDX() ])) {
+      pairs.push_back( make_pair(list_representation[ i     ],
+                                 list_representation[ i + 1 ]) );
+    }
+    if ( list_representation[ i ] > _upper_bound ) break;
   }
   
-  // Copy pairs before updating BIT field.
-  int * all_pairs = new int[ 2 * num_pairs ];
-  memcpy( all_pairs, &_domain[ BIT_IDX()], 2 * num_pairs * sizeof(int) );
+  _concrete_domain = make_shared<CudaConcreteBitmapList>( _num_allocated_bytes, pairs );
   
-  // Prepare the corresponding bitmap list: first pair
-  prepare_bit_list ( _domain[ LB_IDX () ],
-                     _domain[ UB_IDX () ],
-                     BIT_IDX() );
-  
-  // Prepare the corresponding bitmap list: remaining pairs
-  int list_size = _domain[ UB_IDX () ] - _domain[ LB_IDX () ] + 1;
-  int start_idx = BIT_IDX() + 2 + num_chunks( list_size );
-  for ( int i = 0; i < num_pairs; i++ ) {
-    prepare_bit_list ( all_pairs[ 2*i     ],
-                       all_pairs[ 2*i + 1 ],
-                       start_idx );
-    list_size = all_pairs[ 2*i + 1 ] - all_pairs[ 2*i ] + 1;
-    start_idx += 2 + num_chunks( list_size );
-  }//num_pairs
+  set_bitlist_representation();
 }//switch_list_to_bitmap
 
-void
-CudaDomain::prepare_bit_list ( int min , int max, int idx ) {
-  // Set lower bound, and upper bowund at the correct index
-  _domain [ idx ]     = min;
-  _domain [ idx + 1 ] = max;
-
-  // Prepare bitlist
-  int d_size = max - min + 1;
-  int n_chunks = num_chunks( d_size );
-  for ( int i = idx + 2; i <= idx + 2 + n_chunks; i++ ) {
-    _domain[ i ] = 0xffffffff;
+bool
+CudaDomain::set_singleton ( int value ) {
+  if ( _concrete_domain->contains( value ) ) {
+    _concrete_domain->shrink( value, value );
+    
+    // Update domain's information
+    _domain[ LB_IDX() ] = value;
+    _domain[ UB_IDX() ] = value;
+    _domain [ DSZ_IDX() ] = 1;
+    _domain [ EVT_IDX() ] = INT_SINGLETON_EVT;
+    return true;
   }
   
-  /* 
-   * Update bitmap.
-   * @note min is the lower bound for the current
-   * bitmap representing the pair {min, max}, i.e.,
-   * the pair has an offset of min from 0.
-   * Therefore, {min, max} is "shifted back"
-   * of min numbers in the bitmap representation.
-   * {min, max} -> {0, max - min}
-   */
-  update_bitmap ( 0, max - min, idx + 2 );
-}//prepare_bit_list
-
-bool
-CudaDomain::set_singleton ( int ) {
-  return true;
+  return false;
 }//set_singleton
 
 bool
-CudaDomain::subtract ( int ) {
-  return true;
+CudaDomain::subtract ( int value ) {
+  if ( _concrete_domain->contains( value ) ) {
+    //_concrete_domain->subtract ( value );
+    
+    // Update domain's information
+    if ( _concrete_domain->is_singleton () ) {
+      _domain [ LB_IDX() ]  = _concrete_domain->get_singleton ();
+      _domain [ UB_IDX() ]  = _concrete_domain->get_singleton ();
+      _domain [ DSZ_IDX() ] = 1;
+      _domain [ EVT_IDX() ] = INT_SINGLETON_EVT;
+    }
+    else {
+      _domain [ LB_IDX() ]  = _concrete_domain->lower_bound ();
+      _domain [ UB_IDX() ]  = _concrete_domain->upper_bound ();
+      _domain [ DSZ_IDX() ] -= 1;
+      _domain [ EVT_IDX() ] = INT_CHANGE_EVT;
+    }
+    return true;
+  }
+  
+  return false;
 }//subtract
 
 void
-CudaDomain::add_element ( int ) {
-  
+CudaDomain::add_element ( int n ) {
+  _concrete_domain->add( n );
+  int new_size = _concrete_domain->size ();
+  if ( new_size > _domain [ DSZ_IDX() ] ) {
+    _domain [ DSZ_IDX() ] = new_size;
+    _domain [ EVT_IDX() ] = INT_CHANGE_EVT;
+  }
 }//add_element
 
 void
-CudaDomain::in_min ( int ) {
+CudaDomain::in_min ( int min ) {
+  _concrete_domain->in_min ( min );
+  _domain [ DSZ_IDX() ] = _concrete_domain->size ();
+  _domain [ LB_IDX()  ] = _concrete_domain->lower_bound ();
+  _domain [ UB_IDX()  ] = _concrete_domain->upper_bound ();
   
+  if ( _domain [ DSZ_IDX() ] == 1 ) {
+    _domain [ EVT_IDX() ] = INT_SINGLETON_EVT;
+  }
+  else {
+    _domain [ EVT_IDX() ] = INT_BOUNDS_EVT;
+  }
 }//in_min
 
 void
-CudaDomain::in_max ( int ) {
+CudaDomain::in_max ( int max ) {
+  _concrete_domain->in_max ( max );
+  _domain [ DSZ_IDX() ] = _concrete_domain->size ();
+  _domain [ LB_IDX()  ] = _concrete_domain->lower_bound ();
+  _domain [ UB_IDX()  ] = _concrete_domain->upper_bound ();
   
+  if ( _domain [ DSZ_IDX() ] == 1 ) {
+    _domain [ EVT_IDX() ] = INT_SINGLETON_EVT;
+  }
+  else {
+    _domain [ EVT_IDX() ] = INT_BOUNDS_EVT;
+  }
 }//in_max
 
 void
@@ -623,9 +409,9 @@ CudaDomain::print () const {
     cout << "List\n";
   }
   cout << "LB-UB:\t";
-  cout << "[" << _lower_bound << ".." << _upper_bound << "]\n";
+  cout << "[" << _domain [ LB_IDX() ] << ".." << _domain [ UB_IDX() ] << "]\n";
   cout << "DSZ:\t";
-  cout << get_size() << "\n";
+  cout << _domain [ DSZ_IDX() ] << "\n";
   cout << "Bytes:\t";
   if ( get_allocated_bytes () < 1024 )
     cout << get_allocated_bytes () << "Bytes\n";
@@ -643,39 +429,7 @@ CudaDomain::print_domain () const {
     else cout << " || ";
   }
   // Print according to the internal representatation of domain
-  if ( get_representation()  == CudaDomainRepresenation::BITMAP ) {
-    for ( int i = BIT_IDX(); i <  BIT_IDX() + _num_int_chunks; i++ ) {
-      if ( _domain [ i ] ) {
-        CudaBitUtils::print_bit_rep ( _domain [ i ] );
-        cout << " ";
-      }
-    }
-  }
-  else if ( get_representation() == CudaDomainRepresenation::BITMAP_LIST ) {
-    int num_bitmap = -1 * _domain[ REP_IDX() ];
-    for ( int i = 0; i < num_bitmap; i++ ) {
-      cout << "{" << _domain [ BIT_IDX() + 2 * i ] << ", " <<
-      _domain [ BIT_IDX() + 2 * i + 1 ] << "}: ";
-      int size_bitmap = num_chunks ( _domain [ BIT_IDX() + 2 * i + 1 ] -
-                                     _domain [ BIT_IDX() + 2 * i     ] + 1 );
-      for ( int j = 0; j < size_bitmap; j++ ) {
-        CudaBitUtils::print_0x_rep ( _domain [ BIT_IDX() + 2 * i + 2 + j ] );
-        cout << " ";
-      }
-    }
-  }
-  else {
-    if ( _domain[ REP_IDX() ] == 1 ) {
-      cout << "{" << _domain[ LB_IDX() ] << ", " <<
-      _domain[ UB_IDX() ] << "}";
-    }
-    else {
-      for ( int i = 1; i < _domain[ REP_IDX() ]; i++ ) {
-        cout << "{" << _domain [ BIT_IDX() + 2 * i ] << ", " <<
-        _domain [ BIT_IDX() + 2 * i + 1 ] << "} ";
-      }
-    }
-  }
+  _concrete_domain->print ();
   cout << "||\n";
 }//print_domain
 

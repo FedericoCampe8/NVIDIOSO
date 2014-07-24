@@ -63,8 +63,20 @@ protected:
     return val % BITS_IN_CHUNK;
   }
   
+  /**
+   * Get the number of chunks needed to represent a domain of size values.
+   * @param size the size in terms of number of elements of the domain to 
+   *        represent as bitmap.
+   * @return number of chunks needed to represent size valus.
+   */
+  static constexpr int NUM_CHUNKS ( int size ) {
+    return size % BITS_IN_CHUNK == 0 ?
+    (size / BITS_IN_CHUNK == 0 ? 1 : size / BITS_IN_CHUNK) :
+    (size / BITS_IN_CHUNK + 1);
+  }
+  
   //! Number of bits set to 1
-  int _num_valid_bits;
+  unsigned int _num_valid_bits;
   
 public:
   /**
@@ -93,6 +105,9 @@ public:
    * @note initially all bits in {min, max} are set to 1 (i.e. valid bits).
    */
   CudaConcreteDomainBitmap ( size_t size, int min, int max );
+  
+  //! It returns the current size of the domain.
+  unsigned int size () const;
   
   /**
 	 * It updates the domain to have values only within min/max.
@@ -145,8 +160,7 @@ public:
    bool is_singleton () const;
   
   /**
-   * It returns the value of type T of the domain
-   * if it is a singleton.
+   * It returns the value of the domain element if it is a singleton.
    * @return the value of the singleton element.
    * @note it throws an exception if domain is not singleton.
    */
@@ -162,7 +176,7 @@ public:
   /**
 	 * It prints the current domain representation (its state).
    * @note it prints the content of the object given by
-   *       "get_representation ()" .
+   *       "get_representation ()".
 	 */
    void print () const;
 };

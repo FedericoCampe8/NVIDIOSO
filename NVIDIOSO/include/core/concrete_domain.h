@@ -21,6 +21,18 @@ class ConcreteDomain {
 public:
   
   /**
+   * It returns the number of elements in the domain.
+   * It returns the current size of the domain.
+   */
+  virtual unsigned int size () const = 0;
+  
+  //! Returns lower bound
+  virtual T lower_bound () const = 0;
+  
+  //! Returns upper bound
+  virtual T upper_bound () const = 0;
+  
+  /**
 	 * It updates the domain to have values only within min/max.
 	 * @param min new lower bound to set for the current domain.
 	 * @param max new upper bound to set for the current domain.
@@ -91,7 +103,7 @@ public:
    * current representation of the domain (e.g., bitmap).
 	 * @return void pointer to the concrete domain representation.
 	 */
-  virtual const void * get_representation () = 0;
+  virtual const void * get_representation () const = 0;
   
   /**
 	 * It prints the current domain representation (its state).
