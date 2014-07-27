@@ -40,6 +40,12 @@ public:
   virtual void shrink ( T min, T max ) = 0;
   
   /**
+	 * It substracts {value} from the current domain.
+	 * @param value the value to subtract from the current domain.
+	 */
+  virtual void subtract ( T value ) = 0;
+  
+  /**
    * It updates the domain according to the minimum value.
    * @param min domain value.
    */

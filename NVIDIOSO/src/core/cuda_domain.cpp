@@ -57,8 +57,8 @@ CudaDomain::init_domain ( int min, int max ) {
     
     // Create domains representations
     _domain          = new int [ _num_allocated_bytes / sizeof( int ) ];
-    _concrete_domain = make_shared<CudaConcreteDomainBitmap>( _num_allocated_bytes );
-    
+    _concrete_domain = make_shared<CudaConcreteDomainBitmap>( _num_allocated_bytes, min, max );
+
     set_bit_representation ();
   }
   else {
@@ -71,7 +71,7 @@ CudaDomain::init_domain ( int min, int max ) {
     if ( size <= VECTOR_MAX ) {
       vector < pair < int, int > > bounds_list;
       bounds_list.push_back( make_pair( min, max ) );
-      _concrete_domain = make_shared<CudaConcreteBitmapList>( _num_allocated_bytes, bounds_list);
+      _concrete_domain = make_shared<CudaConcreteBitmapList>( _num_allocated_bytes, bounds_list );
       set_bitlist_representation ();
     }
     else {
@@ -80,9 +80,10 @@ CudaDomain::init_domain ( int min, int max ) {
     }
   }
   
-  // Set bounds
-  _domain[ LB_IDX() ] = min;
-  _domain[ UB_IDX() ] = max;
+  // Set bounds & domain's size
+  _domain[ LB_IDX ()  ] = min;
+  _domain[ UB_IDX ()  ] = max;
+  _domain[ DSZ_IDX () ] = _concrete_domain->size();
 
   // Set initial events
   if ( _domain[ LB_IDX() ] == _domain[ UB_IDX() ] ) {

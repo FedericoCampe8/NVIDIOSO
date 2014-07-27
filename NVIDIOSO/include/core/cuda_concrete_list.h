@@ -94,6 +94,13 @@ public:
   void shrink ( int min, int max );
   
   /**
+	 * It substracts {value} from the current domain.
+	 * @param value the value to subtract from the current domain.
+   * @note a value is removed only if it corresponds to a lower/upper bound.
+	 */
+  void subtract ( int value );
+  
+  /**
    * It updates the domain according to min value.
    * @param min domain value.
    */

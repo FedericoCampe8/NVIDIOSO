@@ -126,6 +126,12 @@ public:
   void shrink ( int min, int max );
   
   /**
+	 * It substracts {value} from the current domain.
+	 * @param value the value to subtract from the current domain.
+	 */
+  void subtract ( int value );
+  
+  /**
    * It updates the domain according to min value.
    * @param min domain value.
    */
@@ -147,6 +153,10 @@ public:
 	 * It computes union of this domain and {min, max}.
 	 * @param min lower bound of the new domain which is being added.
    * @param max upper bound of the new domain which is being added.
+   * @note it is possible to add only bitmaps with empty intersection
+   *       with previous bitmaps and which min is greater than current
+   *       lower bound.
+   * @todo complete add function to add any bitmap.
 	 */
   void add ( int min, int max );
   

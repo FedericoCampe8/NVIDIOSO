@@ -5,6 +5,7 @@ include ./make.inc
 # Objects
 # ---------------------------------------------------------------------
 
+MAIN=domain_test
 MAIN=main
 TARGET=nvidioso
 

@@ -26,7 +26,7 @@ _dbg ( "CudaConcreteDomain -" ) {
                           __FILE__, __LINE__ );
   }
   
-  _num_chunks = ((int) size) / sizeof( int );
+  _num_chunks = (( int ) size) / sizeof( int );
 }//CudaConcreteDomain
 
 CudaConcreteDomain::~CudaConcreteDomain () {

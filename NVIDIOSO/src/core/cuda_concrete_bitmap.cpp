@@ -9,6 +9,8 @@
 #include "cuda_concrete_bitmap.h"
 #include "cuda_utilities.h"
 
+using namespace std;
+
 CudaConcreteDomainBitmap::CudaConcreteDomainBitmap ( size_t size ) :
 CudaConcreteDomain ( size ) {
   _dbg = "CudaConcreteDomainBitmap - ";
@@ -72,7 +74,6 @@ CudaConcreteDomainBitmap::size () const {
 
 void
 CudaConcreteDomainBitmap::shrink ( int min, int max ) {
-  
   // Empty domain if not consistent
   if ( max < min ) {
     flush_domain ();
@@ -131,10 +132,10 @@ CudaConcreteDomainBitmap::shrink ( int min, int max ) {
   
   // Calculate the number of bits set to 1
   int num_bits = 0;
-  for ( ; lower_idx <= upper_idx; lower_idx++ ) {
+  for ( ; lower_idx >= upper_idx; lower_idx-- ) {
     num_bits += CudaBitUtils::num_1bit( (uint) _concrete_domain[ lower_idx ] );
   }
-  
+
   _lower_bound    = min;
   _upper_bound    = max;
   _num_valid_bits = num_bits;
@@ -142,6 +143,63 @@ CudaConcreteDomainBitmap::shrink ( int min, int max ) {
   // Check whether the domain is empty after shrinking it
   if ( _num_valid_bits == 0 ) set_empty ();
 }//shrink
+
+void
+CudaConcreteDomainBitmap::subtract ( int value ) {
+  
+  // Consistency check
+  if ( value < _lower_bound || value > _upper_bound ) return;
+  
+  // Find the chunk and the position of the bit within the chunk
+  int chunk = IDX_CHUNK ( value );
+  chunk = _num_chunks - 1 - chunk;
+  if ( !CudaBitUtils::get_bit( _concrete_domain[ chunk ], IDX_BIT( value ) ) )
+    return;
+  
+  _concrete_domain[ chunk ] = CudaBitUtils::clear_bit( _concrete_domain[ chunk ],
+                                                      IDX_BIT( value ) );
+  
+  // Decrease number of valid bits
+  _num_valid_bits -= 1;
+  
+  // Check for empty domain
+  if ( _num_valid_bits == 0 ) {
+    set_empty ();
+    return;
+  }
+  
+  //Check for singleton
+  if ( _num_valid_bits == 1 ) {
+    if ( _lower_bound == value ) {
+      _lower_bound = _upper_bound;
+    }
+    if ( _upper_bound == value ) {
+      _upper_bound = _lower_bound;
+    }
+    return;
+  }
+  
+  // Set new lower/upper bound
+  if ( value == _lower_bound ) {
+    while ( true ) {
+      value++;
+      if ( contains ( value ) ) {
+        _lower_bound = value;
+        return;
+      }
+    }
+  }
+  
+  if ( value == _upper_bound ) {
+    while ( true ) {
+      value--;
+      if ( contains( value ) ) {
+        _upper_bound = value;
+        return;
+      }
+    }
+  }
+}//subtract
 
 void
 CudaConcreteDomainBitmap::in_min ( int min ) {
