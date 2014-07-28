@@ -31,22 +31,27 @@ CudaVariable::~CudaVariable () {
 
 void
 CudaVariable::set_domain () {
-  (std::static_pointer_cast<CudaDomain>( _domain_ptr ))->init_domain ( Domain::MIN_DOMAIN(), Domain::MAX_DOMAIN() );
+  (std::static_pointer_cast<CudaDomain>( _domain_ptr ))->
+  init_domain ( Domain::MIN_DOMAIN(), Domain::MAX_DOMAIN() );
 }//set_domain
 
 void
 CudaVariable::set_domain ( int lower_bound, int upper_bound ) {
-  (std::static_pointer_cast<CudaDomain>( _domain_ptr ))->init_domain( lower_bound, upper_bound);
+  (std::static_pointer_cast<CudaDomain>( _domain_ptr ))->
+  init_domain( lower_bound, upper_bound);
 }//set_domain
 
 void
 CudaVariable::set_domain ( vector < vector < int > > set_of_subsets ) {
   
+  /*
+   * Check for set of subsets.
+   * @todo implement set of sets.
+   */
   if ( set_of_subsets.size () > 1 ) {
-    logger->error( _dbg + "Set of subsets not yet supported", __FILE__, __LINE__ );
-    throw new std::string ( "Set of subsets not supported yet" );
+    throw  NvdException ( ( _dbg + "Set of subsets not yet supported" ).c_str(),
+                           __FILE__, __LINE__ );
   }
-  
   
   int min_element = *std::min_element( set_of_subsets[ 0 ].begin(),
                                        set_of_subsets[ 0 ].end() );
@@ -55,8 +60,13 @@ CudaVariable::set_domain ( vector < vector < int > > set_of_subsets ) {
   set_domain ( min_element, max_element );
   
   // Clear values not belonging to the set of values
-  for ( auto x : set_of_subsets[ 0 ] ) {
-    (std::static_pointer_cast<CudaDomain>( _domain_ptr ))->subtract ( x );
+  for ( int val = min_element; val < max_element; val++ ) {
+    auto it = std::find( set_of_subsets[ 0 ].begin(),
+                         set_of_subsets[ 0 ].end(),
+                         val );
+    if ( it == set_of_subsets[ 0 ].end() ) {
+      (std::static_pointer_cast<CudaDomain>( _domain_ptr ))->subtract ( val );
+    }
   }
 }//set_domain
 

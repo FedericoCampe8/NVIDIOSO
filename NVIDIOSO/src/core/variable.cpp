@@ -57,7 +57,7 @@ Variable::get_type () const {
 }//get_type
 
 void
-Variable::set_domain ( DomainType  dt ) {
+Variable::set_domain_type ( DomainType  dt ) {
   _domain_ptr->set_type ( dt );
 }//set_domain
 
@@ -79,7 +79,7 @@ Variable::print () const  {
     default:
       cout << "Not Defined\n";
   }
-  
+  _domain_ptr->print ();
 }//print
 
 

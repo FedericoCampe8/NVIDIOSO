@@ -68,7 +68,7 @@ public:
    * @param dt domain type of type DomainType to set
    *        to the current variable
    */
-  virtual void set_domain ( DomainType dt );
+  virtual void set_domain_type ( DomainType dt );
   
   //! Print info about the variable
   virtual void print () const = 0;

@@ -68,7 +68,7 @@ public:
    * @param lower lower bound value
    * @param upper upper bound value
    */
-  virtual void set_bounds ( int min, int max ) = 0;
+  virtual void shrink ( int min, int max ) = 0;
   
   /**
    * Returns the size of the domain.

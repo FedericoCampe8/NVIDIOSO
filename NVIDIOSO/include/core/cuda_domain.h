@@ -222,19 +222,19 @@ public:
   int get_upper_bound () const;
   
   /**
-   * It specializes the parent method in order to
-   * set up the array of (int) values.
-   * It istantiates a domain [min, max].
-   * This actually updates the bounds and it performs
-   * consistency checking and updating of the domain size.
+   * The same as set_bounds.
+   * It shrinks the domain to {min, max}.
    * @param min lower bound
    * @param max upper bound
    */
   void set_bounds ( int min, int max );
   
   /**
-   * The same as set_bounds.
-   * It shrinks the domain to {min, max}.
+   * It specializes the parent method in order to
+   * set up the array of (int) values.
+   * It istantiates a domain [min, max].
+   * This actually updates the bounds and it performs
+   * consistency checking and updating of the domain size.
    * @param min lower bound
    * @param max upper bound
    */

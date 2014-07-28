@@ -52,13 +52,13 @@ CudaDomain::init_domain ( int min, int max ) {
   
   // Allocate domain according to its size
   if ( min >= 0 &&  min <= VECTOR_MAX && size <= VECTOR_MAX ) {
-    _num_int_chunks = num_chunks ( VECTOR_MAX );
-    _num_allocated_bytes = MAX_STATUS_SIZE + (VECTOR_MAX / BITS_IN_BYTE);
+    _num_int_chunks      = num_chunks ( VECTOR_MAX );
+    _num_allocated_bytes = MAX_STATUS_SIZE + ceil (1.0 * VECTOR_MAX / BITS_IN_BYTE);
     
     // Create domains representations
     _domain          = new int [ _num_allocated_bytes / sizeof( int ) ];
-    _concrete_domain = make_shared<CudaConcreteDomainBitmap>( _num_allocated_bytes, min, max );
-
+    _concrete_domain = make_shared<CudaConcreteDomainBitmap>( _num_allocated_bytes - MAX_STATUS_SIZE, min, max );
+    
     set_bit_representation ();
   }
   else {
@@ -66,12 +66,12 @@ CudaDomain::init_domain ( int min, int max ) {
     _num_int_chunks      = MAX_DOMAIN_VALUES;
     
     // Create domains representations
-    _domain          = new int [ _num_allocated_bytes / sizeof( int ) ];
+    _domain = new int [ _num_allocated_bytes / sizeof( int ) ];
     
     if ( size <= VECTOR_MAX ) {
       vector < pair < int, int > > bounds_list;
       bounds_list.push_back( make_pair( min, max ) );
-      _concrete_domain = make_shared<CudaConcreteBitmapList>( _num_allocated_bytes, bounds_list );
+      _concrete_domain = make_shared<CudaConcreteBitmapList>( _num_allocated_bytes, bounds_list);
       set_bitlist_representation ();
     }
     else {
@@ -81,10 +81,11 @@ CudaDomain::init_domain ( int min, int max ) {
   }
   
   // Set bounds & domain's size
-  _domain[ LB_IDX ()  ] = min;
-  _domain[ UB_IDX ()  ] = max;
+  _domain[ LB_IDX  () ] = min;
+  _domain[ UB_IDX  () ] = max;
   _domain[ DSZ_IDX () ] = _concrete_domain->size();
-
+  
+  
   // Set initial events
   if ( _domain[ LB_IDX() ] == _domain[ UB_IDX() ] ) {
     event_to_int ( EventType::SINGLETON_EVT );
@@ -200,12 +201,12 @@ CudaDomain::get_size () const {
 }//get_size
 
 void
-CudaDomain::shrink ( int min, int max ) {
-  set_bounds ( min, max );
-}//shrink
+CudaDomain::set_bounds ( int min, int max ) {
+  shrink ( min, max );
+}//set_bounds
 
 void
-CudaDomain::set_bounds ( int min, int max ) {
+CudaDomain::shrink ( int min, int max ) {
   
   // Domain failure: non valid min/max
   if ( max < min ) {
@@ -233,21 +234,24 @@ CudaDomain::set_bounds ( int min, int max ) {
   }
   
   // Check events on current domain
-  _domain[ LB_IDX() ] = min;
-  _domain[ UB_IDX() ] = max;
+  _domain[ LB_IDX() ] = _concrete_domain->lower_bound ();
+  _domain[ UB_IDX() ] = _concrete_domain->upper_bound ();
   
   int new_size = _concrete_domain->size ();
   
   if ( _concrete_domain->is_empty() ) {
+    _domain [ DSZ_IDX() ] = 0;
     _domain [ EVT_IDX() ] = INT_FAIL_EVT;
     return;
   }
   
   if ( _concrete_domain->is_singleton () ) {
+    _domain [ DSZ_IDX() ] = 1;
     _domain [ EVT_IDX() ] = INT_SINGLETON_EVT;
     return;
   }
   
+  // Shrink modifies the current bounds: bound event
   if ( new_size < _domain [ DSZ_IDX() ] ) {
     _domain [ DSZ_IDX() ] = new_size;
     _domain [ EVT_IDX() ] = INT_BOUNDS_EVT;
@@ -261,7 +265,7 @@ CudaDomain::set_bounds ( int min, int max ) {
   if ( _domain [ DSZ_IDX() ] <= VECTOR_MAX ) {
     switch_list_to_bitmaplist ();
   }
-}//set_bounds
+}//shrink
 
 void
 CudaDomain::switch_list_to_bitmaplist () {
@@ -313,22 +317,48 @@ CudaDomain::set_singleton ( int value ) {
 
 bool
 CudaDomain::subtract ( int value ) {
+  
   if ( _concrete_domain->contains( value ) ) {
-    //_concrete_domain->subtract ( value );
     
-    // Update domain's information
+    // Subtract the current value
+    _concrete_domain->subtract ( value );
+    
+    // Check for events on domain.
+    // Empty domain
+    if ( _concrete_domain->is_empty () ) {
+      _domain [ DSZ_IDX() ] = 0;
+      _domain [ EVT_IDX() ] = INT_FAIL_EVT;
+      return true;
+    }
+    
+    // Singleton domain
     if ( _concrete_domain->is_singleton () ) {
       _domain [ LB_IDX() ]  = _concrete_domain->get_singleton ();
       _domain [ UB_IDX() ]  = _concrete_domain->get_singleton ();
       _domain [ DSZ_IDX() ] = 1;
       _domain [ EVT_IDX() ] = INT_SINGLETON_EVT;
+      return true;
     }
-    else {
+    
+    // Change on bounds
+    if ( value == _domain [ LB_IDX() ] ) {
       _domain [ LB_IDX() ]  = _concrete_domain->lower_bound ();
-      _domain [ UB_IDX() ]  = _concrete_domain->upper_bound ();
-      _domain [ DSZ_IDX() ] -= 1;
-      _domain [ EVT_IDX() ] = INT_CHANGE_EVT;
+      _domain [ DSZ_IDX() ] = _concrete_domain->size();
+      _domain [ EVT_IDX() ] = INT_BOUNDS_EVT;
+      return true;
     }
+    
+    if ( value == _domain [ UB_IDX () ] ) {
+      _domain [ LB_IDX() ]  = _concrete_domain->upper_bound ();
+      _domain [ DSZ_IDX() ] = _concrete_domain->size();
+      _domain [ EVT_IDX() ] = INT_BOUNDS_EVT;
+      return true;
+    }
+
+    _domain [ LB_IDX() ]  = _concrete_domain->lower_bound ();
+    _domain [ UB_IDX() ]  = _concrete_domain->upper_bound ();
+    _domain [ DSZ_IDX() ] -= 1;
+    _domain [ EVT_IDX() ] = INT_CHANGE_EVT;
     return true;
   }
   
@@ -337,42 +367,30 @@ CudaDomain::subtract ( int value ) {
 
 void
 CudaDomain::add_element ( int n ) {
+  
+  // Add element on concrete domain
   _concrete_domain->add( n );
+  
+  // Change size
   int new_size = _concrete_domain->size ();
   if ( new_size > _domain [ DSZ_IDX() ] ) {
+    if ( n < _domain [ LB_IDX () ] ) _domain [ LB_IDX () ] = n;
+    if ( n > _domain [ UB_IDX () ] ) _domain [ UB_IDX () ] = n;
+    
     _domain [ DSZ_IDX() ] = new_size;
     _domain [ EVT_IDX() ] = INT_CHANGE_EVT;
   }
+  
 }//add_element
 
 void
 CudaDomain::in_min ( int min ) {
-  _concrete_domain->in_min ( min );
-  _domain [ DSZ_IDX() ] = _concrete_domain->size ();
-  _domain [ LB_IDX()  ] = _concrete_domain->lower_bound ();
-  _domain [ UB_IDX()  ] = _concrete_domain->upper_bound ();
-  
-  if ( _domain [ DSZ_IDX() ] == 1 ) {
-    _domain [ EVT_IDX() ] = INT_SINGLETON_EVT;
-  }
-  else {
-    _domain [ EVT_IDX() ] = INT_BOUNDS_EVT;
-  }
+  set_bounds ( min, _domain [ UB_IDX() ] );
 }//in_min
 
 void
 CudaDomain::in_max ( int max ) {
-  _concrete_domain->in_max ( max );
-  _domain [ DSZ_IDX() ] = _concrete_domain->size ();
-  _domain [ LB_IDX()  ] = _concrete_domain->lower_bound ();
-  _domain [ UB_IDX()  ] = _concrete_domain->upper_bound ();
-  
-  if ( _domain [ DSZ_IDX() ] == 1 ) {
-    _domain [ EVT_IDX() ] = INT_SINGLETON_EVT;
-  }
-  else {
-    _domain [ EVT_IDX() ] = INT_BOUNDS_EVT;
-  }
+  set_bounds ( _domain [ LB_IDX() ], max );
 }//in_max
 
 void
