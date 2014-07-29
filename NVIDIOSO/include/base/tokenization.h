@@ -30,10 +30,13 @@ protected:
   // Variables for identifying when a new line has been found
   bool _new_line;
   bool _need_line;
+  
   // Other info
   bool _failed;
+  
   //! Token returned by strtok
   char * _c_token;
+  
   //! Parsed line
   char * _parsed_line;
   
@@ -98,7 +101,7 @@ public:
   
   //! Get the string correspondent to the (filtered) token
   virtual TokenPtr get_token () = 0;
-}; //input_data
+};
 
 
 #endif

@@ -21,13 +21,6 @@ enum class CudaDomainRepresenation {
 
 class CudaDomain : public IntDomain {
 protected:
-  // Events - Integer relations
-  static constexpr int INT_NO_EVT        = 0;
-  static constexpr int INT_SINGLETON_EVT = 1;
-  static constexpr int INT_BOUNDS_EVT    = 2;
-  static constexpr int INT_CHANGE_EVT    = 3;
-  static constexpr int INT_FAIL_EVT      = 4;
-  static constexpr int INT_OTHER_EVT     = 5;
   // List representation base case (internal state)
   static constexpr int INT_BITMAP  =  0;
   static constexpr int INT_BITLIST = -1;

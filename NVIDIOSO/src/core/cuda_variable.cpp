@@ -11,7 +11,8 @@
 
 using namespace std;
 
-CudaVariable::CudaVariable () {
+CudaVariable::CudaVariable () :
+IntVariable () {
   _dbg = "CudaVariable - ";
   
   //Instantiate CUDA-Specific domain
@@ -19,7 +20,7 @@ CudaVariable::CudaVariable () {
 }//CudaVariable
 
 CudaVariable::CudaVariable ( int id ) :
-Variable ( id ) {
+IntVariable ( id ) {
   _dbg = "CudaVariable - ";
   
   //Instantiate CUDA-Specific domain
@@ -31,14 +32,12 @@ CudaVariable::~CudaVariable () {
 
 void
 CudaVariable::set_domain () {
-  (std::static_pointer_cast<CudaDomain>( _domain_ptr ))->
-  init_domain ( Domain::MIN_DOMAIN(), Domain::MAX_DOMAIN() );
+  _domain_ptr->init_domain ( Domain::MIN_DOMAIN(), Domain::MAX_DOMAIN() );
 }//set_domain
 
 void
 CudaVariable::set_domain ( int lower_bound, int upper_bound ) {
-  (std::static_pointer_cast<CudaDomain>( _domain_ptr ))->
-  init_domain( lower_bound, upper_bound);
+  _domain_ptr->init_domain( lower_bound, upper_bound);
 }//set_domain
 
 void
@@ -65,7 +64,7 @@ CudaVariable::set_domain ( vector < vector < int > > set_of_subsets ) {
                          set_of_subsets[ 0 ].end(),
                          val );
     if ( it == set_of_subsets[ 0 ].end() ) {
-      (std::static_pointer_cast<CudaDomain>( _domain_ptr ))->subtract ( val );
+      _domain_ptr->subtract ( val );
     }
   }
 }//set_domain
@@ -73,6 +72,5 @@ CudaVariable::set_domain ( vector < vector < int > > set_of_subsets ) {
 void
 CudaVariable::print () const {
   cout << "  - CUDA_Variable -  " << endl;
-  Variable::print();
-  _domain_ptr->print();
+  IntVariable::print();
 }//print

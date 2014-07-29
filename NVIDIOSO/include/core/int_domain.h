@@ -23,9 +23,11 @@
 
 #include "domain.h"
 
+class IntDomain;
+typedef std::shared_ptr<IntDomain> IntDomainPtr;
+
 class IntDomain : public Domain {
 protected:
-  
   // Domain values
   int _lower_bound;
   int _upper_bound;
@@ -69,20 +71,6 @@ public:
    * @param upper upper bound value
    */
   virtual void shrink ( int min, int max ) = 0;
-  
-  /**
-   * Returns the size of the domain.
-   * This function should be implemented by 
-   * derived classes according to their internal 
-   * domain representation.
-   * @note upper_bound - lower_bound + 1 could 
-   *       not be the actual size of the domain.
-   * @return the current domain's size.
-   */
-  virtual size_t get_size () const = 0;
-
-  //! Get the current event on the domain
-  virtual EventType get_event () const = 0;
   
   /**
    * Set domain to the singleton element

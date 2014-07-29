@@ -18,9 +18,8 @@
 #include "parser.h"
 
 class FZNParser : public Parser {
-  
 private:
-  //" Total number of tokens parsed so far
+  //! Total number of tokens parsed so far
   size_t _num_tokens;
   
   /**
@@ -52,8 +51,10 @@ public:
   // Get tokens w.r.t. their type
   //! Ask whether there are more variables to get
   bool more_variables      () const;
+  
   //! Ask whether there are more constraits to get
   bool more_constraints    () const;
+  
   //! Ask whether there are more search engines to get
   bool more_search_engines () const;
   

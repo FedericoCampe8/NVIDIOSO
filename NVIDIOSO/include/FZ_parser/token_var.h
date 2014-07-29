@@ -72,11 +72,14 @@ public:
    * @param str the string identifier of the variable.
    */
   void set_var_id ( std::string str );
+  
+  //! Get the string id of the current variable
   std::string get_var_id () const;
   
   //! Identifies the current variable as an objective variable
   void set_objective_var ();
   bool  is_objective_var () const;
+  
   //! Identifies the current variable as a support variable
   void set_support_var ();
   bool  is_support_var () const;

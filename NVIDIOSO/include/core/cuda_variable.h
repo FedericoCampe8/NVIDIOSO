@@ -12,9 +12,9 @@
 #ifndef NVIDIOSO_cuda_variable_h
 #define NVIDIOSO_cuda_variable_h
 
-#include "variable.h"
+#include "int_variable.h"
 
-class CudaVariable : public Variable {
+class CudaVariable : public IntVariable {
 public:
   /**
    * Base constructor: create a variable with new id.
@@ -50,6 +50,7 @@ public:
    * Set domain's elements.
    * A domain {d_1, ..., d_n} is generated.
    * @param elems vector of vectors (subsets) of domain's elements
+   * @todo implement set of sets of elements.
    */
   void set_domain ( std::vector < std::vector < int > > elems );
   

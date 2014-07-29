@@ -39,16 +39,20 @@ enum class DomainType {
  * - no event as occured      ( NO_EVT )
  * - domain is singleton      ( SINGLETON_EVT )
  * - domain changed bounds    ( BOUNDS_EVT )
+ * - domain increase min      ( MIN_EVT )
+ * - domain decrease max      ( MAX_EVT )
  * - domain has been modified ( CHANGE_EVT )
  * - domain is empty          ( FAIL_EVT )
  */
 enum class EventType {
-  NO_EVT,
-  SINGLETON_EVT,
-  BOUNDS_EVT,
-  CHANGE_EVT,
-  FAIL_EVT,
-  OTHER_EVT
+  NO_EVT        = 0,
+  SINGLETON_EVT = 1,
+  BOUNDS_EVT    = 2,
+  MIN_EVT       = 3,
+  MAX_EVT       = 4,
+  CHANGE_EVT    = 5,
+  FAIL_EVT      = 6,
+  OTHER_EVT     = 7
 };
 
 class Domain {

@@ -38,6 +38,20 @@ namespace CudaBitUtils {
   }//num_ones
   
   /**
+   * Counts the number of bits that are set to 1 
+   * from bit 0 to i (inclusive).
+   */
+  inline uint num_1bit_0_through_i ( uint n, int i ) {
+    if (  i < 0 || i > 31 ) return -1;
+    uint c = 0;
+    uint sum = 0;
+    for ( c = 0; c <= i; c++ ) {
+      if ( (n & (1 << i)) != 0 ) sum++;
+    }
+    return sum;
+  }//num_ones
+  
+  /**
    * Counts the consecutive zero (trailing)
    * on the right in parallel.
    */

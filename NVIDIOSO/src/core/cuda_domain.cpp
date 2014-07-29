@@ -16,8 +16,8 @@ using namespace std;
 
 CudaDomain::CudaDomain () :
 _num_allocated_bytes ( 0 ),
-_domain          ( nullptr ),
-_concrete_domain ( nullptr ) {
+_domain              ( nullptr ),
+_concrete_domain     ( nullptr ) {
 }//CudaDomain
 
 CudaDomain::~CudaDomain () {
@@ -115,44 +115,20 @@ CudaDomain::clone_impl () const {
 
 EventType
 CudaDomain::int_to_event () const {
-  switch ( _domain[ EVT_IDX() ] ) {
-    case INT_NO_EVT:
-      return EventType::NO_EVT;
-    case INT_SINGLETON_EVT:
-      return EventType::SINGLETON_EVT;
-    case INT_BOUNDS_EVT:
-      return EventType::BOUNDS_EVT;
-    case INT_CHANGE_EVT:
-      return EventType::CHANGE_EVT;
-    case INT_FAIL_EVT:
-      return EventType::FAIL_EVT;
-    default:
-      return EventType::OTHER_EVT;
+  
+  // Consistency check
+  assert( _domain[ EVT_IDX() ] >= 0 );
+  
+  if ( _domain[ EVT_IDX() ] < static_cast< int >( EventType::OTHER_EVT ) ) {
+    return static_cast< EventType >( _domain[ EVT_IDX() ] );
   }
+  
+  return EventType::OTHER_EVT;
 }//int_to_event
 
 void
 CudaDomain::event_to_int ( EventType evt ) const {
-  switch ( evt ) {
-    case EventType::NO_EVT:
-      _domain[ EVT_IDX() ] = INT_NO_EVT;
-      break;
-    case EventType::SINGLETON_EVT:
-      _domain[ EVT_IDX() ] = INT_SINGLETON_EVT;
-      break;
-    case EventType::BOUNDS_EVT:
-      _domain[ EVT_IDX() ] = INT_BOUNDS_EVT;
-      break;
-    case EventType::CHANGE_EVT:
-      _domain[ EVT_IDX() ] = INT_CHANGE_EVT;
-      break;
-    case EventType::FAIL_EVT:
-      _domain[ EVT_IDX() ] = INT_FAIL_EVT;
-      break;
-    default:
-      _domain[ EVT_IDX() ] = INT_OTHER_EVT;
-      break;
-  }
+  _domain[ EVT_IDX() ] = static_cast< int >( evt );
 }//int_to_event
 
 void
@@ -241,20 +217,20 @@ CudaDomain::shrink ( int min, int max ) {
   
   if ( _concrete_domain->is_empty() ) {
     _domain [ DSZ_IDX() ] = 0;
-    _domain [ EVT_IDX() ] = INT_FAIL_EVT;
+    _domain [ EVT_IDX() ] = static_cast<int>( EventType::FAIL_EVT );
     return;
   }
   
   if ( _concrete_domain->is_singleton () ) {
     _domain [ DSZ_IDX() ] = 1;
-    _domain [ EVT_IDX() ] = INT_SINGLETON_EVT;
+    _domain [ EVT_IDX() ] = static_cast<int>( EventType::SINGLETON_EVT );
     return;
   }
   
   // Shrink modifies the current bounds: bound event
   if ( new_size < _domain [ DSZ_IDX() ] ) {
     _domain [ DSZ_IDX() ] = new_size;
-    _domain [ EVT_IDX() ] = INT_BOUNDS_EVT;
+    _domain [ EVT_IDX() ] = static_cast<int>( EventType::BOUNDS_EVT );
   }
   
   /*
@@ -308,7 +284,7 @@ CudaDomain::set_singleton ( int value ) {
     _domain[ LB_IDX() ] = value;
     _domain[ UB_IDX() ] = value;
     _domain [ DSZ_IDX() ] = 1;
-    _domain [ EVT_IDX() ] = INT_SINGLETON_EVT;
+    _domain [ EVT_IDX() ] = static_cast<int>( EventType::SINGLETON_EVT );
     return true;
   }
   
@@ -327,7 +303,7 @@ CudaDomain::subtract ( int value ) {
     // Empty domain
     if ( _concrete_domain->is_empty () ) {
       _domain [ DSZ_IDX() ] = 0;
-      _domain [ EVT_IDX() ] = INT_FAIL_EVT;
+      _domain [ EVT_IDX() ] = static_cast<int>( EventType::FAIL_EVT );
       return true;
     }
     
@@ -336,7 +312,7 @@ CudaDomain::subtract ( int value ) {
       _domain [ LB_IDX() ]  = _concrete_domain->get_singleton ();
       _domain [ UB_IDX() ]  = _concrete_domain->get_singleton ();
       _domain [ DSZ_IDX() ] = 1;
-      _domain [ EVT_IDX() ] = INT_SINGLETON_EVT;
+      _domain [ EVT_IDX() ] = static_cast<int>( EventType::SINGLETON_EVT );
       return true;
     }
     
@@ -344,21 +320,21 @@ CudaDomain::subtract ( int value ) {
     if ( value == _domain [ LB_IDX() ] ) {
       _domain [ LB_IDX() ]  = _concrete_domain->lower_bound ();
       _domain [ DSZ_IDX() ] = _concrete_domain->size();
-      _domain [ EVT_IDX() ] = INT_BOUNDS_EVT;
+      _domain [ EVT_IDX() ] = static_cast<int>( EventType::MIN_EVT );
       return true;
     }
     
     if ( value == _domain [ UB_IDX () ] ) {
       _domain [ LB_IDX() ]  = _concrete_domain->upper_bound ();
       _domain [ DSZ_IDX() ] = _concrete_domain->size();
-      _domain [ EVT_IDX() ] = INT_BOUNDS_EVT;
+      _domain [ EVT_IDX() ] = static_cast<int>( EventType::MAX_EVT );
       return true;
     }
 
     _domain [ LB_IDX() ]  = _concrete_domain->lower_bound ();
     _domain [ UB_IDX() ]  = _concrete_domain->upper_bound ();
     _domain [ DSZ_IDX() ] -= 1;
-    _domain [ EVT_IDX() ] = INT_CHANGE_EVT;
+    _domain [ EVT_IDX() ] = static_cast<int>( EventType::CHANGE_EVT );
     return true;
   }
   
@@ -378,7 +354,7 @@ CudaDomain::add_element ( int n ) {
     if ( n > _domain [ UB_IDX () ] ) _domain [ UB_IDX () ] = n;
     
     _domain [ DSZ_IDX() ] = new_size;
-    _domain [ EVT_IDX() ] = INT_CHANGE_EVT;
+    _domain [ EVT_IDX() ] = static_cast<int>( EventType::CHANGE_EVT );
   }
   
 }//add_element
@@ -398,19 +374,25 @@ CudaDomain::print () const {
   cout << "- CudaDomain:\n";
   cout << "EVT:\t";
   switch ( _domain[ EVT_IDX() ] ) {
-    case INT_NO_EVT:
+    case static_cast<int>( EventType::NO_EVT ):
       cout << "NO Event\n";
       break;
-    case INT_SINGLETON_EVT:
+    case static_cast<int>( EventType::SINGLETON_EVT ):
       cout << "Singleton Event\n";
       break;
-    case INT_BOUNDS_EVT:
+    case static_cast<int>( EventType::BOUNDS_EVT ):
       cout << "Bounds Event\n";
       break;
-    case INT_CHANGE_EVT:
+    case static_cast<int>( EventType::MIN_EVT ):
+      cout << "Min bound Event\n";
+      break;
+    case static_cast<int>( EventType::MAX_EVT ):
+      cout << "Max bound Event\n";
+      break;
+    case static_cast<int>( EventType::CHANGE_EVT ):
       cout << "Change Event\n";
       break;
-    case INT_FAIL_EVT:
+    case static_cast<int>( EventType::FAIL_EVT ):
       cout << "Fail Event\n";
       break;
     default:
