@@ -549,7 +549,7 @@ CudaConcreteDomainList::contains ( int val ) const {
 bool
 CudaConcreteDomainList::is_singleton () const {
   if ( _num_pairs == 1 ) {
-    return (_lower_bound == _upper_bound);
+    return size() == 1;
   }
   return  false;
 }//is_singleton

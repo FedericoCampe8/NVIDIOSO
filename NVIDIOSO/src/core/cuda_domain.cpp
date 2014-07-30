@@ -85,7 +85,6 @@ CudaDomain::init_domain ( int min, int max ) {
   _domain[ UB_IDX  () ] = max;
   _domain[ DSZ_IDX () ] = _concrete_domain->size();
   
-  
   // Set initial events
   if ( _domain[ LB_IDX() ] == _domain[ UB_IDX() ] ) {
     event_to_int ( EventType::SINGLETON_EVT );
@@ -97,15 +96,15 @@ CudaDomain::init_domain ( int min, int max ) {
 
 //! Get the domain's lower bound
 int
-CudaDomain::get_lower_bound () const {
+CudaDomain::lower_bound () const {
   return _domain[ LB_IDX() ];
-}//get_lower_bound
+}//lower_bound
 
 //! Get the domain's upper bound
 int
-CudaDomain::get_upper_bound () const {
+CudaDomain::upper_bound () const {
   return _domain[ UB_IDX() ];
-}//get_upper_bound
+}//upper_bound
 
 DomainPtr
 CudaDomain::clone_impl () const {
@@ -267,10 +266,12 @@ CudaDomain::switch_list_to_bitmaplist () {
       pairs.push_back( make_pair(list_representation[ i     ],
                                  list_representation[ i + 1 ]) );
     }
-    if ( list_representation[ i ] > _upper_bound ) break;
+    if ( list_representation[ i ] > upper_bound() ) break;
   }
   
-  _concrete_domain = make_shared<CudaConcreteBitmapList>( _num_allocated_bytes, pairs );
+  _concrete_domain = make_shared<CudaConcreteBitmapList>( _num_allocated_bytes,
+                                                          pairs
+                                                         );
   
   set_bitlist_representation();
 }//switch_list_to_bitmap
@@ -415,7 +416,7 @@ CudaDomain::print () const {
   cout << _domain [ DSZ_IDX() ] << "\n";
   cout << "Bytes:\t";
   if ( get_allocated_bytes () < 1024 )
-    cout << get_allocated_bytes () << "Bytes\n";
+    cout << get_allocated_bytes () << " Bytes\n";
   else
     cout << (get_allocated_bytes () / 1024) << "kB\n";
   print_domain ();
@@ -423,6 +424,7 @@ CudaDomain::print () const {
 
 void
 CudaDomain::print_domain () const {
+  cout << "Internal domain's representation:\n";
   cout << "|| ";
   for ( int i = 0; i < BIT_IDX(); i++ ) {
     cout << _domain[ i ];

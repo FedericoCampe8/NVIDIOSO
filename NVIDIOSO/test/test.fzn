@@ -1,0 +1,5 @@
+array [1..2] of var 1..30: q :: output_array([1..30]);
+%constraint int_lin_ne([1, -1], [q[1], q[2]], -1);
+%constraint int_ne(q[1], q[2]);
+%constraint int_lin_eq([-1, 1, 12], [INT____00025, x[1], x[2]], 12) :: defines_var(INT____00025) :: domain;
+constraint int_ne(q[1], q[2]);

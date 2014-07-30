@@ -6,6 +6,7 @@ include ./make.inc
 # ---------------------------------------------------------------------
 
 MAIN=domain_test
+MAIN=int_ne_test
 MAIN=main
 TARGET=nvidioso
 

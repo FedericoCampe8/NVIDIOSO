@@ -265,7 +265,7 @@ CudaConcreteDomainBitmap::contains ( int value ) const {
 
 bool
 CudaConcreteDomainBitmap::is_singleton () const {
-  return _lower_bound == _upper_bound;
+  return size() == 1;
 }//is_singleton
 
 int

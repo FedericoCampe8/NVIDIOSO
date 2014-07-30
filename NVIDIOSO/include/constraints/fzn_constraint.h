@@ -24,6 +24,9 @@
 //        given in input to each propagator.
 //  @note See int_ne.h and int_ne.cpp for an example of how to write
 //        a propagator.
+//  @note If at least one FD variable involved in the constraint has
+//        an empty domain and the rest of the variables satisfy the
+//        the constraint, than the constraint is trivially satisfied.
 //
 
 #ifndef __NVIDIOSO__fzn_constraint__

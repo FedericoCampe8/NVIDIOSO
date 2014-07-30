@@ -48,12 +48,12 @@ IntVariable::is_empty () const {
 
 int
 IntVariable::min () const {
-  return _domain_ptr->get_lower_bound();
+  return _domain_ptr->lower_bound();
 }//min
 
 int
 IntVariable::max () const {
-  return _domain_ptr->get_upper_bound();
+  return _domain_ptr->upper_bound();
 }//max
 
 void

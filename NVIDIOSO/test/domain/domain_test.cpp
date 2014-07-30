@@ -85,7 +85,7 @@ int main ( int argc, char * argv[] ) {
     cuda_domain->print ();
   }
   
-  cout << dbg << "Exit from domain's test.\n";
+  cout << dbg << "Exit from domain test.\n";
   
   return 0;
 }//main

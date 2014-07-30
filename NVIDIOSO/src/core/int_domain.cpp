@@ -10,25 +10,13 @@
 
 using namespace std;
 
-IntDomain::IntDomain () :
-_lower_bound (  0 ),
-_upper_bound ( -1 ) {
+IntDomain::IntDomain () {
   _dbg = "IntDomain - ";
   _dom_type = DomainType::INTEGER;
 }//IntDomain
 
 IntDomain::~IntDomain () {
 }//~IntDomain
-
-int
-IntDomain::get_lower_bound () const {
-  return _lower_bound;
-}//get_lower_bound
-
-int
-IntDomain::get_upper_bound () const {
-  return _upper_bound;
-}//get_upper_bound
 
 bool
 IntDomain::is_empty () const {
@@ -37,17 +25,19 @@ IntDomain::is_empty () const {
 
 bool
 IntDomain::is_singleton () const {
+  
   // Consistency check
-  if ( _lower_bound == _upper_bound ) {
+  if ( lower_bound() == upper_bound() ) {
     assert( get_size() == 1 );
   }
-  return ( _lower_bound == _upper_bound );
+  
+  return ( lower_bound() == upper_bound() );
 }//is_singleton
 
 void
 IntDomain::print () const {
   cout << "Int Domain: ";
-  cout << _lower_bound << ".." << _upper_bound << "\n";
+  cout << lower_bound() << ".." << upper_bound() << "\n";
   cout << "Size      : " << get_size() << "\n";
 }//print
 

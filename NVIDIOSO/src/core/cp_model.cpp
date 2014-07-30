@@ -17,11 +17,15 @@ CPModel::~CPModel () {
 void
 CPModel::add_variable ( VariablePtr vpt ) {
   assert( vpt != nullptr );
-  vpt->print ();
+  //vpt->print ();
 }//add_variable
 
 void
-CPModel::add_constraint ( ConstraintPtr ) {
+CPModel::add_constraint ( ConstraintPtr cpt ) {
+  assert( cpt != nullptr );
+  
+  cpt->print();
+  cpt->print_semantic();
 }//add_constraint
 
 void

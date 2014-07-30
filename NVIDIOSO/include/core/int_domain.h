@@ -27,11 +27,6 @@ class IntDomain;
 typedef std::shared_ptr<IntDomain> IntDomainPtr;
 
 class IntDomain : public Domain {
-protected:
-  // Domain values
-  int _lower_bound;
-  int _upper_bound;
-  
 public:
   IntDomain ();
   virtual ~IntDomain ();
@@ -42,14 +37,15 @@ public:
   //! Returns true if the domain is empty
   bool is_empty () const;
   
-  //! Get the domain's lower bound
-  virtual int get_lower_bound () const;
-  
-  //! Get the domain's upper bound
-  virtual int get_upper_bound () const;
   
   //! Print base info about int domain
   virtual void print () const;
+  
+  //! Get the domain's lower bound
+  virtual int lower_bound () const = 0;
+  
+  //! Get the domain's upper bound
+  virtual int upper_bound () const = 0;
   
   /**
    * Initialize domain:

@@ -207,12 +207,12 @@ public:
    * @return the current domain's size.
    */
    size_t get_size () const;
-  
+
   //! Get the domain's lower bound
-  int get_lower_bound () const;
+  int lower_bound () const;
   
   //! Get the domain's upper bound
-  int get_upper_bound () const;
+  int upper_bound () const;
   
   /**
    * The same as set_bounds.

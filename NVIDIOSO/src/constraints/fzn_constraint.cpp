@@ -253,7 +253,7 @@ FZNConstraint::remove_constraint () {
 void
 FZNConstraint::print () const {
   std::cout << "Constraint_" << get_unique_id () << ": " << _str_id <<
-  "\t (n. id: " << _number_id << ")\n";
+  "\t (FlatZinc id: " << _number_id << ")\n";
   std::cout << "Scope size: " << get_scope_size() << "\n";
   std::cout << "Weight:     " << get_weight ()     << "\n";
   if ( get_scope_size() ) {
