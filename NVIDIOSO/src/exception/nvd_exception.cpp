@@ -13,7 +13,7 @@ using namespace std;
 NvdException::NvdException ( const char* msg ) :
 _expt_file ( "" ),
 _expt_line ( -1 ) {
-  _expt_message = msg;
+  _expt_message = "___RAISED EXCEPTION___ :" + *new std::string ( msg );
 }//NvdException
 
 NvdException::NvdException ( const char* msg, const char* file ) :

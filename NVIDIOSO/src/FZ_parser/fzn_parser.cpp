@@ -58,6 +58,7 @@ FZNParser::more_search_engines () const {
 
 TokenPtr
 FZNParser::get_variable () {
+  
   /*
    * Check which variable to return:
    * whether a FD Variable or an Array of variable.
@@ -288,9 +289,11 @@ FZNParser::store_token ( TokenPtr token ) {
 
 void
 FZNParser::print () const {
+  
   cout << "FZNParser:\n";
   cout << "Number of tokens: " << _num_tokens << endl;
   cout << "Variables    : ";
+  
   if ( more_variables() ) {
     auto it     = _lookup_token_table.find( TokenType::FD_VARIABLE );
     auto it_idx = _lookup_token_table.find( TokenType::FD_VAR_ARRAY );

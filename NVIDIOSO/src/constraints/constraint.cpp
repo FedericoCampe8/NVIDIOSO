@@ -23,6 +23,11 @@ Constraint::~Constraint () {
   _arguments.clear ();
 }//~Constraint
 
+ConstraintPtr
+Constraint::get_this_shared_ptr () {
+  return shared_from_this();
+}//make_shared
+
 size_t
 Constraint::get_unique_id () const {
   return _unique_id;
@@ -86,7 +91,7 @@ Constraint::decompose () const {
 
 std::vector<VariablePtr>
 Constraint::changed_vars_from_event ( EventType event ) const {
-  
+
   vector<VariablePtr> var_array;
   for ( auto x : scope() ) {
     if ( x->get_event() == event ) {

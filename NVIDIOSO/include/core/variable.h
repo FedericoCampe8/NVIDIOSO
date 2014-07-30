@@ -75,9 +75,17 @@ public:
    * @param str the string to set as variable's identifier
    */
   void        set_str_id ( std::string str );
+  
+  /**
+   * Get the string id of this variable.
+   * @return a string representing the id of this variable.
+   */
   std::string get_str_id () const;
   
+  //! Set the type of variable (i.e., FD_VARIABLE, SUP_VARIABLE, etc.)
   void         set_type ( VariableType vt );
+  
+  //! Get the type of variable (i.e., FD_VARIABLE, SUP_VARIABLE, etc.)
   VariableType get_type () const;
   
   //! Get (const) reference to this domain

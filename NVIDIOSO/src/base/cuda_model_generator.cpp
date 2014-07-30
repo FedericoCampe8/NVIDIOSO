@@ -8,7 +8,9 @@
 
 #include "cuda_model_generator.h"
 #include "cuda_variable.h"
+#include "fzn_constraint_generator.h"
 #include "token_var.h"
+#include "token_con.h"
 
 using namespace std;
 
@@ -33,11 +35,17 @@ CudaGenerator::get_variable ( TokenPtr tkn_ptr ) {
   }
 
   /*
-   * Token (pointer) to return.
+   * Variable (pointer) to return.
    * It is initialized with the int id of the token, i.e., the 
    * unique identifier given when the string was parsed from the model.
    */
-  VariablePtr var_ptr = make_shared<CudaVariable> ( tkn_ptr->get_id() );
+  VariablePtr var_ptr;
+  try {
+    var_ptr = make_shared<CudaVariable> ( tkn_ptr->get_id() );
+  } catch ( NvdException& e ) {
+    cout << e.what() << endl;
+    throw;
+  }
   
   // Set string id, i.e., the string id as reported in the model.
   var_ptr->set_str_id( (std::static_pointer_cast<TokenVar>( tkn_ptr ))->get_var_id () );
@@ -111,6 +119,9 @@ CudaGenerator::get_variable ( TokenPtr tkn_ptr ) {
       break;
   }
   
+  // Store the string id of the current variable in the lookup table.
+  _var_lookup_table [ var_ptr->get_str_id() ] = var_ptr;
+  
   return var_ptr;
 }//get_variable
 
@@ -125,8 +136,42 @@ CudaGenerator::get_constraint ( TokenPtr tkn_ptr ) {
                   __FILE__, __LINE__);
     return nullptr;
   }
+
+  string constraint_name =
+  (std::static_pointer_cast<TokenCon>( tkn_ptr ))->get_con_id ();
   
-  return nullptr;
+  vector<string> expr_var_vec =
+  (std::static_pointer_cast<TokenCon>( tkn_ptr ))->get_expr_var_elements_array();
+  
+  /*
+   * Check which string is the id of a variable and
+   * set the list of var pointer accordingly.
+   */
+  vector<VariablePtr> var_ptr;
+  for ( auto expr : expr_var_vec ) {
+    auto ptr = _var_lookup_table.find ( expr );
+    if ( ptr != _var_lookup_table.end() ) {
+      var_ptr.push_back ( ptr->second );
+    }
+  }
+  
+  vector<string> params_vec =
+  (std::static_pointer_cast<TokenCon>( tkn_ptr ))->get_expr_not_var_elements_array();
+  
+  /*
+   * Constraint (pointer) to return.
+   * It is initialized with the parameters of the token, i.e., the
+   * name, list of pointer to FD variables, and auxiliary arguments.
+   */
+  try {
+    return
+    FZNConstraintFactory::get_fzn_constraint_shr_ptr( constraint_name,
+                                                      var_ptr,
+                                                      params_vec );
+  } catch ( NvdException& e ) {
+    cout << e.what() << endl;
+    throw;
+  }
 }//get_constraint
 
 SearchEnginePtr

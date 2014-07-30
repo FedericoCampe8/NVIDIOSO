@@ -22,6 +22,22 @@ private:
   
 public:
   /**
+   * Basic constructor.
+   * @note after this constructor the client should
+   *       call the setup method to setup the variables
+   *       and parameters needed by the constraint.
+   */
+  IntNe ();
+  
+  /**
+   * Basic constructor.
+   * @note this constructor implicitly calls the setup
+   *       method to setup variables and arguments for
+   *       this constraint.
+   */
+  IntNe ( std::vector<VariablePtr> vars, std::vector<std::string> args );
+  
+  /**
    * Basic constructor: it checks if x != y.
    * @param x an integer value.
    * @param y an integer value.
@@ -54,6 +70,9 @@ public:
    * @param y (pointer to) a FD variable.
    */
   IntNe ( IntVariablePtr x, IntVariablePtr y );
+  
+  //! Setup method, see fzn_constraint.h
+  void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args );
   
   /**
    * It returns the vector of (shared) pointers

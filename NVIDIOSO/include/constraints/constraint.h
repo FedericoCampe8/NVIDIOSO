@@ -22,7 +22,7 @@
 class Constraint;
 typedef std::shared_ptr<Constraint> ConstraintPtr;
 
-class Constraint :  std::enable_shared_from_this< Constraint > {
+class Constraint : public std::enable_shared_from_this< Constraint > {
 private:
   //! Unique global identifier for a given constraint.
   size_t _unique_id;
@@ -75,6 +75,12 @@ protected:
    * It sets all the other members to null.
    */
   Constraint ();
+  
+  /**
+   * Create a shared pointer from this instance.
+   * @return a shared pointer to Constraint object.
+   */
+  virtual ConstraintPtr get_this_shared_ptr ();
   
 public:
   virtual ~Constraint ();
@@ -205,6 +211,14 @@ public:
    * given constraint (i.e., its scope).
    */
   virtual const std::vector<VariablePtr> scope () const = 0;
+  
+  /**
+   * It attaches this constraint (observer) to the list of
+   * the variables in its scope. 
+   * When a variable changes state, this constraint could be
+   * automatically notified (depending on the variable).
+   */
+  virtual void attach_me () = 0;
   
   /**
    * It is a (most probably incomplete) consistency function which

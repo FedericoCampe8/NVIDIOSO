@@ -15,6 +15,10 @@
 #include "model_generator.h"
 
 class CudaGenerator : public ModelGenerator {
+private:
+  //! This map is used to link strings ids with variables.
+  std::map<std::string, VariablePtr>  _var_lookup_table;
+  
 protected:
   std::string _dbg;
   

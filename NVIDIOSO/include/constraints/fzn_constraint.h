@@ -14,6 +14,7 @@
 //  @note To implement a constraint at least the following methods
 //        should be specialized:
 //        - constructor
+//        - setup method
 //        - consistency
 //        - satisfied
 //        - print_semantic
@@ -127,129 +128,12 @@ enum class FZNConstraintType {
 
 class FZNConstraint : public Constraint {
 protected:
-  const std::string ARRAY_BOOL_AND          = "array_bool_and";
-  const std::string ARRAY_BOOL_ELEMENT      = "array_bool_element";
-  const std::string ARRAY_BOOL_OR           = "array_bool_or";
-  const std::string ARRAY_FLOAT_ELEMENT     = "array_float_element";
-  const std::string ARRAY_INT_ELEMENT       = "array_int_element";
-  const std::string ARRAY_SET_ELEMENT       = "array_set_element";
-  const std::string ARRAY_VAR_BOOL_ELEMENT  = "array_var_bool_element";
-  const std::string ARRAY_VAR_FLOAT_ELEMENT = "array_var_float_element";
-  const std::string ARRAY_VAR_INT_ELEMENT   = "array_var_int_element";
-  const std::string ARRAY_VAR_SET_ELEMENT   = "array_var_set_element";
-  const std::string BOOL2INT                = "bool2int";
-  const std::string BOOL_AND                = "bool_and";
-  const std::string BOOL_CLAUSE             = "bool_clause";
-  const std::string BOOL_EQ                 = "bool_eq";
-  const std::string BOOL_EQ_REIF            = "bool_eq_reif";
-  const std::string BOOL_LE                 = "bool_le";
-  const std::string BOOL_LE_REIF            = "bool_le_reif";
-  const std::string BOOL_LT                 = "bool_lt";
-  const std::string BOOL_LT_REIF            = "bool_lt_reif";
-  const std::string BOOL_NOT                = "bool_not";
-  const std::string BOOL_OR                 = "bool_or";
-  const std::string BOOL_XOR                = "bool_xor";
-  const std::string FLOAT_ABS               = "float_abs";
-  const std::string FLOAT_ACOS              = "float_acos";
-  const std::string FLOAT_ASIN              = "float_asin";
-  const std::string FLOAT_ATAN              = "float_atan";
-  const std::string FLOAT_COS               = "float_cos";
-  const std::string FLOAT_COSH              = "float_cosh";
-  const std::string FLOAT_EXP               = "float_exp";
-  const std::string FLOAT_LN                = "float_ln";
-  const std::string FLOAT_LOG10             = "float_log10";
-  const std::string FLOAT_LOG2              = "float_log2";
-  const std::string FLOAT_SQRT              = "float_sqrt";
-  const std::string FLOAT_SIN               = "float_sin";
-  const std::string FLOAT_SINH              = "float_sinh";
-  const std::string FLOAT_TAN               = "float_tan";
-  const std::string FLOAT_TANH              = "float_tanh";
-  const std::string FLOAT_EQ                = "float_eq";
-  const std::string FLOAT_EQ_REIF           = "float_eq_reif";
-  const std::string FLOAT_LE                = "float_le";
-  const std::string FLOAT_LE_REIF           = "float_le_reif";
-  const std::string FLOAT_LIN_EQ            = "float_lin_eq";
-  const std::string FLOAT_LIN_EQ_REIF       = "float_lin_eq_reif";
-  const std::string FLOAT_LIN_LE            = "float_lin_le";
-  const std::string FLOAT_LIN_LE_REIF       = "float_lin_le_reif";
-  const std::string FLOAT_LIN_LT            = "float_lin_lt";
-  const std::string FLOAT_LIN_LT_REIF       = "float_lin_lt_reif";
-  const std::string FLOAT_LIN_NE            = "float_lin_ne";
-  const std::string FLOAT_LIN_NE_REIF       = "float_lin_ne_reif";
-  const std::string FLOAT_LT                = "float_lt";
-  const std::string FLOAT_LT_REIF           = "float_lt_reif";
-  const std::string FLOAT_MAX               = "float_max";
-  const std::string FLOAT_MIN               = "float_min";
-  const std::string FLOAT_NE                = "float_ne";
-  const std::string FLOAT_NE_REIF           = "float_ne_reif";
-  const std::string FLOAT_PLUS              = "float_plus";
-  const std::string INT_ABS                 = "int_abs";
-  const std::string INT_DIV                 = "int_div";
-  const std::string INT_EQ                  = "int_eq";
-  const std::string INT_EQ_REIF             = "int_eq_reif";
-  const std::string INT_LE                  = "int_le";
-  const std::string INT_LE_REIF             = "int_le_reif";
-  const std::string INT_LIN_EQ              = "int_lin_eq";
-  const std::string INT_LIN_EQ_REIF         = "int_lin_eq_reif";
-  const std::string INT_LIN_LE              = "int_lin_le";
-  const std::string INT_LIN_LE_REIF         = "int_lin_le_reif";
-  const std::string INT_LIN_NE              = "int_lin_ne";
-  const std::string INT_LIN_NE_REIF         = "int_lin_ne_reif";
-  const std::string INT_MAX_C               = "int_max";
-  const std::string INT_MIN_C               = "int_min";
-  const std::string INT_MOD                 = "int_mod";
-  const std::string INT_NE                  = "int_ne";
-  const std::string INT_NE_REIF             = "int_ne_reif";
-  const std::string INT_PLUS                = "int_plus";
-  const std::string INT_TIMES               = "int_times";
-  const std::string INT2FLOAT               = "int2float";
-  const std::string SET_CARD                = "set_card";
-  const std::string SET_DIFF                = "set_diff";
-  const std::string SET_EQ                  = "set_eq";
-  const std::string SET_EQ_REIF             = "set_eq_reif";
-  const std::string SET_IN                  = "set_in";
-  const std::string SET_IN_REIF             = "set_in_reif";
-  const std::string SET_INTERSECT           = "set_intersect";
-  const std::string SET_LE                  = "set_le";
-  const std::string SET_LT                  = "set_lt";
-  const std::string SET_NE                  = "set_ne";
-  const std::string SET_NE_REIF             = "set_ne_reif";
-  const std::string SET_SUBSET              = "set_subset";
-  const std::string SET_SUBSET_REIF         = "set_subset_reif";
-  const std::string SET_SYMDIFF             = "set_symdiff";
-  const std::string SET_UNION               = "set_union";
-  const std::string OTHER                   = "other";
   
   //! FlatZinc constraint type
   FZNConstraintType _constraint_type;
   
   //! Scope size
   int _scope_size;
-  
-  /**
-   * It converts a number_id name to the
-   * correspondent FZNConstraintType type.
-   * @param  number_id the number id of the FlatZinc constraint.
-   * @return the type of the FlatZinc constraint.
-   */
-  FZNConstraintType int_to_type ( int number_id ) const;
-  
-  /**
-   * It converts a FZNConstraintType to the
-   * correspondent integer type.
-   * @param  c_type the type of the FlatZinc constraint.
-   * @return the number_id correspondent to c_type.
-   */
-  int type_to_int ( FZNConstraintType c_type ) const;
-  
-  /**
-   * It converts a string representing the name of a constraint
-   * to a unique idetifier for the correspondent type
-   * of FlatZinc constraint.
-   * @param c_name name of a FlatZinc constraint.
-   * @return the number_id correspondent to name.
-   */
-  int name_to_id ( std::string c_name ) const;
   
   /**
    * Set the events that trigger this constraint.
@@ -259,36 +143,155 @@ protected:
    */
   virtual void set_events ( EventType event = EventType::CHANGE_EVT );
   
-public:
   /**
    * Base constructor.
    * @param name the name of the FlatZinc constraint.
+   * @param vars the vector of (shared) pointers to the variables in the
+   *        scope of this constraint.
+   * @param args the vector of auxiliary arguments stored as strings
+   *        needed by this constraint in order to be propagated.
    * @note FZNConstraint instantiated with this constructor
    *       need to be defined in terms of variables in their scope
    *       and, if needed, auxiliary parameters.
    */
   FZNConstraint ( std::string name );
   
-  /**
-   * Constructor for FZNConstraint constraints.
-   * @param name the name of the FlatZinc constraint.
-   * @param scope_vars the array of (pointers to) variables within
-   *        the scope of this constraint.
-   */
-  FZNConstraint ( std::string name, std::vector<VariablePtr> scope_vars );
+public:
+  static const std::string ARRAY_BOOL_AND;
+  static const std::string ARRAY_BOOL_ELEMENT;
+  static const std::string ARRAY_BOOL_OR;
+  static const std::string ARRAY_FLOAT_ELEMENT;
+  static const std::string ARRAY_INT_ELEMENT;
+  static const std::string ARRAY_SET_ELEMENT;
+  static const std::string ARRAY_VAR_BOOL_ELEMENT;
+  static const std::string ARRAY_VAR_FLOAT_ELEMENT;
+  static const std::string ARRAY_VAR_INT_ELEMENT;
+  static const std::string ARRAY_VAR_SET_ELEMENT;
+  static const std::string BOOL2INT;
+  static const std::string BOOL_AND;
+  static const std::string BOOL_CLAUSE;
+  static const std::string BOOL_EQ;
+  static const std::string BOOL_EQ_REIF;
+  static const std::string BOOL_LE;
+  static const std::string BOOL_LE_REIF;
+  static const std::string BOOL_LT;
+  static const std::string BOOL_LT_REIF;
+  static const std::string BOOL_NOT;
+  static const std::string BOOL_OR;
+  static const std::string BOOL_XOR;
+  static const std::string FLOAT_ABS;
+  static const std::string FLOAT_ACOS;
+  static const std::string FLOAT_ASIN;
+  static const std::string FLOAT_ATAN;
+  static const std::string FLOAT_COS;
+  static const std::string FLOAT_COSH;
+  static const std::string FLOAT_EXP;
+  static const std::string FLOAT_LN;
+  static const std::string FLOAT_LOG10;
+  static const std::string FLOAT_LOG2;
+  static const std::string FLOAT_SQRT;
+  static const std::string FLOAT_SIN;
+  static const std::string FLOAT_SINH;
+  static const std::string FLOAT_TAN;
+  static const std::string FLOAT_TANH;
+  static const std::string FLOAT_EQ;
+  static const std::string FLOAT_EQ_REIF;
+  static const std::string FLOAT_LE;
+  static const std::string FLOAT_LE_REIF;
+  static const std::string FLOAT_LIN_EQ;
+  static const std::string FLOAT_LIN_EQ_REIF;
+  static const std::string FLOAT_LIN_LE;
+  static const std::string FLOAT_LIN_LE_REIF;
+  static const std::string FLOAT_LIN_LT;
+  static const std::string FLOAT_LIN_LT_REIF;
+  static const std::string FLOAT_LIN_NE;
+  static const std::string FLOAT_LIN_NE_REIF;
+  static const std::string FLOAT_LT;
+  static const std::string FLOAT_LT_REIF;
+  static const std::string FLOAT_MAX;
+  static const std::string FLOAT_MIN;
+  static const std::string FLOAT_NE;
+  static const std::string FLOAT_NE_REIF;
+  static const std::string FLOAT_PLUS;
+  static const std::string INT_ABS;
+  static const std::string INT_DIV;
+  static const std::string INT_EQ;
+  static const std::string INT_EQ_REIF;
+  static const std::string INT_LE;
+  static const std::string INT_LE_REIF;
+  static const std::string INT_LIN_EQ;
+  static const std::string INT_LIN_EQ_REIF;
+  static const std::string INT_LIN_LE;
+  static const std::string INT_LIN_LE_REIF;
+  static const std::string INT_LIN_NE;
+  static const std::string INT_LIN_NE_REIF;
+  static const std::string INT_MAX_C;
+  static const std::string INT_MIN_C;
+  static const std::string INT_MOD;
+  static const std::string INT_NE;
+  static const std::string INT_NE_REIF;
+  static const std::string INT_PLUS;
+  static const std::string INT_TIMES;
+  static const std::string INT2FLOAT;
+  static const std::string SET_CARD;
+  static const std::string SET_DIFF;
+  static const std::string SET_EQ;
+  static const std::string SET_EQ_REIF;
+  static const std::string SET_IN;
+  static const std::string SET_IN_REIF;
+  static const std::string SET_INTERSECT;
+  static const std::string SET_LE;
+  static const std::string SET_LT;
+  static const std::string SET_NE;
+  static const std::string SET_NE_REIF;
+  static const std::string SET_SUBSET;
+  static const std::string SET_SUBSET_REIF;
+  static const std::string SET_SYMDIFF;
+  static const std::string SET_UNION;
+  static const std::string OTHER;
   
   /**
-   * Constructor for FZNConstraint constraints.
-   * @param name the name of the FlatZinc constraint.
-   * @param scope_vars the array of (pointers to) variables within
-   *        the scope of this constraint.
-   * @param auxiliary_params the array of integers representing
-   *        the auxiliary parameters needed for this constraint
-   *        in order to be propagated on the variables in its scope.
+   * It converts a number_id name to the
+   * correspondent FZNConstraintType type.
+   * @param  number_id the number id of the FlatZinc constraint.
+   * @return the type of the FlatZinc constraint.
    */
-  FZNConstraint ( std::string name,
-                  std::vector<VariablePtr> scope_vars,
-                  std::vector<int> auxiliary_params );
+  static FZNConstraintType int_to_type ( int number_id );
+  
+  /**
+   * It converts a FZNConstraintType to the
+   * correspondent integer type.
+   * @param  c_type the type of the FlatZinc constraint.
+   * @return the number_id correspondent to c_type.
+   */
+  static int type_to_int ( FZNConstraintType c_type );
+  
+  /**
+   * It converts a string representing the name of a constraint
+   * to a unique idetifier for the correspondent type
+   * of FlatZinc constraint.
+   * @param c_name name of a FlatZinc constraint.
+   * @return the number_id correspondent to name.
+   */
+  static int name_to_id ( std::string c_name );
+  
+  /**
+   * It sets the variables and the arguments for this constraint.
+   * @param vars a vector of pointers to the variables in the
+   *        constraint's scope.
+   * @param args a vector of strings representing the auxiliary
+   *        arguments needed by the constraint in order to ensure
+   *        consistency.
+   */
+  virtual void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) = 0;
+  
+  /**
+   * It attaches this constraint (observer) to the list of
+   * the variables in its scope.
+   * When a variable changes state, this constraint could be
+   * automatically notified (depending on the variable).
+   */
+  void attach_me () override;
   
   /**
    * It is a (most probably incomplete) consistency function which

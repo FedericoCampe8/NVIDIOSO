@@ -9,6 +9,10 @@
 //  It uses a Tokenizer to tokenize lines. It keeps an internal
 //  state in order to link constraints to parsed variables defined
 //  somewhere in the file.
+//  @note first the parser fills the lookup table of tokens, then
+//        the client asks for some tokens, i.e., the order in which
+//        the client asks for tokens may not reflect the order of
+//        the lines parsed in the input file.
 //
 
 #ifndef NVIDIOSO_fzn_parser_h

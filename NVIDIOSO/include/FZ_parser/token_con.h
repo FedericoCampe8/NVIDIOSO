@@ -30,8 +30,10 @@ public:
   
   TokenCon ();
   
-  //! Get/set methods
+  //! Set method constraint id (i.e., constraint's name).
   void set_con_id ( std::string );
+  
+  //! Get the string representing the constraint's name.
   std::string get_con_id () const;
   
   /**
@@ -58,8 +60,40 @@ public:
   /**
    * Return an array containing all the (string) expressions
    * that define the current constraint.
+   * @return a vector of strings representing the expressions
+   *         defining this constraint.
    */
   const std::vector<std::string> get_expr_array ();
+  
+  /**
+   * Return an array containing all the (string) elements 
+   * of each expression that define the current constraint.
+   * @return a vector of strings representing the elements of
+   *         each expression that defines this constraint.
+   * @note the strings in output preserves the order as found in
+   *       the original string token.
+   */
+  const std::vector<std::string> get_expr_elements_array ();
+  
+  /**
+   * Return an array containing all the (string) "variable" elements
+   * of each expression that define the current constraint.
+   * @return a vector of strings representing the "variable" elements of
+   *         each expression that defines this constraint.
+   * @note the strings in output preserves the order as found in
+   *       the original string token.
+   */
+  const std::vector<std::string> get_expr_var_elements_array ();
+  
+  /**
+   * Return an array containing all the (string) "non variable" elements
+   * of each expression that define the current constraint.
+   * @return a vector of strings representing the "non variable" elements of
+   *         each expression that defines this constraint.
+   * @note the strings in output preserves the order as found in
+   *       the original string token.
+   */
+  const std::vector<std::string> get_expr_not_var_elements_array ();
   
   //! Print info methods
   virtual void print () const;
