@@ -11,9 +11,10 @@
 using namespace std;
 
 Constraint::Constraint () :
-_number_id  ( -1 ),
-_str_id     ( "-1" ),
-_weight     ( 0 ) {
+_number_id   ( -1 ),
+_str_id      ( "-1" ),
+_weight      ( 0 ),
+_consistency ( ConsistencyType::BOUND_C ){
   _unique_id  = glb_id_gen->get_int_id();
   _dbg = ( "Constraint - " );
 }//Constraint
@@ -58,6 +59,11 @@ Constraint::decrease_weight ( int weight ) {
   _weight -= weight;
 }//decrease_weight
 
+void
+Constraint::set_consistency_level ( ConsistencyType con_type ) {
+  _consistency = con_type;
+}//set_consistency_level
+
 size_t
 Constraint::get_scope_size () const {
   return scope().size();
@@ -79,7 +85,7 @@ Constraint::arguments () const {
 }//arguments
 
 void
-Constraint::update ( const Event& e ) {
+Constraint::update ( EventType e ) {
 }//update
 
 std::vector<ConstraintPtr>

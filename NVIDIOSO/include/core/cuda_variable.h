@@ -27,13 +27,15 @@ public:
    * @param idv identifier to give to the variable
    */
   CudaVariable  ( int idv );
-  ~CudaVariable ();
+  
+  //! Destructor
+  virtual ~CudaVariable ();
   
   /**
    * Set domain's bounds.
    * If no bounds are provided, an unbounded domain (int) is istantiated.
    * If an array of elements A is provided, the function instantiates a
-   * domain D = [min A, max A], deleting all the elements d in D s.t.
+   * domain D = [min/2 A, max A], deleting all the elements d in D s.t.
    * d does not belong to A.
    */
   void set_domain ();

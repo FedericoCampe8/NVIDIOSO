@@ -58,20 +58,22 @@ enum class EventType {
 class Domain {
 protected:
   
-  // Info
+  //! Debug info string
   std::string _dbg;
   
-  // Domain type
+  //! Domain type
   DomainType _dom_type;
+  
+  //! Constructor
+  Domain ();
   
 public:
   
-  Domain ();
   virtual ~Domain ();
   
-  // Get/set methods
   //! Constants for int min/max domain bounds
   static constexpr int MIN_DOMAIN () { return INT32_MIN; }
+  
   //! Constants for int min/max domain bounds
   static constexpr int MAX_DOMAIN () { return INT32_MAX; }
   
@@ -82,22 +84,53 @@ public:
   void       set_type ( DomainType dt );
   DomainType get_type () const;
   
-  //! Clone the current domain and returns a pointer to it
+  /**
+   * Clone the current domain and returns a pointer to it.
+   * @return a pointer to a domain that has been initialized as
+   *         a copy (clone) of this domain.
+   */
   virtual DomainPtr clone () const = 0;
   
-  //! Get the current event on the domain
+  /**
+   * Get the current event on the domain.
+   * @return an event described as EventType that
+   *         represents the current event (state)
+   *         of this domain.
+   */
   virtual EventType get_event () const = 0;
   
-  //! Returns the size of the domain
+  /**
+   * Returns the size of the domain.
+   * @return the size of this domain.
+   */
   virtual size_t get_size () const = 0;
   
-  //! Returns true if the domain is empty
+  /**
+   * Returns true if the domain is empty.
+   * @return true if this domain is empty, false otherwise.
+   */
   virtual bool is_empty () const = 0;
   
-  //! Returns true if the domain has only one element
+  /**
+   * Returns true if the domain has only one element.
+   * @return true if this domain is a singleton, false otherwise.
+   */
   virtual bool is_singleton () const = 0;
   
-  //! Print info about the current domain
+  /**
+   * Specifies if domain is a finite domain of numeric values (integers).
+   * @return true if domain contains numeric values (not reals).
+   */
+  virtual bool is_numeric () const = 0;
+  
+  /**
+   * Returns a string description of this domain, i.e., 
+   * the list of values in the current domain.
+   * @return a string representing the values in this domain.
+   */
+  virtual std::string get_string_representation () const = 0;
+  
+  //! Print info about this domain
   virtual void print () const = 0;
 };
 

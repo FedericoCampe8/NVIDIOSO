@@ -21,6 +21,7 @@
 #include "variable.h"
 #include "constraint.h"
 #include "search_engine.h"
+#include "simple_constraint_store.h"
 
 enum class GeneratorType {
   CUDA,
@@ -63,6 +64,16 @@ public:
    *        instantiate, it returns nullptr.
    */
   virtual SearchEnginePtr get_search_engine ( TokenPtr ) = 0;
+  
+  /**
+   * These methods create the instances of the
+   * objects and return the correspondent
+   * (shared) pointers to them.
+   * @param TokenPtr pointer to the token describing a search engine.
+   *        If the token does not correspond to the object to
+   *        instantiate, it returns nullptr.
+   */
+  virtual ConstraintStorePtr get_store () = 0;
   
 };
 

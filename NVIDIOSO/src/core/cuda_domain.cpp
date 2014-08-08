@@ -106,6 +106,11 @@ CudaDomain::upper_bound () const {
   return _domain[ UB_IDX() ];
 }//upper_bound
 
+bool
+CudaDomain::contains ( int value ) const {
+  return _concrete_domain->contains( value );
+}//contains
+
 DomainPtr
 CudaDomain::clone_impl () const {
   //@todo
@@ -128,7 +133,7 @@ CudaDomain::int_to_event () const {
 void
 CudaDomain::event_to_int ( EventType evt ) const {
   _domain[ EVT_IDX() ] = static_cast< int >( evt );
-}//int_to_event
+}//event_to_int
 
 void
 CudaDomain::set_bit_representation () {

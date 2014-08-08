@@ -35,6 +35,9 @@ public:
   //! See "model_generator.h"
   SearchEnginePtr get_search_engine ( TokenPtr );
   
+  //! See "model_generator.h"
+  ConstraintStorePtr get_store ();
+  
 };
 
 #endif

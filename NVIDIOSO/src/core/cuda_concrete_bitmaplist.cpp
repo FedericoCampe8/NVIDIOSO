@@ -9,8 +9,6 @@
 #include "cuda_concrete_bitmaplist.h"
 #include "cuda_utilities.h"
 
-using namespace std;
-
 CudaConcreteBitmapList::CudaConcreteBitmapList ( size_t size,
                                                  std::vector< std::pair <int, int> > pairs ) :
 CudaConcreteDomainBitmap ( size ) {
@@ -67,15 +65,15 @@ CudaConcreteBitmapList::pair_to_idx ( int i ) const {
 
 int
 CudaConcreteBitmapList::find_pair ( int val ) const {
-
+  
   // Consistency check
   if ( val < _init_lower_bound || val > _init_upper_bound ) return -1;
-
+  
   int idx;
   for ( int pair_idx = 0; pair_idx < _num_bitmaps; pair_idx++ ) {
     idx = pair_to_idx ( pair_idx );
     if ( (val >= _concrete_domain[ idx     ]) &&
-         (val <= _concrete_domain[ idx + 1 ]) ) {
+        (val <= _concrete_domain[ idx + 1 ]) ) {
       return  pair_idx;
     }
   }
@@ -84,7 +82,7 @@ CudaConcreteBitmapList::find_pair ( int val ) const {
 
 int
 CudaConcreteBitmapList::find_prev_pair ( int val ) const {
-
+  
   // Consistency check
   if ( val < _init_lower_bound || val > _init_upper_bound ) return -1;
   
@@ -94,7 +92,7 @@ CudaConcreteBitmapList::find_prev_pair ( int val ) const {
     idx_prev = pair_to_idx ( pair_idx - 1 );
     idx_curr = pair_to_idx ( pair_idx     );
     if ( (val > _concrete_domain[ idx_prev + 1 ]) &&
-         (val < _concrete_domain[ idx_curr     ]) ) {
+        (val < _concrete_domain[ idx_curr     ]) ) {
       return  pair_idx - 1;
     }
   }
@@ -113,7 +111,7 @@ CudaConcreteBitmapList::find_next_pair ( int val ) const {
     idx_curr = pair_to_idx ( pair_idx     );
     idx_next = pair_to_idx ( pair_idx + 1 );
     if ( (val > _concrete_domain[ idx_curr + 1 ]) &&
-         (val < _concrete_domain[ idx_next     ]) ) {
+        (val < _concrete_domain[ idx_next     ]) ) {
       return  pair_idx + 1;
     }
   }
@@ -122,7 +120,7 @@ CudaConcreteBitmapList::find_next_pair ( int val ) const {
 
 void
 CudaConcreteBitmapList::shrink ( int min, int max ) {
-
+  
   // Empty domain if not consistent
   if ( max < min ) {
     flush_domain ();
@@ -131,23 +129,23 @@ CudaConcreteBitmapList::shrink ( int min, int max ) {
   
   // Return if no reduction must be performed
   if ( min == _lower_bound &&
-       max == _upper_bound ) return;
+      max == _upper_bound ) return;
   
   // Return if no chages in the domain
   if ( (min <= _lower_bound) &&
-       (max >= _upper_bound) ) {
+      (max >= _upper_bound) ) {
     return;
   }
   
   // Set min w.r.t. the current bounds
   if ( (min < _lower_bound) &&
-       (max < _upper_bound) ) {
+      (max < _upper_bound) ) {
     min = _lower_bound;
   }
   
   // Set max w.r.t. the current bounds
   if ( (min > _lower_bound) &&
-       (max > _upper_bound) ) {
+      (max > _upper_bound) ) {
     max = _upper_bound;
   }
   
@@ -170,10 +168,10 @@ CudaConcreteBitmapList::shrink ( int min, int max ) {
     
     // Find chunk starting from lsb
     chunk = _bitmap_size - 1 - chunk;
-
+    
     // Set bitmap according to the new min value on the correspondend chunk
     if ( min >= 0 ) {
-
+      
       // Set to 0 previous chunks (i.e., chuncks on the right)
       for ( int i = _bitmap_size - 1; i > chunk; i-- )
         _concrete_domain[ idx + 2 + i ] = 0;
@@ -181,17 +179,17 @@ CudaConcreteBitmapList::shrink ( int min, int max ) {
       // Set 0 bits on the right in the chunk^th chunk
       _concrete_domain[ idx + 2 + chunk ] =
       CudaBitUtils::clear_bits_i_through_0 ( (unsigned int) _concrete_domain[ idx + 2 + chunk ],
-                                             IDX_BIT( min - _concrete_domain[ idx ] ) - 1 );
+                                            IDX_BIT( min - _concrete_domain[ idx ] ) - 1 );
     }
     else {
-
+      
       /*
        * Min is on the left, clean bits starting from MSB
        * Set to 0 previous chunks (i.e., chuncks on the left)
        */
       for ( int i = 0; i < chunk; i++ )
         _concrete_domain[ idx + 2 + i ] = 0;
-
+      
       // Set 0 bits on the left MSB through i in the chunk^th chunk
       int offset;
       if ( _concrete_domain[ idx ] < 0 && _concrete_domain[ idx + 1 ] < 0 ) {
@@ -200,17 +198,17 @@ CudaConcreteBitmapList::shrink ( int min, int max ) {
       else {
         offset = _concrete_domain[ idx ];
       }
-        
+      
       _concrete_domain[ idx + 2 + chunk ] =
       CudaBitUtils::clear_bits_MSB_through_i ( (unsigned int) _concrete_domain[ idx + 2 + chunk ],
-                                               IDX_BIT( abs ( min - offset ) ) + 1 );
+                                              IDX_BIT( abs ( min - offset ) ) + 1 );
     }
   }//bitmap_idx_min
   
   // If min is within some bitmap: update bitmap
   if ( bitmap_idx_max >= 0 ) {
     int idx = pair_to_idx ( bitmap_idx_max );
-
+    
     /*
      * Find the chunk containing max
      * @note chunks from right to left (max is on the left) for max >= 0, on the right for max < 0.
@@ -219,7 +217,7 @@ CudaConcreteBitmapList::shrink ( int min, int max ) {
      * {-32, 0} -> | -63..-32 | -31..0 |
      */
     int chunk = IDX_CHUNK ( _concrete_domain[ idx + 1 ] - max );
-
+    
     // Find chunk starting from MSB
     chunk = _bitmap_size - 1 - chunk;
     
@@ -233,8 +231,8 @@ CudaConcreteBitmapList::shrink ( int min, int max ) {
       // Set 0 bits on the left in the chunk^th chunk
       _concrete_domain[ idx + 2 + chunk ] =
       CudaBitUtils::clear_bits_MSB_through_i ( (unsigned int)
-                                               _concrete_domain[ idx + 2 + chunk ],
-                                               IDX_BIT( max - _concrete_domain[ idx ] ) + 1 );
+                                              _concrete_domain[ idx + 2 + chunk ],
+                                              IDX_BIT( max - _concrete_domain[ idx ] ) + 1 );
     }
     else {
       
@@ -252,7 +250,7 @@ CudaConcreteBitmapList::shrink ( int min, int max ) {
       }
       _concrete_domain[ idx + 2 + chunk ] =
       CudaBitUtils::clear_bits_i_through_0 ( (unsigned int) _concrete_domain[ idx + 2 + chunk ],
-                                             IDX_BIT( abs ( max - offset ) ) - 1 );
+                                            IDX_BIT( abs ( max - offset ) ) - 1 );
       
     }
   }//bitmap_idx_max
@@ -270,12 +268,12 @@ CudaConcreteBitmapList::shrink ( int min, int max ) {
     flush_domain ();
     return;
   }
-
+  
   /*
    * Recompute domain's size:
-   * count all the bits set to 1 in all the 
+   * count all the bits set to 1 in all the
    * bitmaps between bitmap_idx_min and bitmap_idx_max.
-   * @note shrink is performed considering min/max when consistency check on 
+   * @note shrink is performed considering min/max when consistency check on
    *       this bounds is already been performed above. This implies that
    *       bitmap_idx_min/bitmap_idx_max are never -1;
    */
@@ -301,7 +299,7 @@ CudaConcreteBitmapList::shrink ( int min, int max ) {
     set_empty ();
     return;
   }
-
+  
   // Update bounds
   if ( min > _lower_bound ) _lower_bound = min;
   if ( max < _upper_bound ) _upper_bound = max;
@@ -330,7 +328,7 @@ CudaConcreteBitmapList::subtract ( int value ) {
   chunk = _bitmap_size - 1 - chunk;
   
   if ( !CudaBitUtils::get_bit( _concrete_domain[ idx + 2 + chunk ],
-                              IDX_BIT( shift_value ) ) )
+                               IDX_BIT( shift_value ) ) )
     return;
   
   _concrete_domain[ idx + 2 + chunk ] = CudaBitUtils::clear_bit( _concrete_domain[ idx + 2 + chunk ], IDX_BIT( shift_value ) );
@@ -451,7 +449,7 @@ CudaConcreteBitmapList::add ( int min, int max  ) {
   
   if ( pair_idx_max >= 0 )
     max = _concrete_domain[ pair_to_idx( pair_idx_max ) + 1 ];
-
+  
   // Prepare bitmap to substitute/add in the right position
   int * new_pair = new int[ 2 + _bitmap_size ];
   
@@ -482,12 +480,12 @@ CudaConcreteBitmapList::add ( int min, int max  ) {
       // There is nothing on the right: add at the end of the current list
       pair_idx_min = _num_bitmaps * ( 2 + _bitmap_size );
       memcpy( &_concrete_domain[ pair_idx_min ],
-              new_pair, (2 + _bitmap_size) * sizeof( int ) );
+             new_pair, (2 + _bitmap_size) * sizeof( int ) );
       
       // Add num bitmaps and size of the current domain
       _num_bitmaps++;
       _domain_size += ( max -  min + 1 );
-
+      
       if ( min < _lower_bound ) _lower_bound = min;
       if ( max > _upper_bound ) _upper_bound = max;
       
@@ -526,7 +524,7 @@ CudaConcreteBitmapList::contains ( int val ) const {
     chunk = _bitmap_size - 1 - chunk;
     
     if ( CudaBitUtils::get_bit( _concrete_domain[ idx + 2 + chunk ],
-                               IDX_BIT( shift_value ) ) )
+                                IDX_BIT( shift_value ) ) )
       return true;
   }
   
@@ -542,7 +540,7 @@ CudaConcreteBitmapList::print () const {
     _concrete_domain [ idx_pair     ] << ", " <<
     _concrete_domain [ idx_pair + 1 ] << "}: ";
     for ( int j = 0; j < _bitmap_size; j++ ) {
-      CudaBitUtils::print_bit_rep ( _concrete_domain [ idx_pair + 2 + j ] );
+      CudaBitUtils::print_0x_rep ( _concrete_domain [ idx_pair + 2 + j ] );
       std::cout << " ";
     }
   }//idx

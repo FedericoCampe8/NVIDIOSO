@@ -58,7 +58,7 @@ int main( int argc, char * argv[] )
    ***************************************/
   logger->message ( dbg + "Instantiate CP solver." );
   
-  CPSolver * cp_solver = new CPSolver( /*d_store->get_model()*/ );
+  CPSolver * cp_solver = new CPSolver( d_store->get_model() );
   if ( cp_solver == nullptr ) {
     logger->error ( dbg + "Failed to create the constraint program." );
     logger->error ( dbg + "Clean and exit." );

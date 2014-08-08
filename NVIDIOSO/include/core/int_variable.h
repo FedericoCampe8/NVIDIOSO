@@ -14,11 +14,12 @@
 
 #include "variable.h"
 #include "int_domain.h"
+#include "backtrackable_object.h"
 
 class IntVariable;
 typedef std::shared_ptr<IntVariable> IntVariablePtr;
 
-class IntVariable : public Variable {
+class IntVariable : public Variable, public BacktrackableObject< std::vector<int> > {
 protected:
   /**
    * Pointer to the domain of the variable.
@@ -28,7 +29,7 @@ protected:
   
   IntVariable ();
   IntVariable ( int idv );
-  
+
 public:
   
   /**
@@ -55,9 +56,6 @@ public:
    * @todo implement set of sets of elements.
    */
   virtual void set_domain ( std::vector < std::vector < int > > elems ) = 0;
-  
-  //! Get (const) reference to this domain
-  virtual const DomainPtr domain ();
   
   //! Get event on this domain
   virtual EventType get_event () const;
@@ -95,6 +93,8 @@ public:
    * It returns the current minimal value in the
    * domain of this variable.
    * @return the minimum value belonging to the domain.
+   * @note the same value can be obtained by using the 
+   *       domain iterator. 
    */
   virtual int min() const;
   
@@ -102,6 +102,8 @@ public:
    * It returns the current maximal value in the
    * domain of this variable.
    * @return the maximum value belonging to the domain.
+   * @note the same value can be obtained by using the
+   *       domain iterator.
    */
   virtual int max() const;
   

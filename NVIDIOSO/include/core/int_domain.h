@@ -27,8 +27,10 @@ class IntDomain;
 typedef std::shared_ptr<IntDomain> IntDomainPtr;
 
 class IntDomain : public Domain {
-public:
+protected:
   IntDomain ();
+  
+public:
   virtual ~IntDomain ();
   
   //! Returns true if the domain has only one element
@@ -37,6 +39,11 @@ public:
   //! Returns true if the domain is empty
   bool is_empty () const;
   
+  //! Returns true if this is a numeric finite domain
+  bool is_numeric () const;
+  
+  //! Get string rep. of this domain
+  std::string get_string_representation () const;
   
   //! Print base info about int domain
   virtual void print () const;
@@ -46,6 +53,14 @@ public:
   
   //! Get the domain's upper bound
   virtual int upper_bound () const = 0;
+  
+  /**
+   * It checks whether the value belongs to
+   * the domain or not.
+   * @param value to check whether it is in the current domain.
+   * @return true if value is in this domain, false othewise
+   */
+  virtual bool contains ( int value ) const = 0;
   
   /**
    * Initialize domain:

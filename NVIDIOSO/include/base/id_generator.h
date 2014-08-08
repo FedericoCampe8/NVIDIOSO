@@ -59,26 +59,34 @@ public:
     return _id_gen_instance;
   }//get_instance
   
-  //! Reset id generator
+  //! Reset id generator.
   void reset_int_id ();
   
-  //! Reset id generator
+  //! Reset id generator.
   void reset_str_id ();
   
-  //! Set (base) ids (if not already set)
+  //! Set (base) ids (if not already set).
   void set_base_offset ( int );
   
   //! Set (base) ids (if not already set)
   void set_base_prefix ( std::string );
   
-  // Get ids
+  //! Get a new unique int id.
   int         get_int_id ();
+  
+  //! Get a new unique string id.
   std::string get_str_id ();
+  
+  //! Get a new unique int id.
   int         new_int_id ();
+  
+  //! Get a new unique string id.
   std::string new_str_id ();
   
-  // Info about the generator
+  //! Get the current id already generated.
   int         curr_int_id ();
+  
+  //! Get the current id already generated.
   std::string curr_str_id ();
   
   // Print info

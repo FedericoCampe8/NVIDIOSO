@@ -10,16 +10,13 @@
 
 IntVariable::IntVariable () :
 Variable () {
+  domain_iterator = new DomainIterator( _domain_ptr );
 }//IntVariable
 
 IntVariable::IntVariable ( int idv ) :
 Variable ( idv ) {
+  domain_iterator = new DomainIterator( _domain_ptr );
 }//IntVariable
-
-const DomainPtr
-IntVariable::domain () {
-  return _domain_ptr;
-}//domain
 
 EventType
 IntVariable::get_event () const {
@@ -59,21 +56,26 @@ IntVariable::max () const {
 void
 IntVariable::shrink ( int min, int max ) {
   _domain_ptr->shrink ( min, max );
+  notify_store ();
 }//shrink
 
 bool
 IntVariable::subtract ( int val ) {
-  return _domain_ptr->subtract ( val );
+  bool result = _domain_ptr->subtract ( val );
+  notify_store ();
+  return result;
 }//subtract
 
 void
 IntVariable::in_min ( int min ) {
   _domain_ptr->in_min ( min );
+  notify_store ();
 }//in_min
 
 void
 IntVariable::in_max ( int max ) {
   _domain_ptr->in_max ( max );
+  notify_store ();
 }//in_max
 
 void

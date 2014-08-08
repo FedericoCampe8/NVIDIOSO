@@ -49,6 +49,16 @@ BoolDomain::is_empty () const {
   return ( _bool_value == BoolValue::EMPTY_VALUE );
 }//is_empty
 
+bool
+BoolDomain::is_numeric () const {
+  return false;
+}//is_numeric
+
+std::string
+BoolDomain::get_string_representation () const {
+  throw string ( "Not yet implemented" );
+}//get_string_representation
+
 void
 BoolDomain::print () const {
   cout << "Bool Domain: ";

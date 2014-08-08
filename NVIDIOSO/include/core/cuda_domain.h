@@ -167,7 +167,8 @@ protected:
   
 public:
   CudaDomain  ();
-  ~CudaDomain ();
+  
+  virtual ~CudaDomain ();
   
   DomainPtr clone () const;
   
@@ -215,6 +216,14 @@ public:
   int upper_bound () const;
   
   /**
+   * It checks whether the value belongs to
+   * the domain or not.
+   * @param value to check whether it is in the current domain.
+   * @return true if value is in this domain, false othewise
+   */
+  bool contains ( int value ) const;
+  
+  /**
    * The same as set_bounds.
    * It shrinks the domain to {min, max}.
    * @param min lower bound
@@ -233,8 +242,11 @@ public:
    */
   void shrink ( int min, int max );
   
-  //! Set domain as singleton
-  bool set_singleton ( int );
+  /**
+   * Set domain as singleton as {val}.
+   * @param val the value to set as singleton.
+   */
+  bool set_singleton ( int val );
   
   //! Subtract the element from the domain (see int_domain.h)
   bool subtract ( int n );

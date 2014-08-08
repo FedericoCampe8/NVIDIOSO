@@ -16,11 +16,16 @@
 #define NVIDIOSO_constraint_h
 
 #include "globals.h"
-#include "event.h"
 #include "variable.h"
 
 class Constraint;
 typedef std::shared_ptr<Constraint> ConstraintPtr;
+
+enum class ConsistencyType {
+  BOUND_C,
+  DOMAIN_C,
+  OTHER_C
+};
 
 class Constraint : public std::enable_shared_from_this< Constraint > {
 private:
@@ -52,6 +57,16 @@ protected:
    * of the constraint.
    */
   std::string _str_id;
+  
+  /**
+   * It specifies which kind of consistency the constraint
+   * must ensure. 
+   * There are at least two types of consistency:
+   * 1 - bound consistency 
+   * 2 - domain consistency
+   * Default is bound consistency.
+   */
+  ConsistencyType _consistency;
 
   /**
    * It specifies the events which trigger the propagation
@@ -99,6 +114,14 @@ public:
   
   //! Get the weight of this constraint.
   int get_weight () const;
+  
+  /**
+   * Set the consistency level for this
+   * constraints. Different consistency
+   * levels are implemented with different algorithms
+   * and may require different computational times.
+   */
+  void set_consistency_level ( ConsistencyType con_type );
   
   /**
    * Increse current weight.
@@ -150,7 +173,7 @@ public:
    * @param e an object of type Event that specifies the event
    *        that triggered the update.
    */
-  virtual void update ( const Event& e );
+  virtual void update ( EventType e );
   
   /**
    * It returns a vector of (pointers to) constraints which are used
@@ -218,7 +241,7 @@ public:
    * When a variable changes state, this constraint could be
    * automatically notified (depending on the variable).
    */
-  virtual void attach_me () = 0;
+  virtual void attach_me_to_vars () = 0;
   
   /**
    * It is a (most probably incomplete) consistency function which

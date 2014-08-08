@@ -65,6 +65,7 @@ CPStore::load_model ( string ifile ) {
 
 void
 CPStore::init_model () {
+  
   // New Model
   _cp_model = new CPModel ();
   
@@ -72,7 +73,8 @@ CPStore::init_model () {
    * Use a model generator to instantiate variables,
    * constraints, and the search engine.
    */
-  ModelGenerator * generator = FactoryModelGenerator::get_generator( GeneratorType::CUDA );
+  ModelGenerator * generator =
+  FactoryModelGenerator::get_generator( GeneratorType::CUDA );
   
   /*
    * This works as follows:
@@ -82,27 +84,36 @@ CPStore::init_model () {
    * instantiate the right object (e.g., a FD variable).
    * The object is then added to the CP model.
    */
+  
   // Variables
   while ( _parser->more_variables () ) {
     try {
       _cp_model->add_variable ( generator->get_variable ( _parser->get_variable() ) );
-    } catch (...) {
-      logger->error( _dbg + "Can't add variable", __FILE__, __LINE__ );
-      throw new std::string( _dbg + "Error in initializing the model" );
+    } catch ( exception& e ) {
+      // Log exception
+      logger->error( e.what() );
+      // Throw again to exit the program in a clean fashion
+      throw;
     }
-    
-  } 
+  }
+  
   // Constraints
   while ( _parser->more_constraints () ) {
     _cp_model->add_constraint ( generator->get_constraint ( _parser->get_constraint() ) );
   }
-  // Search Engine
+  
+  // Constraint store
+  _cp_model->add_constraint_store( generator->get_store () );
+  
+  /*
+   * Search engine.
+   * @note search engine needs a constraint store.
+   */
   while ( _parser->more_search_engines () ) {
   _cp_model->add_search_engine ( generator->get_search_engine ( _parser->get_search_engine() ) );
   }
   
   delete generator;
-  
 }//init_store
 
 

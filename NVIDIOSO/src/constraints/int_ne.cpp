@@ -9,8 +9,6 @@
 #include "int_ne.h"
 #include "cuda_variable.h"
 
-using namespace std;
-
 IntNe::IntNe () :
 FZNConstraint ( INT_NE ) {
 }//IntNe
@@ -22,6 +20,7 @@ IntNe () {
 
 IntNe::IntNe ( int x, int y ) :
 FZNConstraint ( INT_NE ) {
+  
   /*
    * Set x and y as arguments.
    * @note no FD variables here: scope size equal
@@ -33,6 +32,7 @@ FZNConstraint ( INT_NE ) {
 
 IntNe::IntNe ( IntVariablePtr x, int y ) :
 FZNConstraint ( INT_NE ) {
+  
   // Consistency check on pointers
   if ( x == nullptr )
     throw NvdException ( (_dbg + "x variable is NULL").c_str() );
@@ -130,6 +130,7 @@ IntNe::scope () const {
 
 void
 IntNe::consistency () {
+  
   /*
    * Propagate constraint iff there are two
    * FD variables and one is ground OR
@@ -152,14 +153,14 @@ IntNe::consistency () {
    * 2 FD variables: if one is singleton,
    * propagate on the other.
    */
-  if ( get_arguments_size() == 0 ) {
+  if ( get_arguments_size() == 2 ) {
     if ( (_var_x->is_singleton()) &&
          (!_var_y->is_singleton()) ) {
-      _var_y->subtract( _var_x->min() );
+      _var_y->subtract( _var_x->min () );
     }
     else if ( (_var_y->is_singleton()) &&
               (!_var_x->is_singleton()) ) {
-      _var_x->subtract( _var_y->min() );
+      _var_x->subtract( _var_y->min () );
     }
     return;
   }
@@ -170,22 +171,31 @@ bool
 IntNe::satisfied ()  {
   
   // No FD variables, just check the integers values
-  if ( _arguments.size() == 2 ) {
+  if ( _scope_size == 0 ) {
     return _arguments[ 0 ] != _arguments[ 1 ];
   }
   
   // 1 FD variable, if singleton check
-  if ( (_arguments.size() == 1) &&
-       _var_x->is_singleton() ) {
-    return _arguments[ 0 ] != _var_x->min();
+  if ( (_scope_size == 1) &&
+        _var_x->is_singleton() ) {
+    return _arguments[ 0 ] != _var_x->min ();
   }
   
   // 2 FD variables, if singleton check
-  if ( (_arguments.size() == 0) &&
+  if ( (_scope_size == 2) &&
        (_var_x->is_singleton()) &&
        (_var_y->is_singleton()) ) {
-    return _var_x->min() != _var_y->min();
+    return _var_x->min () !=
+           _var_y->min ();
   }
+  
+  /*
+   * Check if a domain is empty.
+   * If it is the case: failed propagation.
+   */
+  if ( _var_x->is_empty () ||
+       _var_y->is_empty () )
+    return false;
   
   /*
    * Other cases: there is not enough information

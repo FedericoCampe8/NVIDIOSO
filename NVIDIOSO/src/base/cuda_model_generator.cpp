@@ -11,6 +11,10 @@
 #include "fzn_constraint_generator.h"
 #include "token_var.h"
 #include "token_con.h"
+#include "depth_first_search.h"
+#include "simple_heuristic.h"
+#include "input_order_metric.h"
+#include "indomain_min_metric.h"
 
 using namespace std;
 
@@ -20,6 +24,7 @@ _dbg( "CudaGenerator - " ){
 }//CudaGenerator
 
 CudaGenerator::~CudaGenerator () {
+  _var_lookup_table.clear();
 }//~CudaGenerator
 
 VariablePtr
@@ -186,9 +191,36 @@ CudaGenerator::get_search_engine ( TokenPtr tkn_ptr ) {
     return nullptr;
   }
   
-  return nullptr;
+  // Default search engine: use factory here
+  SearchEnginePtr engine;
+  engine = make_shared<DepthFirstSearch>();
+  
+  // Heuristic
+  HeuristicPtr heuristic;
+  
+  // Variables to label
+  vector<Variable*> variables;
+  for ( auto var : _var_lookup_table ) {
+    variables.push_back ( (var.second).get() );
+  }
+  
+  heuristic = make_shared<SimpleHeuristic>( variables,
+                                            new InputOrder(),
+                                            new InDomainMin() );
+  /*
+   * Set heuristic.
+   * @note store will be set later.
+   */
+  engine->set_heuristic( heuristic );
+  
+  return engine;
 }//get_search_engine
 
+ConstraintStorePtr
+CudaGenerator::get_store () {
+  ConstraintStorePtr store = make_shared<SimpleConstraintStore> ();
+  return store;
+}//get_store
 
 
 

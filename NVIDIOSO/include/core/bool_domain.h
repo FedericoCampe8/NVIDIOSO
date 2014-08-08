@@ -56,6 +56,12 @@ public:
   //! Returns true if the domain has only one element
   bool is_singleton () const;
   
+  //! Returns true if this is a numeric finite domain
+  bool is_numeric () const;
+  
+  //! Get string rep. of this domain
+  std::string get_string_representation () const;
+  
   //! Print info about the domain
   void print () const;
 };

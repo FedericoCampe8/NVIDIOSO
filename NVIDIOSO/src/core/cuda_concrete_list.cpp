@@ -8,8 +8,6 @@
 
 #include "cuda_concrete_list.h"
 
-using namespace std;
-
 CudaConcreteDomainList::CudaConcreteDomainList ( size_t size, int min, int max ) :
 CudaConcreteDomain ( size ),
 _num_pairs         ( 0 ),
@@ -21,13 +19,13 @@ _domain_size       ( 0 ) {
     set_empty ();
     return;
   }
-  
+
   _max_allowed_pairs = _num_chunks / 2;
   if ( _max_allowed_pairs < 1 ) {
     set_empty ();
     return;
   }
-  
+
   // Initialize bitmap
   for ( int i = 0; i < _num_chunks; i++ ) {
     _concrete_domain[ i ] = 0x0;
@@ -40,7 +38,7 @@ _domain_size       ( 0 ) {
   // Set initial lower/upper bounds
   _init_lower_bound = _lower_bound;
   _init_upper_bound = _upper_bound;
-
+  
   // Add the new pair of bounds to the list
   add ( min, max );
 }//CudaConcreteDomainList
@@ -52,6 +50,8 @@ CudaConcreteDomainList::size () const {
 
 int
 CudaConcreteDomainList::find_pair ( int val ) const {
+  if ( _num_pairs == 0 ) return -1;
+  
   // Scan the pairs to check for val
   for ( int pair_idx = 0; pair_idx < _num_pairs; pair_idx++ ) {
     if ( val >= _concrete_domain [ 2 * pair_idx     ] &&
@@ -64,13 +64,15 @@ CudaConcreteDomainList::find_pair ( int val ) const {
 
 int
 CudaConcreteDomainList::find_prev_pair ( int val ) const {
+  if ( _num_pairs == 0 ) return -1;
+  
   for ( int pair_idx = 0; pair_idx < _num_pairs - 1; pair_idx++ ) {
     if ( (_concrete_domain[ 2 * pair_idx + 1   ] < val) &&
          (_concrete_domain[ 2 * (pair_idx + 1) ] > val) ) {
       return  pair_idx;
     }
   }
-
+  
   // Check last pair
   if ( _concrete_domain[ 2 * (_num_pairs - 1) + 1 ] < val)
     return _num_pairs - 1;
@@ -81,9 +83,10 @@ CudaConcreteDomainList::find_prev_pair ( int val ) const {
 int
 CudaConcreteDomainList::find_next_pair ( int val ) const {
   
+  if ( _num_pairs == 0 ) return -1;
+  
   // Check first pair
-  if ( _concrete_domain[ 0 ] > val)
-    return  0;
+  if ( _concrete_domain[ 0 ] > val ) return 0;
   
   for ( int pair_idx = 1; pair_idx < _num_pairs; pair_idx++ ) {
     if ( (_concrete_domain[ 2 * pair_idx           ] > val) &&
@@ -155,7 +158,7 @@ CudaConcreteDomainList::shrink ( int min, int max ) {
     
     // min is within this pair of bounds
     if ( (min >= _concrete_domain[ 2 * pair_idx     ]) &&
-         (min <= _concrete_domain[ 2 * pair_idx + 1 ]) ) {
+        (min <= _concrete_domain[ 2 * pair_idx + 1 ]) ) {
       pair_with_min          = pair_idx;
       sum_prev_vals_complete = true;
       
@@ -171,12 +174,12 @@ CudaConcreteDomainList::shrink ( int min, int max ) {
       sum_prev_elements += pair_size;
     }
     
-    /* 
+    /*
      * Add 1 to the number of pairs between min and max
-     * when min has been found but not max yet 
+     * when min has been found but not max yet
      */
     if ( sum_prev_vals_complete &&
-         !sum_next_vals_complete  ) {
+         !sum_next_vals_complete ) {
       num_pairs_in_domain += 1;
     }
     
@@ -204,7 +207,7 @@ CudaConcreteDomainList::shrink ( int min, int max ) {
     }
     
     /*
-     * Check when min (max) is between to pairs, e.g., 
+     * Check when min (max) is between to pairs, e.g.,
      * min = 7 in {3, 6} {10, 14}.
      */
     if ( pair_idx < _num_pairs - 1 ) {
@@ -234,17 +237,16 @@ CudaConcreteDomainList::shrink ( int min, int max ) {
     flush_domain ();
     return;
   }
-  
   // Set new number of valid pairs
   _num_pairs = num_pairs_in_domain;
   
   // Reduce total size
   _domain_size -= (sum_prev_elements + sum_next_elements);
-
+  
   /*
    * Translate the pairs on the left:
    * {1, 4} {6, 10} {22, 25} (min = 8, max = 23) ->
-   * {8, 10}, {22, 23}.
+   * {8, 10}, {23, 25}.
    */
   if ( pair_with_min > 0 ) {
     memcpy( _concrete_domain,
@@ -304,7 +306,7 @@ CudaConcreteDomainList::add ( int min, int max ) {
   // Find the pair containing min (max)
   int lower_pair = find_pair ( min );
   int upper_pair = find_pair ( max );
-
+  
   /*
    * Example:
    * min = 13, max = 35
@@ -317,7 +319,8 @@ CudaConcreteDomainList::add ( int min, int max ) {
    * num_pairs_within = 1 (i.e., {20, 25})
    * num_pairs_right  = 1 (i.e., {40, 50})
    */
-  if ( (lower_pair > 0) && (upper_pair > 0) ) {
+  if ( (lower_pair >= 0) &&
+       (upper_pair >= 0) ) {
     
     // No action if min/max are in the same pair
     if ( lower_pair == upper_pair ) return;
@@ -361,7 +364,7 @@ CudaConcreteDomainList::add ( int min, int max ) {
    * lower_pair       = 1
    * num_pairs_within = 1 (i.e., {20, 25})
    */
-  if ( lower_pair > 0 ) {
+  if ( lower_pair >= 0 ) {
     
     // Find prev pair and add elements to it
     int prev_pair_idx = find_prev_pair ( max );
@@ -407,7 +410,7 @@ CudaConcreteDomainList::add ( int min, int max ) {
    * num_pairs_right  = 1
    * num_pairs_within = 0
    */
-  if ( upper_pair > 0 ) {
+  if ( upper_pair >= 0 ) {
     int next_pair_idx = find_next_pair ( min );
     
     // Find the number of elements to add
@@ -434,8 +437,8 @@ CudaConcreteDomainList::add ( int min, int max ) {
     // Copy only if there are pairs on the right to copy
     if ( num_pairs_right > 0 )
       memcpy( &_concrete_domain [ 2 * (next_pair_idx + 1) ],
-              &_concrete_domain [ 2 * (upper_pair + 1)    ] ,
-              2 * num_pairs_right * sizeof( int ) );
+             &_concrete_domain [ 2 * (upper_pair + 1)    ] ,
+             2 * num_pairs_right * sizeof( int ) );
     
     // Fix total num pairs
     _num_pairs -= (num_pairs_within + 1);
@@ -456,14 +459,15 @@ CudaConcreteDomainList::add ( int min, int max ) {
    */
   if ( lower_pair < 0 && upper_pair < 0 ) {
     int next_pair_idx = find_next_pair ( min );
-    int prev_pair_idx = find_prev_pair ( max );
-    
+    int prev_pair_idx = find_next_pair ( max );
+
     // If prev/next < 0: no elements -> add current pair and exit
     if ( (prev_pair_idx < 0) &&
          (next_pair_idx < 0) ) {
       _concrete_domain[ 0 ] = min;
       _concrete_domain[ 1 ] = max;
-      _domain_size = max - min + 1;
+      _domain_size = (max - min) + 1;
+
       // Update bounds
       if ( min < _lower_bound ) _lower_bound = min;
       if ( max > _upper_bound ) _upper_bound = max;
@@ -480,10 +484,10 @@ CudaConcreteDomainList::add ( int min, int max ) {
      * {1, 4}, {18, 19}
      */
     if ( (next_pair_idx > prev_pair_idx) ||
-         ((next_pair_idx < 0) && ( prev_pair_idx >= 0 )) ) {
+        ((next_pair_idx < 0) && ( prev_pair_idx >= 0 )) ) {
       if ( _num_pairs + 1 > _max_allowed_pairs ) {
         logger->error( _dbg + "Can't add another pair",
-                       __FILE__, __LINE__ );
+                      __FILE__, __LINE__ );
         set_empty ();
         return;
       }
@@ -492,8 +496,8 @@ CudaConcreteDomainList::add ( int min, int max ) {
       int num_pairs_right = _num_pairs - prev_pair_idx - 1;
       if ( num_pairs_right > 0 )
         memcpy( &_concrete_domain[ 2 * (next_pair_idx + 1) ],
-                &_concrete_domain[ 2 * (prev_pair_idx + 1) ],
-                2 * num_pairs_right * sizeof( int ) );
+               &_concrete_domain[ 2 * (prev_pair_idx + 1) ],
+               2 * num_pairs_right * sizeof( int ) );
       
       if ( next_pair_idx < 0 ) next_pair_idx = prev_pair_idx + 1;
       _concrete_domain[ 2 * next_pair_idx     ] = min;
@@ -507,7 +511,7 @@ CudaConcreteDomainList::add ( int min, int max ) {
     // Find the number of elements to add
     int sum_elements = 0;
     for ( int pair_idx = next_pair_idx + 1;
-          pair_idx <= prev_pair_idx; pair_idx++ ) {
+          pair_idx <= upper_pair; pair_idx++ ) {
       sum_elements +=
       _concrete_domain[ 2 * pair_idx           ] -
       _concrete_domain[ 2 * (pair_idx - 1) + 1 ] - 1;

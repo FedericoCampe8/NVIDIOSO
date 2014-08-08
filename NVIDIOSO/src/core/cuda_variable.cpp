@@ -32,7 +32,7 @@ CudaVariable::~CudaVariable () {
 
 void
 CudaVariable::set_domain () {
-  _domain_ptr->init_domain ( Domain::MIN_DOMAIN(), Domain::MAX_DOMAIN() );
+  _domain_ptr->init_domain ( Domain::MIN_DOMAIN()/2, Domain::MAX_DOMAIN() );
 }//set_domain
 
 void

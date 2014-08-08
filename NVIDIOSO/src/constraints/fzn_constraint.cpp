@@ -228,7 +228,7 @@ FZNConstraint::name_to_id ( std::string c_name ) {
 }//name_to_id
 
 void
-FZNConstraint::attach_me () {
+FZNConstraint::attach_me_to_vars () {
   for ( auto var : scope() )
     var->attach_constraint( get_this_shared_ptr() );
 }//attach_me

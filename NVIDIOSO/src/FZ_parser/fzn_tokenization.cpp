@@ -53,7 +53,8 @@ FZNTokenization::get_token () {
   
   TokenPtr current_token = analyze_token ();
   if ( current_token == nullptr ) {
-    throw new std::string( _dbg + "Error in tokenization" );
+    throw  NvdException ( ( _dbg + "Error in tokenization" ).c_str(),
+                          __FILE__, __LINE__ );
   }
   
   return current_token;
@@ -61,9 +62,11 @@ FZNTokenization::get_token () {
 
 TokenPtr
 FZNTokenization::analyze_token () {
+  
   // Analyze _c_token
   string token_str;
   token_str.assign( _c_token );
+  
   // Check if a keyword has been found
   size_t found_arr = token_str.find ( ARR_TOKEN );
   size_t found_con = token_str.find ( CON_TOKEN );
@@ -95,6 +98,7 @@ FZNTokenization::analyze_token () {
 
 TokenPtr
 FZNTokenization::analyze_token_arr () {
+  
   // Token (pointer) to return
   TokenPtr tkn_ptr = make_shared<TokenArr> ();
   
@@ -183,6 +187,7 @@ FZNTokenization::analyze_token_arr () {
   token_str = token_str.substr ( ptr + 1 );
   string var_id = "";
   for ( auto x: token_str ) {
+    if ( var_id.size() && x == ' ' ) break;
     if ( x == ' ') continue;
     if ( (x == ';') ||
          (x == ':')) {
@@ -190,8 +195,20 @@ FZNTokenization::analyze_token_arr () {
     }
     var_id += x;
   }
+  
   // Set array id
   (std::static_pointer_cast<TokenArr>( tkn_ptr ))->set_var_id ( var_id );
+  
+  ptr = token_str.find_first_of( "[", 0 );
+  
+  if ( ptr != string::npos ) {
+    ptr_aux = token_str.find_first_of( "]" );
+    
+    // Set support array and string representing elements
+    string support_element = token_str.substr( ptr, ptr_aux - ptr + 1 );
+    (std::static_pointer_cast<TokenArr>( tkn_ptr ))->
+    set_support_elements ( support_element );
+  }
   
   // Set range array
   token_str.assign( _c_token );
@@ -203,6 +220,7 @@ FZNTokenization::analyze_token_arr () {
   ptr_aux = token_str.find_first_of( ".", 0 );
   lower_bound = atoi( token_str.substr( 0, ptr_aux ).c_str() );
   ptr_aux = token_str.find_first_of( ":", ptr_aux+2 );
+  
   //Check ' ' before ':'
   token_str = token_str.substr( token_str.find_first_of( ".", 0 ) + 2, ptr_aux );
   ptr_aux = token_str.find_first_of( " ", 0 );
@@ -487,6 +505,7 @@ FZNTokenization::analyze_token_var () {
   token_str = token_str.substr ( ptr + 1 );
   string var_id = "";
   for ( auto x: token_str ) {
+    if ( var_id.size() && x == ' ' ) break;
     if ( x == ' ') continue;
     if ( (x == ';') ||
          (x == ':')) {

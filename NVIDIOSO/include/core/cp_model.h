@@ -16,11 +16,6 @@
 //  Specific implementations of the solver (i.e., using the CUDA framework)
 //  should derive from this class and specilize the following methods.
 //
-//  @note: this class is also used to generate the constraint graph
-//         when creating the objects.
-//         For each variable, a link to the set of constraints is created.
-//         For each constraint, a link to the variables in its scope is created.
-//
 
 #ifndef NVIDIOSO_cp_model_h
 #define NVIDIOSO_cp_model_h
@@ -32,19 +27,32 @@
 
 class CPModel {
 protected:
+  //! Unique id for this model
+  int _model_id;
   
   //! Variables
-  std::list < VariablePtr > _variables;
+  std::vector < VariablePtr > _variables;
+  
   //! Constraint Store
-  ConstraintPtr _constraint_store;
+  std::vector <  ConstraintPtr > _constraints;
+  
   //! Search engine
   SearchEnginePtr _search_engine;
+  
+  //! Constraint store
+  ConstraintStorePtr _store;
   
 public:
   
   CPModel ();
   virtual ~CPModel();
-
+  
+  /**
+   * Get the (unique) id of this model.
+   * @return the model's id.
+   */
+  virtual int get_id () const;
+  
   /**
    * Add a variable to the model.
    * It linkes variables to constraints,
@@ -63,10 +71,53 @@ public:
   
   /**
    * Add a search engine to the model.
-   * @param ptr pointer to the search engine to use to
+   * @param ptr pointer to the search engine to use in order to
    *        explore the search space.
+   * @note  if a constraint store is already present in the model,
+   *        it sets the store into the given search engine.
    */
   virtual void add_search_engine ( SearchEnginePtr ptr );
+  
+  /**
+   * Gets the search engine in order to run it.
+   * @return a reference to the search engine in this model.
+   */
+  virtual SearchEnginePtr get_search_engine ();
+  
+  /**
+   * Add a constraint store to the model.
+   * @param store pointer to the constraint store to
+   *        attach to the variables and propagate constraints.
+   * @note this represents at least the first instance of constraint store.
+   *       Every time this method is called, the variable's store will be
+   *       updated with the given instance.
+   * @note If a search engine is already present in the model, 
+   *       it sets the given constraint store to the search engine.
+   */
+  virtual void add_constraint_store ( ConstraintStorePtr store );
+  
+  /**
+   * Initializes the constraint store filling it with
+   * the all the constraints into the model.
+   */
+  virtual void init_constraint_store ();
+  
+  /**
+   * Defines the constraint graphs actually attaching the constraints
+   * to the variables.
+   */
+  virtual void create_constraint_graph ();
+  
+  /**
+   * Sets the constraint store as current constraint store
+   * for all the variables in the model.
+   * When a variable changes its state, the constraint store
+   * is automatically notified.
+   */
+  virtual void attach_constraint_store ();
+  
+  //! Print information about this CP Model.
+  virtual void print () const;
 };
 
 #endif

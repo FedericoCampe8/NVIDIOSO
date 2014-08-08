@@ -27,6 +27,7 @@ private:
   Parser * _parser;
   
 protected:
+  
   //! Protected constructor for singleton pattern
   CPStore ( std::string );
   

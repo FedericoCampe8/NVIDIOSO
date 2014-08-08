@@ -294,7 +294,7 @@ public:
    * When a variable changes state, this constraint could be
    * automatically notified (depending on the variable).
    */
-  void attach_me () override;
+  void attach_me_to_vars () override;
   
   /**
    * It is a (most probably incomplete) consistency function which

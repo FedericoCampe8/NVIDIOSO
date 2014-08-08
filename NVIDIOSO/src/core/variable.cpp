@@ -8,24 +8,30 @@
 
 #include "variable.h"
 #include "constraint.h"
+#include "constraint_store.h"
 
 using namespace std;
 
 Variable::Variable () :
 _str_id              ( "" ),
+_constraint_store    ( nullptr ),
 _var_type            ( VariableType::OTHER ),
-_number_of_observers ( 0 ) {
+_number_of_constraints ( 0 ) {
   _id = glb_id_gen->get_int_id();
 }//Variable
 
-Variable::Variable ( int id ) :
-_id                  ( id ),
+Variable::Variable ( int v_id ) :
+_id                  ( v_id ),
 _str_id              ( "" ),
+_constraint_store    ( nullptr ),
 _var_type            ( VariableType::OTHER ),
-_number_of_observers ( 0 ) {
+_number_of_constraints ( 0 ) {
 }//Variable
 
 Variable::~Variable () {
+  _attached_constraints.clear();
+  _detach_constraints.clear();
+  delete domain_iterator;
 }//~Variable
 
 int
@@ -63,22 +69,30 @@ Variable::is_empty () const {
 }//is_empty
 
 void
-Variable::attach_constraint ( ObserverPtr c ) {
+Variable::attach_store ( ConstraintStorePtr store ) {
+  if ( store == nullptr ) {
+    throw NvdException ( (_dbg + "Trying to set a null pointer as store").c_str() );
+  }
+  _constraint_store = store;
+}//attach_store
+
+void
+Variable::attach_constraint ( ConstraintPtr c ) {
   
   // Consistency check
   if ( c == nullptr ) return;
   
   /*
-   * Check if c is the list of detached observers.
-   * If it is the case, move from detached observers
-   * to observers. Otherwise attach c to the current
-   * list of observers and increase size.
+   * Check if c is the list of detached constraints.
+   * If it is the case, move from detached constraints
+   * to attached_constraints. 
+   * Otherwise attach c to the current
+   * list of attached constraints and increase size.
    */
-  auto iter = _detach_observers.begin();
-  while ( iter != _detach_observers.end() ) {
+  auto iter = _detach_constraints.begin();
+  while ( iter != _detach_constraints.end() ) {
     if ( *iter == c->get_unique_id() ) {
-      _observers.push_back( c );
-      _detach_observers.erase( iter );
+      _detach_constraints.erase( iter );
       return;
     }
   }
@@ -87,71 +101,120 @@ Variable::attach_constraint ( ObserverPtr c ) {
    * Otherwise add c to the observers and increase 
    * the total number of observers.
    */
-  _observers.push_back( c );
-  _number_of_observers++;
+  for ( auto event : c->events() ) {
+    if ( _attached_constraints.find( event ) == _attached_constraints.end() ) {
+      _attached_constraints[ event ].push_back ( c );
+    }
+    else {
+      for ( int i = 0; i < _attached_constraints[ event ].size(); i++ ) {
+        if ( _attached_constraints[ event ][ i ]->get_unique_id() ==
+             c->get_unique_id ()) {
+          return;
+        }
+      }//i
+      _attached_constraints[ event ].push_back ( c );
+    }
+  }
+  
+  _number_of_constraints++;
 }//attach_constraint
 
 void
 Variable::notify_constraint () {
-  Event event ( get_event() );
-  for ( auto c : _observers )
-    c->update ( event );
+  EventType event = get_event();
+  bool find;
+  for ( auto c : _attached_constraints[ event ] ) {
+    find = false;
+    for ( auto det : _detach_constraints ) {
+      if ( det == c->get_unique_id() ) {
+        find = true;
+        break;
+      }
+    }
+    if ( !find ) {
+      c->update ( event );
+    }
+  }
 }//notify_constraint
 
 void
 Variable::notify_store () {
+
+  if ( _constraint_store == nullptr ) {
+    throw NvdException ( (_dbg + "No store attached to this constraint").c_str() );
+  }
+  
+  EventType event = get_event ();
+  
+  /*
+   * If there is a fail event, then
+   * notify store to stop re-evaluating constraints
+   * as soon as possible.
+   */
+  if ( event == EventType::FAIL_EVT ) {
+    _constraint_store->fail ();
+    return;
+  }
+  
+  vector< size_t > constraints_to_reevaluate;
+  for ( auto c : _attached_constraints[ event ] ){
+    if ( is_attached( c->get_unique_id() ) ) {
+      constraints_to_reevaluate.push_back( c->get_unique_id() );
+    }
+  }
+  
+  // Update constraint store
+  _constraint_store->add_changed ( constraints_to_reevaluate, event );
+  constraints_to_reevaluate.clear ();
 }//notify_store
 
 void
-Variable::detach_constraint ( ObserverPtr c ) {
-  
+Variable::detach_constraint ( ConstraintPtr c ) {
   // Consistency check
   if ( c == nullptr ) return;
-  
-  /*
-   * Check if c is among the list of observers.
-   * If it is the case, detach it, otherwise return.
-   */
-  auto iter = _observers.begin();
-  while ( iter != _observers.end() ) {
-    if ( (*iter)->get_unique_id() == c->get_unique_id() ) {
-      _detach_observers.push_back( c->get_unique_id() );
-      _observers.erase( iter );
-      return;
-    }
-  }
+  detach_constraint ( c->get_unique_id() );
 }//detach_constraint
 
 void
 Variable::detach_constraint ( size_t c_id ) {
-  
-  /*
-   * Check if c is among the list of observers.
-   * If it is the case, detach it, otherwise return.
-   */
-  auto iter = _observers.begin();
-  while ( iter != _observers.end() ) {
-    if ( (*iter)->get_unique_id() == c_id ) {
-      _detach_observers.push_back( c_id );
-      _observers.erase( iter );
-      return;
-    }
-  }
+  _detach_constraints.push_back( c_id );
 }//detach_constraint
 
 size_t
 Variable::size_constraints () {
+  if ( _attached_constraints.size() == 0 ) return 0;
+  
   size_t not_sat = 0;
-  for ( auto x : _observers ) {
-    if ( !x->satisfied() ) not_sat++;
+  map < size_t, Constraint * > valid_constraints;
+  for ( auto x : _attached_constraints ) {
+    for ( auto y : x.second ) {
+      if ( is_attached (y->get_unique_id()) ) {
+        valid_constraints[ y->get_unique_id() ] = y.get();
+      }
+    }
+  }
+  
+  if ( valid_constraints.size() == 0 ) return 0;
+  
+  for ( auto x : valid_constraints ) {
+    if ( !x.second->satisfied() ) not_sat++;
   }
   
   return not_sat;
 }//size_constraints
 
+bool
+Variable::is_attached ( size_t c_id ) {
+  if ( _detach_constraints.size() == 0 ) return true;
+  
+  for ( auto x : _detach_constraints )
+    if ( x == c_id ) return false;
+  return true;
+}//is_attached
+
 size_t
 Variable::size_constraints_original () const {
-  return _number_of_observers;
+  return _number_of_constraints;
 }//size_constraints_original
 
 void

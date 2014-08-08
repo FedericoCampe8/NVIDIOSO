@@ -13,6 +13,7 @@ using namespace std;
 IntDomain::IntDomain () {
   _dbg = "IntDomain - ";
   _dom_type = DomainType::INTEGER;
+  
 }//IntDomain
 
 IntDomain::~IntDomain () {
@@ -33,6 +34,25 @@ IntDomain::is_singleton () const {
   
   return ( lower_bound() == upper_bound() );
 }//is_singleton
+
+//! Returns true if this is a numeric finite domain
+bool
+IntDomain::is_numeric () const {
+  return true;
+}//is_numeric
+
+string
+IntDomain::get_string_representation () const {
+  string domain_str = "";
+  for ( int i = lower_bound(); i <= upper_bound(); i++ ) {
+    if ( contains ( i ) ) {
+      ostringstream convert;
+      convert << i;
+      domain_str += convert.str();
+    }
+  }
+  return domain_str;
+}//get_string_representation
 
 void
 IntDomain::print () const {

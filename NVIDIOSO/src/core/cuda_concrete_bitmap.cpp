@@ -9,8 +9,6 @@
 #include "cuda_concrete_bitmap.h"
 #include "cuda_utilities.h"
 
-using namespace std;
-
 CudaConcreteDomainBitmap::CudaConcreteDomainBitmap ( size_t size ) :
 CudaConcreteDomain ( size ) {
   _dbg = "CudaConcreteDomainBitmap - ";
@@ -74,6 +72,7 @@ CudaConcreteDomainBitmap::size () const {
 
 void
 CudaConcreteDomainBitmap::shrink ( int min, int max ) {
+  
   // Empty domain if not consistent
   if ( max < min ) {
     flush_domain ();
@@ -135,7 +134,7 @@ CudaConcreteDomainBitmap::shrink ( int min, int max ) {
   for ( ; lower_idx >= upper_idx; lower_idx-- ) {
     num_bits += CudaBitUtils::num_1bit( (uint) _concrete_domain[ lower_idx ] );
   }
-
+  
   _lower_bound    = min;
   _upper_bound    = max;
   _num_valid_bits = num_bits;
@@ -157,7 +156,7 @@ CudaConcreteDomainBitmap::subtract ( int value ) {
     return;
   
   _concrete_domain[ chunk ] = CudaBitUtils::clear_bit( _concrete_domain[ chunk ],
-                                                      IDX_BIT( value ) );
+                                                       IDX_BIT( value ) );
   
   // Decrease number of valid bits
   _num_valid_bits -= 1;
@@ -228,6 +227,7 @@ CudaConcreteDomainBitmap::add ( int value ) {
   chunk = _num_chunks - 1 - chunk;
   
   // Otherwise set the corresponding bit to 1 and increment size
+  if ( CudaBitUtils::get_bit( _concrete_domain[ chunk ], IDX_BIT( value ) ) ) return;
   _concrete_domain[ chunk ] = CudaBitUtils::set_bit( _concrete_domain[ chunk ],
                                                      IDX_BIT( value ) );
   
