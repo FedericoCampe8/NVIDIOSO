@@ -100,7 +100,7 @@
         (considering a 32bit representation for an unsigned int), where
         the most significan bit is in the leftmost position of the chuck, 
         i.e., it is the 31th bit.
-        For example, the domain {0, 63} is store as
+        For example, the domain {0, 63} is stored as
         |63...32|31...0|.
         The chunk is easily retrieved computing num / 32, while the 
         position within each chunk can be retrieved by num % 32.
