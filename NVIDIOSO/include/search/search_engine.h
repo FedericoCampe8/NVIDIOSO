@@ -20,6 +20,8 @@
 #include "domain.h"
 #include "constraint_store.h"
 #include "heuristic.h"
+#include "solution_manager.h"
+#include "backtrack_manager.h"
 
 class SearchEngine;
 typedef std::shared_ptr<SearchEngine> SearchEnginePtr;
@@ -30,6 +32,21 @@ protected:
   
 public:
   virtual ~SearchEngine () {};
+  
+  /**
+   * Set debug option.
+   * @param debug_on boolean value indicating if debug
+   *        should be enabled.
+   */
+  virtual void set_debug ( bool debug_on ) = 0;
+  
+  /**
+   * Set debug with trail option.
+   * If enabled it prints debug and trail stack behaviours.
+   * @param debug_on boolean value indicating if debug
+   *        should be enabled.
+   */
+  virtual void set_trail_debug ( bool debug_on ) = 0;
   
   /**
    * Set a reference to a constraint store.
@@ -46,6 +63,18 @@ public:
    * @param a reference to a heuristic.
    */
   virtual void set_heuristic ( HeuristicPtr heuristic ) = 0;
+  
+  /**
+   * Set a solution manager for this search engine.
+   * @param a reference to a solution manager.
+   */
+  virtual void set_solution_manager ( SolutionManager* sol_manager ) = 0;
+  
+  /**
+   * Sets a backtrackable manager to this class.
+   * @param bkt_manager a reference to a backtrack manager.
+   */
+  virtual void set_backtrack_manager ( BacktrackManagerPtr bkt_manager ) = 0;
   
   /**
    * Returns the number of backtracks
@@ -71,6 +100,34 @@ public:
    *       leaf of the search tree which has failed.
    */
   virtual size_t get_wrong_decisions () const = 0;
+  
+  /**
+   * Set maximum number of solutions to be found.
+   * @param num_sol the maximum number of solutions.
+   * @note  -1 for finding all solutions.
+   */
+  virtual void set_solution_limit ( size_t num_sol ) = 0;
+  
+  /**
+   * Imposes a timeoutlimit.
+   * @param timeout timeout limit.
+   * @note -1 for no timeout.
+   */
+  virtual void set_timeout_limit ( double timeout ) = 0;
+  
+  //! Print on standard output last solution found.
+  virtual void print_solution () const = 0;
+  
+  //! Print all solutions found so far
+  virtual void print_all_solutions () const = 0;
+  
+  /**
+   * Print on standard output a solutions represented
+   * by its index.
+   * @param sol_idx the index of the solution to print.
+   * @note first solution has index 1.
+   */
+  virtual void print_solution ( size_t sol_idx ) const = 0;
   
   /**
    * Return the last solution found if any.

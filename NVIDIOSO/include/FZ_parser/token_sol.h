@@ -42,15 +42,28 @@ public:
   void set_assignment_choice ( std::string );
   void set_strategy_choice   ( std::string );
   
-  //! Set the (string) identifier of a variable to label
+  //! Set the (string) identifier of a variable to label.
   void set_var_to_label ( std::string );
   
+  //! Var goal to optimize (if any).
   std::string get_var_goal          () const;
+  
+  //! Solve goal: satisfy, minimize, maximize.
   std::string get_solve_goal        () const;
+  
+  //! int_search, bool_search, set_search (if any).
   std::string get_search_choice     () const;
+  
+  //! Variables to be assigned (if any).
   std::string get_label_choice      () const;
+  
+  //! input_order, first_fail, etc, (if any).
   std::string get_variable_choice   () const;
+  
+  //! indomain_min, indomain_max, etc, (if any).
   std::string get_assignment_choice () const;
+  
+  //! complete, lns, etc, (if any).
   std::string get_strategy_choice   () const;
   
   /**

@@ -153,6 +153,15 @@ public:
   size_t get_arguments_size () const;
   
   /**
+   * Set an event as triggering event for re-evaluation of this constraint.
+   * @param event the event that will trigger the re-evaluation of this constriant.
+   * @note default: CHANGE_EVT.
+   * @note different constraints should specilize this method
+   *       with the appropriate list of events.
+   */
+  virtual void set_event ( EventType event = EventType::CHANGE_EVT );
+  
+  /**
    * It returns the list of events that trigger
    * a given constraint.
    */

@@ -11,6 +11,7 @@
 #define NVIDIOSO_solver_h
 
 #include "cp_model.h"
+#include "input_data.h"
 
 class Solver {
 public:
@@ -18,7 +19,7 @@ public:
   
   /**
    * Add a model to the solver.
-   * @param model the (CP) model to add to the solver.
+   * @param model the reference to the (CP) model to add to the solver.
    * @note a solver can hold several models and decide
    *       both the model to run and the order in which
    *       run each model.
@@ -27,15 +28,27 @@ public:
   
   /**
    * Removes a model actually destroying it.
-   * @param the index of the model to destroy.
+   * @param model_idx the index of the model to destroy,
+   *        ( model_idx = 0 means first model).
    */
   virtual void remove_model ( int model_idx ) = 0;
   
   /**
    * Returns a reference to model.
-   * @param the index of the model to return.
+   * @param model_idx the index of the model to return
+   *        ( model_idx = 0 means first model).
    */
   virtual CPModel* get_model ( int model_idx ) const = 0;
+  
+  /**
+   * Further customizes a given model (identified by its index)
+   * with user options.
+   * @param i_data a reference to a input_data class where options
+   *        are retrieved.
+   * @param model_idx the index of the model to customize (default: 0,
+   *        i.e., first model).
+   */
+  virtual void customize ( const InputData& i_data, int model_idx = 0 ) = 0;
   
   /**
    * It runs the solver in order to find 
@@ -48,7 +61,8 @@ public:
    * It runs the solver in order to find
    * a solution, the best solutions or other
    * solutions for the model specified by its index.
-   * @param model_idx the index of the model to solve.
+   * @param model_idx the index of the model to solve
+   *        ( model_idx = 0 means first model).
    */
   virtual void run ( int model_idx ) = 0;
   

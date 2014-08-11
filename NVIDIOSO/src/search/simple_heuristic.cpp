@@ -105,6 +105,7 @@ SimpleHeuristic::get_choice_variable ( int index ) {
      *  1 - metric_value is larger
      */
     comparison = _variable_metric->compare ( metric_value, other_var );
+    
     if ( comparison < 0 ) {
       // metric_value is smaller, update it with the new larger value
       metric_position = i;
@@ -132,9 +133,11 @@ int
 SimpleHeuristic::get_choice_value () {
   
   // Consistency check
-  if ( (_current_index >= 0) &&
-       (_current_index < _fd_variables.size()) ) {
-    throw  NvdException ( (_dbg + "no consistent index.").c_str() );
+  if ( (_current_index < 0) ||
+       (_current_index >= _fd_variables.size()) ) {
+    std::ostringstream s;
+    s << _current_index << " / " <<  _fd_variables.size();
+    throw  NvdException ( (_dbg + " No consistent index." + s.str()).c_str() );
   }
   
   return _value_metric->metric_value ( _fd_variables[ _current_index ] );
@@ -142,7 +145,7 @@ SimpleHeuristic::get_choice_value () {
 
 void
 SimpleHeuristic::print () const {
-  std::cout << "Simple Heuristic with \n";
+  std::cout << "Heuristic:\n";
   if ( _value_metric != nullptr ) {
     std::cout << "Value choice metric:   \t";
     _value_metric->print();

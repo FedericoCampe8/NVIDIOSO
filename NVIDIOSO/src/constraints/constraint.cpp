@@ -74,6 +74,11 @@ Constraint::get_arguments_size () const {
   return _arguments.size ();
 }//get_arguments_size
 
+void
+Constraint::set_event ( EventType event ) {
+  _trigger_events.push_back ( event );
+}//set_events
+
 const std::vector<EventType>&
 Constraint::events () const {
   return _trigger_events;

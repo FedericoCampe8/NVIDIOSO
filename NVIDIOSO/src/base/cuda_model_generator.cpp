@@ -8,13 +8,11 @@
 
 #include "cuda_model_generator.h"
 #include "cuda_variable.h"
-#include "fzn_constraint_generator.h"
 #include "token_var.h"
 #include "token_con.h"
-#include "depth_first_search.h"
-#include "simple_heuristic.h"
-#include "input_order_metric.h"
-#include "indomain_min_metric.h"
+#include "token_sol.h"
+#include "fzn_constraint_generator.h"
+#include "fzn_search_generator.h"
 
 using namespace std;
 
@@ -191,28 +189,24 @@ CudaGenerator::get_search_engine ( TokenPtr tkn_ptr ) {
     return nullptr;
   }
   
-  // Default search engine: use factory here
-  SearchEnginePtr engine;
-  engine = make_shared<DepthFirstSearch>();
-  
-  // Heuristic
-  HeuristicPtr heuristic;
-  
   // Variables to label
-  vector<Variable*> variables;
+  vector< Variable * > variables;
   for ( auto var : _var_lookup_table ) {
     variables.push_back ( (var.second).get() );
   }
   
-  heuristic = make_shared<SimpleHeuristic>( variables,
-                                            new InputOrder(),
-                                            new InDomainMin() );
-  /*
-   * Set heuristic.
-   * @note store will be set later.
-   */
-  engine->set_heuristic( heuristic );
+  struct  SortingFunction {
+    bool operator() ( Variable * a, Variable * b ) {
+      return a->get_id() < b->get_id();
+    }
+  } MySortingFunction;
+  std::sort( variables.begin(), variables.end(), MySortingFunction );
   
+  // Get search engine according to the input model
+  SearchEnginePtr engine =
+  FZNSearchFactory::get_fzn_search_shr_ptr ( variables,
+                                             static_cast<TokenSol * >(tkn_ptr.get()) );
+  variables.clear ();
   return engine;
 }//get_search_engine
 

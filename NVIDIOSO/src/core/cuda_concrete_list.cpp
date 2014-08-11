@@ -43,6 +43,14 @@ _domain_size       ( 0 ) {
   add ( min, max );
 }//CudaConcreteDomainList
 
+void
+CudaConcreteDomainList::set_domain ( void * const domain,
+                                     int rep, int min, int max, int dsz ) {
+  CudaConcreteDomain::set_domain( domain, rep, min, max, dsz );
+  _domain_size = dsz;
+  _num_pairs   = rep;
+}//set_domain
+
 unsigned int
 CudaConcreteDomainList::size () const {
   return _domain_size;
@@ -567,10 +575,10 @@ CudaConcreteDomainList::get_singleton () const {
   return _lower_bound;
 }//get_singleton
 
-const void *
-CudaConcreteDomainList::get_representation () const {
-  return (void *) _concrete_domain;
-}//get_representation
+int
+CudaConcreteDomainList::get_id_representation () const {
+  return _num_pairs;
+}//get_id_representation
 
 void
 CudaConcreteDomainList::print () const {

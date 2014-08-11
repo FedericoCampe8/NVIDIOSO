@@ -139,14 +139,6 @@ protected:
   int _scope_size;
   
   /**
-   * Set the events that trigger this constraint.
-   * @note default: CHANGE_EVT.
-   * @note different constraints should specilize this method
-   *       with the appropriate list of events.
-   */
-  virtual void set_events ( EventType event = EventType::CHANGE_EVT );
-  
-  /**
    * Base constructor.
    * @param name the name of the FlatZinc constraint.
    * @param vars the vector of (shared) pointers to the variables in the
@@ -277,6 +269,8 @@ public:
    * @return the number_id correspondent to name.
    */
   static int name_to_id ( std::string c_name );
+  
+  virtual ~FZNConstraint();
   
   /**
    * It sets the variables and the arguments for this constraint.

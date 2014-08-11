@@ -11,18 +11,42 @@
 
 #include "token_var.h"
 
+
+
 class TokenArr : public TokenVar {
 private:
-  // Info about the array of variables
+  //! Info: array's size
   int  _size;
+  
+  //! Info: array's lower bound
   int  _array_lwb;
+  
+  //! Info: array's upper bound
   int  _array_upb;
   
-  // Global idx of the variables within the array of vars
+  //! Global idx of the variables (lower bound) within the array of vars
   int  _lw_var_glb_idx;
+  
+  //! Global idx of the variables (upper bound) within the array of vars
   int  _up_var_glb_idx;
+  
+  //! It states whether the array is an output array
   bool _output_arr;
- 
+  
+  /**
+   * It states whether the array contains bool/int/float/set
+   * values but no variables.
+   */
+  bool _support_array;
+  
+  /**
+   * String representing the elements of a support array.
+   * @note The client is in charge of converting the string
+   *       in the type of objects it requires according to 
+   *       the type of this array.
+   */
+  std::string _support_elements;
+  
 public:
   TokenArr ();
   
@@ -74,6 +98,12 @@ public:
   //! Identifies the current variable array as a support variable array
   void set_output_arr ();
   bool is_output_arr  () const;
+  
+  //! Set a string representing the elements of a support array.
+  void set_support_elements ( std::string elem_str );
+  
+  //! Returns a string describing the elements of a support array.
+  std::string get_support_elements () const;
   
   //! Print info methods
   void print () const;

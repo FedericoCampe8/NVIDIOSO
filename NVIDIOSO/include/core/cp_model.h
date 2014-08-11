@@ -116,6 +116,20 @@ public:
    */
   virtual void attach_constraint_store ();
   
+  /**
+   * Imposes a limit on the number of solutions.
+   * @param sol_limit the maximum number of solutions for this model.
+   * @note -1 means find all solutions.
+   */
+  virtual void set_solutions_limit ( size_t sol_limit );
+  
+  /**
+   * Imposes a timeoutlimit.
+   * @param timeout timeout limit.
+   * @note -1 means no timeout.
+   */
+  virtual void set_timeout_limit ( double timeout );
+  
   //! Print information about this CP Model.
   virtual void print () const;
 };

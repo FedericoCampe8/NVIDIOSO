@@ -17,13 +17,11 @@ Constraint () {
   _constraint_type = int_to_type ( name_to_id ( name ) );
   
   // Set events for that will trigger the current constraint (default: CHANGE_EVT).
-  set_events ();
+  set_event ();
 }//FZNConstraint
 
-void
-FZNConstraint::set_events ( EventType event ) {
-  _trigger_events.push_back ( event );
-}//set_events
+FZNConstraint::~FZNConstraint () {
+}//~FZNConstraint
 
 FZNConstraintType
 FZNConstraint::int_to_type ( int number_id ) {

@@ -28,7 +28,7 @@ bool
 IntDomain::is_singleton () const {
   
   // Consistency check
-  if ( lower_bound() == upper_bound() ) {
+  if ( lower_bound () == upper_bound () ) {
     assert( get_size() == 1 );
   }
   
@@ -49,6 +49,7 @@ IntDomain::get_string_representation () const {
       ostringstream convert;
       convert << i;
       domain_str += convert.str();
+      domain_str += " ";
     }
   }
   return domain_str;

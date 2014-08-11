@@ -15,8 +15,8 @@ InputOrder::InputOrder () {
 
 int
 InputOrder::compare ( double metric, Variable * var ) {
-  int other_metric = var->get_id();
-  if ( metric > other_metric ) {
+  int other_metric = var->get_id ();
+  if ( metric < other_metric ) {
     return 1;
   }
   else if ( metric == other_metric ) {

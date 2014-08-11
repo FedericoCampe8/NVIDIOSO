@@ -30,10 +30,7 @@ extern Statistics* statistics;
 
 class Statistics {
 private:
-  //! Stop watch flag to determine whether the interanl watch is stopped
-  bool _stop_watch;
-  
-  //! Static (singleton) instance of Statistics
+  //! Static (singleton) instance of Statistics.
   static Statistics * _s_instance;
   
 protected:
@@ -41,16 +38,21 @@ protected:
   //! USEC unit
   static constexpr double USEC = 1000000.0;
   
-  //! Max size of the array of times
+  //! Max size of the array of times.
   static constexpr int MAX_T_TYPE = 10;
   
-  //! Debug string info
+  //! Debug string info.
   std::string _dbg;
   
   // Times parameters used for statistics
   timeval _time_stats;
   double  _time_start;
-  double  _time [ MAX_T_TYPE ];
+  
+  //! Computational times are recorded here.
+  double _time [ MAX_T_TYPE ];
+  
+  //! States if a watching has been stopped for a given computation.
+  bool _stop_watch [ MAX_T_TYPE ];
   
   /*
    * Protected constructor to avoid instantiate more 
@@ -64,6 +66,7 @@ public:
   static constexpr int T_FIRST_SOL  = 2;
   static constexpr int T_PREPROCESS = 3;
   static constexpr int T_FILTERING  = 4;
+  static constexpr int T_ALL        = 5;
   
   ~Statistics ();
   
@@ -79,15 +82,21 @@ public:
   void set_timer   ();
   
   /**
+   * Set timer for a given computation which will be observed.
+   * @param tt describes which kind of computation will be observed.
+   */
+  void set_timer ( int tt );
+  
+  /**
    * Stop watching the running time.
-   * @param tt describes which kind of computation has been observed
+   * @param tt describes which kind of computation has been observed.
    */
   void stopwatch ( int tt = T_GENERAL );
   
   /**
    * Stop watching the running time and add the time to the previous
    * times watched for tt.
-   * @param tt describes which kind of computation has been observed
+   * @param tt describes which kind of computation has been observed.
    */
   void stopwatch_and_add ( int tt = T_GENERAL );
   

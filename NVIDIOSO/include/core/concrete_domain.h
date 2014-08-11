@@ -105,6 +105,19 @@ public:
   virtual T get_singleton () const = 0;
   
   /**
+   * Sets the internal representation of the domain
+   * from a given concrete domain and given lower/upper bounds.
+   * @param domain a reference to a given concrete domain.
+   * @param rep current internal's domain representation.
+   * @param min lower bound to set.
+   * @param max upper bound to set.
+   * @param dsz domain size to set.
+   * @note the client must pass a valid concrete domain's representation.
+   */
+  virtual void set_domain ( void * const domain,
+                            int rep, int min, int max, int dsz ) = 0;
+  
+  /**
 	 * It returns a void pointer to an object representing the 
    * current representation of the domain (e.g., bitmap).
 	 * @return void pointer to the concrete domain representation.

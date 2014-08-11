@@ -106,6 +106,20 @@ public:
    */
   CudaConcreteDomainBitmap ( size_t size, int min, int max );
   
+  /**
+   * Sets the internal representation of the domain
+   * from a given concrete domain and given lower/upper bounds.
+   * @param domain a reference to a given concrete domain.
+   * @param rep current internal's domain representation.
+   * @param min lower bound to set.
+   * @param max upper bound to set.
+   * @param dsz domain size to set.
+   * @note the client must pass a valid concrete domain's representation.
+   */
+  void set_domain ( void * const domain,
+                   int rep, int min, int max, int dsz ) override;
+  
+  
   //! It returns the current size of the domain.
   unsigned int size () const;
   
@@ -173,11 +187,11 @@ public:
    int get_singleton () const;
   
   /**
-	 * It returns a void pointer to an object representing the
-   * current representation of the domain (e.g., bitmap).
-	 * @return void pointer to the concrete domain representation.
-	 */
-   const void * get_representation () const;
+   * Returns the current CUDA concrete domain's representation.
+   * @return an integer id indicating the current representation of
+   *         this domain.
+   */
+  int get_id_representation () const override;
   
   /**
 	 * It prints the current domain representation (its state).

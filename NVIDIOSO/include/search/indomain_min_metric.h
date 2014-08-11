@@ -18,8 +18,7 @@ public:
   InDomainMin ();
   
   /**
-   * Gets value to assign to var using
-   * indomain_min choice.
+   * Gets value to assign to var using indomain_min choice.
    * @param var the (pointer to) variable for which a value if needed.
    * @return the value to assign to var.
    */

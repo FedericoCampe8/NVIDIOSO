@@ -47,6 +47,13 @@ public:
    */
   EventType get_event () const;
   
+  /**
+   * Sets the no event on this domain.
+   * @note No event won't trigger
+   *       any propagation on this domain.
+   */
+  void reset_event ();
+  
   //! Returns the size of the domain
   size_t get_size () const;
   

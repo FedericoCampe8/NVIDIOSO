@@ -162,9 +162,12 @@ Variable::notify_store () {
       constraints_to_reevaluate.push_back( c->get_unique_id() );
     }
   }
-  
+
   // Update constraint store
   _constraint_store->add_changed ( constraints_to_reevaluate, event );
+  
+  // Reset event (not needed anymore)
+  reset_event();
   constraints_to_reevaluate.clear ();
 }//notify_store
 

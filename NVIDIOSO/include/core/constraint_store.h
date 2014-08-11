@@ -99,7 +99,7 @@ public:
    */
   virtual size_t num_constraints_to_reevaluate () const = 0;
   
-  //! Print info
+  //! Print information about this constraint store.
   virtual void print () const = 0;
 };
 

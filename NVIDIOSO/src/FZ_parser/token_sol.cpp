@@ -24,7 +24,6 @@ _strategy_choice   ( "" ) {
 
 void
 TokenSol::set_var_goal ( string var_goal ) {
-  cout <<"----------quiaquionon\n";
   if ( !_var_goal.compare ( "" ) ) {
     _var_goal = var_goal;
   }
@@ -51,7 +50,7 @@ TokenSol::set_solve_params( string choice ) {
     set_variable_choice ( choice );
     return;
   }
-  if ( !_variable_choice.compare ( "" ) ) {
+  if ( !_assignment_choice.compare ( "" ) ) {
     set_assignment_choice ( choice );
     return;
   }

@@ -48,25 +48,85 @@ protected:
    */
   size_t _num_wrong_decisions;
   
-  //! Limit on the number of backtracks
+  //! Specifies if debug option is on.
+  bool _debug;
+  
+  //! Specifies if debug and trail debug options are on.
+  bool _trail_debug;
+  
+  //! Specifies if the current search has been terminated.
+  bool _search_out;
+  
+  //! Specifies if backtrack_out is active.
+  bool _backtrack_out_on;
+  
+  //! Limit on the number of backtracks.
   size_t _backtracks_out;
   
-  //! Limit on the number of nodes
+  //! Specifies if nodes_out is active.
+  bool _nodes_out_on;
+  
+  //! Limit on the number of nodes.
   size_t _nodes_out;
   
-  //! Limit on the number of wrong decisions
+  //! Specifies if wrong_out is active.
+  bool _wrong_out_on;
+  
+  //! Limit on the number of wrong decisions.
   size_t _wrong_out;
   
-  //! Reference to the constraint store to use during this search
+  //! Specifies if timeout_out is active.
+  bool _timeout_out_on;
+  
+  //! Timeout value
+  double _timeout_out;
+  
+  //! Reference to the constraint store to use during this search.
   ConstraintStorePtr _store;
   
-  //! Reference to the current heuristic to use during search
+  //! Reference to the current heuristic to use during search.
   HeuristicPtr _heuristic;
+  
+  //! Reference to the current backtrack manager.
+  BacktrackManagerPtr _backtrack_manager;
+  
+  //! Solution manager
+  SolutionManager* _solution_manager;
+  
+  /**
+   * Initializes the current search (i.e., any parameter
+   * used during search, as counters).
+   */
+  virtual void init_search ();
+  
+  /**
+   * Tells whether the search has to be terminated due to
+   * some limits (e.g., timeout, nodes_out, etc.).
+   * @return true is the search has to be terminated,
+   *         false otherwise.
+   */
+  virtual bool search_out ();
   
 public:
   DepthFirstSearch ();
   
   virtual ~DepthFirstSearch ();
+  
+  /**
+   * Set debug options.
+   * @param debug_on boolean value indicating if debug
+   *        should be enabled.
+   * @note default debug is off.
+   */
+  void set_debug ( bool debug_on );
+  
+  /**
+   * Set debug with trail option.
+   * If enabled it prints debug and trail stack behaviours.
+   * @param debug_on boolean value indicating if debug
+   *        should be enabled.
+   */
+  void set_trail_debug ( bool debug_on );
   
   /**
    * Set a reference to a constraint store.
@@ -83,6 +143,18 @@ public:
    * @param a reference to a heuristic.
    */
   void set_heuristic ( HeuristicPtr heuristic ) override;
+  
+  /**
+   * Set a solution manager for this search engine.
+   * @param a reference to a solution manager.
+   */
+  void set_solution_manager ( SolutionManager* sol_manager );
+  
+  /**
+   * Sets a backtrackable manager to this class.
+   * @param bkt_manager a reference to a backtrack manager.
+   */
+  void set_backtrack_manager ( BacktrackManagerPtr bkt_manager );
   
   /**
    * Returns the number of backtracks
@@ -108,6 +180,20 @@ public:
    *       leaf of the search tree which has failed.
    */
   size_t get_wrong_decisions () const override;
+  
+  /**
+   * Set maximum number of solutions to be found.
+   * @param num_sol the maximum number of solutions.
+   * @note  -1 states for "find all solutions".
+   */
+  void set_solution_limit ( size_t num_sol ) override;
+  
+  /**
+   * Imposes a timeoutlimit.
+   * @param timeout timeout limit.
+   * @note -1 for no timeout.
+   */
+  void set_timeout_limit ( double timeout ) override;
   
   /**
    * Return the last solution found if any.
@@ -167,6 +253,20 @@ public:
    *        as a limit during the search.
    */
   void set_wrong_decisions_out ( size_t out_w ) override;
+  
+  //! Print on standard output last solution found.
+  void print_solution () const override;
+  
+  //! Print all solutions found so far
+  void print_all_solutions () const override;
+  
+  /**
+   * Print on standard output a solutions represented
+   * by its index.
+   * @param sol_idx the index of the solution to print.
+   * @note first solution has index 1.
+   */
+  void print_solution ( size_t sol_idx ) const override;
   
   //! Prints info about the search engine
   void print () const override;

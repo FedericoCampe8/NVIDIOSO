@@ -53,6 +53,13 @@ CudaConcreteDomainBitmap ( size ) {
     add ( x.first , x.second );
 }//CudaConcreteBitmapList
 
+void CudaConcreteBitmapList::set_domain ( void * const domain,
+                                          int rep, int min, int max, int dsz ) {
+  CudaConcreteDomainBitmap::set_domain( domain, rep, min, max, dsz );
+  _domain_size = dsz;
+  _num_bitmaps = rep * -1;
+}//set_domain
+
 unsigned int
 CudaConcreteBitmapList::size () const {
   return _domain_size;
@@ -530,6 +537,11 @@ CudaConcreteBitmapList::contains ( int val ) const {
   
   return false;
 }//contains
+
+int
+CudaConcreteBitmapList::get_id_representation () const {
+  return -_num_bitmaps;
+}//get_id_representation
 
 void
 CudaConcreteBitmapList::print () const {

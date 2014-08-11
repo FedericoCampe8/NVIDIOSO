@@ -15,6 +15,11 @@ DomainIterator::DomainIterator ( IntDomainPtr domain ) {
 DomainIterator::~DomainIterator () {
 }//~DomainIterator
 
+bool
+DomainIterator::is_numeric () const {
+  return _domain->is_numeric();
+}//is_numeric
+
 int
 DomainIterator::min_val () const {
   return _domain->lower_bound();
@@ -29,4 +34,14 @@ int
 DomainIterator::random_val () const {
   throw std::string ( "Not yet implemented" );
 }//random_val
+
+size_t
+DomainIterator::domain_size () const {
+  return _domain->get_size();
+}//domain_size
+
+std::string
+DomainIterator::get_string_representation () const {
+  return _domain->get_string_representation ();
+}//get_string_representation
 

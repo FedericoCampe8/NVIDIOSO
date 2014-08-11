@@ -63,6 +63,15 @@ CPSolver::get_model ( int model_idx ) const {
 }//get_model
 
 void
+CPSolver::customize ( const InputData& i_data, int model_idx ) {
+  if ( _models.size () == 0 ) return;
+  if ( model_idx >= 0 && model_idx < _models.size () ) {
+    _models[ model_idx ]->set_timeout_limit  ( i_data.timeout   () );
+    _models[ model_idx ]->set_solutions_limit( i_data.max_n_sol () );
+  }
+}//customize
+
+void
 CPSolver::run_model ( CPModel * model ) {
   /*
    * Create the constraint graph, i.e., 
@@ -97,8 +106,16 @@ CPSolver::run_model ( CPModel * model ) {
   }
 
   // Run the search engine of this model.
+  bool solution = false;
   if ( model->get_search_engine() != nullptr ) {
-    bool solution = (model->get_search_engine())->labeling();
+    try {
+      solution = (model->get_search_engine())->labeling();
+    } catch ( NvdException& e ) {
+      e.what();
+      std::cerr << "Model_" << model->get_id() <<
+      " not terminated properly:\n";
+      std::cerr << e.what() << std::endl;
+    }
     
     if ( solution ) _sat_models++;
     else            _unsat_models++;
@@ -107,7 +124,7 @@ CPSolver::run_model ( CPModel * model ) {
     ostringstream s;
     s << model->get_id();
     
-    logger->message ( _dbg + "No Search Engine for running model_" + s.str() );
+    logger->message ( _dbg + "No Search Engine for model_" + s.str() );
   }
   
   // Increase the number of solved models

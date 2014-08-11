@@ -14,6 +14,7 @@
 #define NVIDIOSO_fzn_constraint_generator_h
 
 #include "int_ne.h"
+#include "int_lin_ne.h"
 
 class FZNConstraintFactory {
 public:
@@ -30,14 +31,19 @@ public:
   static FZNConstraint* get_fzn_constraint ( std::string c_name,
                                              std::vector<VariablePtr> vars,
                                              std::vector<std::string> args ) {
-    
     FZNConstraint * c_ptr = nullptr;
-    FZNConstraintType c_type = FZNConstraint::int_to_type( FZNConstraint::name_to_id ( c_name ) );
+    FZNConstraintType c_type =
+    FZNConstraint::int_to_type( FZNConstraint::name_to_id ( c_name ) );
     switch ( c_type ) {
       case FZNConstraintType::INT_NE:
         c_ptr = new IntNe ();
         break;
+      case FZNConstraintType::INT_LIN_NE:
+        c_ptr = new IntLinNe ();
+        break;
       default:
+        std::cout << "Constraint \"" << c_name << "\" not yet implemented.\n";
+        std::cout << "Default action: skip this constraint.\n";
         return nullptr;
     }
     
@@ -66,7 +72,11 @@ public:
     switch ( c_type ) {
       case FZNConstraintType::INT_NE:
         return std::make_shared<IntNe>( vars, args );
+      case FZNConstraintType::INT_LIN_NE:
+        return std::make_shared<IntLinNe>( vars, args );
       default:
+        std::cout << "Constraint \"" << c_name << "\" not yet implemented.\n";
+        std::cout << "Default action: skip this constraint.\n";
         return nullptr;
     }
   }//get_fzn_constraint

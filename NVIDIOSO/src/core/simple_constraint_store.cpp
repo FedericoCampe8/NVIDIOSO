@@ -106,13 +106,13 @@ SimpleConstraintStore::consistency () {
     handle_failure ();
     return false;
   }
-  
+
   /*
    * Loop into the list of constraints to re-evaluate
    * until the fix-point is reached.
    */
   bool succeed = true;
-  while ( _constraint_queue.empty() ) {
+  while ( !_constraint_queue.empty() ) {
     
     _constraint_to_reevaluate = getConstraint ();
     _constraint_to_reevaluate->consistency ();
@@ -140,6 +140,7 @@ SimpleConstraintStore::consistency () {
 
 Constraint * const
 SimpleConstraintStore::getConstraint () {
+  
   // Get next constraint to re-evalaute
   Constraint * c = _lookup_table[ *_constraint_queue.begin() ].get();
   

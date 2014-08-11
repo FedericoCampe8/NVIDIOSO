@@ -34,9 +34,15 @@ SetDomain::get_event () const {
 }//get_event
 
 void
+SetDomain::reset_event () {
+  throw string ( "Not yet implemented" );
+}//reset_event
+
+void
 SetDomain::set_values( vector<int> values ) {
   if ( values.size() == 0 ) {
-    throw new std::string ( "Set no values" );
+    throw  NvdException ( ( _dbg + "Set no values" ).c_str(),
+                           __FILE__, __LINE__ );
   }
   _d_elements = values;
 }//set_values
@@ -60,6 +66,16 @@ bool
 SetDomain::is_singleton () const {
   return ( _d_elements.size() == 1 );
 }//is_singleton
+
+bool
+SetDomain::is_numeric () const {
+  return false;
+}//is_numeric
+
+std::string
+SetDomain::get_string_representation () const {
+  throw string ( "Not yet implemented" );
+}//get_string_representation
 
 void
 SetDomain::print () const {

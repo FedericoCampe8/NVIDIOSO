@@ -8,6 +8,7 @@
 
 #include "cuda_variable.h"
 #include "cuda_domain.h"
+#include "cuda_memento_state.h"
 
 using namespace std;
 
@@ -17,6 +18,7 @@ IntVariable () {
   
   //Instantiate CUDA-Specific domain
   _domain_ptr = make_shared<CudaDomain> ();
+  domain_iterator = new DomainIterator( _domain_ptr );
 }//CudaVariable
 
 CudaVariable::CudaVariable ( int id ) :
@@ -25,6 +27,7 @@ IntVariable ( id ) {
   
   //Instantiate CUDA-Specific domain
   _domain_ptr = make_shared<CudaDomain> ();
+  domain_iterator = new DomainIterator( _domain_ptr );
 }//CudaVariable
 
 CudaVariable::~CudaVariable () {
@@ -68,6 +71,25 @@ CudaVariable::set_domain ( vector < vector < int > > set_of_subsets ) {
     }
   }
 }//set_domain
+
+//! @note override backtrackable object methods.
+void
+CudaVariable::restore_state () {
+  (static_cast<CudaMementoState * >(_current_state))->set_memento ( _domain_ptr );
+}//restore_state
+
+//! @note override backtrackable object methods.
+void
+CudaVariable::set_state () {
+  MementoState * this_state = new CudaMementoState( _domain_ptr );
+  _current_state = this_state;
+}//set_state
+
+void
+CudaVariable::print_domain () const {
+  cout << "V_" << _id << ": ";
+  static_cast<CudaDomain *>(_domain_ptr.get())->print_domain();
+}//print_domain
 
 void
 CudaVariable::print () const {

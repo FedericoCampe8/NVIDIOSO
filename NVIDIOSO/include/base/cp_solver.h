@@ -36,7 +36,7 @@ protected:
   int _unsat_models;
   
   /**
-   * It actually run a CP Model.
+   * It actually runs a CP Model.
    * @param a reference to a CP Model.
    */
   void run_model ( CPModel * model );
@@ -55,24 +55,34 @@ public:
   
   /**
    * Add a model to the solver.
-   * @param model the (CP) model to add to the solver.
+   * @param model the reference to the (CP) model to add to the solver.
    * @note a solver can hold several models and decide
    *       both the model to run and the order in which
    *       run each model.
    */
-  void add_model ( CPModel* model );
+  void add_model ( CPModel* model ) override;
   
   /**
    * Removes a model actually destroying it.
-   * @param the index of the model to destroy.
+   * @param model_idx the index of the model to destroy.
    */
-  void remove_model ( int model_idx );
+  void remove_model ( int model_idx ) override;
   
   /**
    * Returns a reference to model.
-   * @param the index of the model to return.
+   * @param model_idx the index of the model to return.
    */
-  CPModel* get_model ( int model_idx ) const;
+  CPModel* get_model ( int model_idx ) const override;
+  
+  /**
+   * Further customizes a given model (identified by its index)
+   * with user options.
+   * @param i_data a reference to a input_data class where options
+   *        are retrieved.
+   * @param model_idx the index of the model to customize (default: 0,
+   *        i.e., first model).
+   */
+  virtual void customize ( const InputData& i_data, int model_idx = 0 ) override;
   
   /**
    * It runs the solver in order to find
@@ -88,21 +98,21 @@ public:
    * solutions for the model specified by its index.
    * @param model_idx the index of the model to solve.
    */
-  void run ( int model_idx );
+  void run ( int model_idx ) override;
   
   /**
    * Returns the number of models that are managed
    * by this solver.
    * @return the number of models managed by this solver.
    */
-  int num_models () const;
+  int num_models () const override;
   
   /**
    * Returns the current number of runned models.
    * @return the number of models for which the run
    *         function has been called.
    */
-  int num_solved_models () const;
+  int num_solved_models () const override;
   
   /**
    * Returns the number of models for which a solution
@@ -110,7 +120,7 @@ public:
    * @return the number of models for which a solution has
    *         been found.
    */
-  int sat_models () const;
+  int sat_models () const override;
   
   /**
    * Returns the number of unsatisfiable models, i.e.,
@@ -118,10 +128,10 @@ public:
    * that have been solved so far.
    * @return the number of unsatisfiable models.
    */
-  int unsat_models () const;
+  int unsat_models () const override;
   
   //! Print information about this solver.
-  void print () const;
+  void print () const override;
 };
 
 

@@ -147,13 +147,24 @@ protected:
   //! Convert a domain event to the current integer
   void event_to_int ( EventType evt ) const ;
   
-  //! Switch to bitmap representation of domain
+  /**
+   * Switch to bit representation of domain.
+   * @ It changes only identifier in the REP field.
+   */
   void set_bit_representation ();
   
-  //! Switch to list representation of domain
+  /**
+   * Switch to bitlist representation of domain.
+   * @param num_list the number (positive) of bitlists.
+   * @ It changes only identifier in the REP field.
+   */
   void set_bitlist_representation ( int num_list = INT_BITLIST );
   
-  //! Switch to list representation of domain
+  /**
+   * Switch to list representation of domain.
+   * @param num_list the number (positive) of bitlists.
+   * @ It changes only identifier in the REP field.
+   */
   void set_list_representation ( int num_list = INT_LIST );
   
   //! Get domain representation (i.e., bitmap, bitmaplist, or list)
@@ -162,6 +173,7 @@ protected:
   /**
    * Take the current list representation and switch it to 
    * a bitmap list represenatation.
+   * @note it doesn't work from bitmap to bitmap list.
    */
   void switch_list_to_bitmaplist ();
   
@@ -194,11 +206,31 @@ public:
    * lower and upper bounds.
    * @return the number of allocated bytes.
    */
-  size_t get_allocated_bytes () const;
+  size_t allocated_bytes () const;
   
   //! Get event on the current domain
   EventType get_event () const;
 
+  /**
+   * Sets the no event on this domain.
+   * @note No event won't trigger
+   *       any propagation on this domain.
+   */
+  void reset_event ();
+  
+  /**
+   * Set a concrete domain.
+   * It overrides the current concrete domain representation.
+   * @note the client must provide a consistent internal domain's representation.
+   */
+  void set_concrete_domain ( int * const concrete_domain );
+  
+  /**
+   * Gets a reference to the current internal representation.
+   * @return a reference to a (cuda) concrete domain.
+   */
+  int * const get_concrete_domain () const;
+  
   /**
    * Get domain size.
    * It returns the currenst size of the domain, 

@@ -76,8 +76,6 @@ public:
    * Set domain's bounds.
    * It updates the domain to have values only within the
    * interval min..max.
-   * @note it does not update _lower_bound and 
-   *       _upper_bound here for efficiency reasons.
    * @param lower lower bound value
    * @param upper upper bound value
    */

@@ -7,10 +7,11 @@
 //
 
 #include "int_ne.h"
-#include "cuda_variable.h"
 
 IntNe::IntNe () :
 FZNConstraint ( INT_NE ) {
+  // Set the event that trigger this constraint
+  set_event( EventType::SINGLETON_EVT );
 }//IntNe
 
 IntNe::IntNe ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
@@ -85,7 +86,7 @@ IntNe::setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) {
   else if ( vars.size() == 1 ) {
     
     _var_x =
-    std::static_pointer_cast<IntVariable>( vars[ 0 ] );
+    std::dynamic_pointer_cast<IntVariable>( vars[ 0 ] );
     
     // Consistency check on pointers
     if ( _var_x == nullptr )
@@ -102,10 +103,10 @@ IntNe::setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) {
   else if ( vars.size() == 2 ) {
     
     _var_x =
-    std::static_pointer_cast<IntVariable>( vars[ 0 ] );
+    std::dynamic_pointer_cast<IntVariable>( vars[ 0 ] );
     
     _var_y =
-    std::static_pointer_cast<IntVariable>( vars[ 1 ] );
+    std::dynamic_pointer_cast<IntVariable>( vars[ 1 ] );
     
     // Consistency check on pointers
     if ( _var_x == nullptr )
@@ -130,7 +131,7 @@ IntNe::scope () const {
 
 void
 IntNe::consistency () {
-  
+
   /*
    * Propagate constraint iff there are two
    * FD variables and one is ground OR
@@ -139,10 +140,10 @@ IntNe::consistency () {
    *       get_arguments_size function since
    *       (2 - _scope_size) = get_arguments_size ().
    */
-  if ( get_arguments_size() == 2 ) return;
+  if ( _scope_size == 0 ) return;
   
   // 1 FD variable: if not singleton, propagate.
-  if ( get_arguments_size() == 1 ) {
+  if ( _scope_size == 1 ) {
     if ( !_var_x->is_singleton() ) {
       _var_x->subtract( _arguments[ 0 ] );
     }
@@ -153,7 +154,7 @@ IntNe::consistency () {
    * 2 FD variables: if one is singleton,
    * propagate on the other.
    */
-  if ( get_arguments_size() == 2 ) {
+  if ( _scope_size == 2 ) {
     if ( (_var_x->is_singleton()) &&
          (!_var_y->is_singleton()) ) {
       _var_y->subtract( _var_x->min () );
@@ -169,7 +170,7 @@ IntNe::consistency () {
 //! It checks if x != y
 bool
 IntNe::satisfied ()  {
-  
+
   // No FD variables, just check the integers values
   if ( _scope_size == 0 ) {
     return _arguments[ 0 ] != _arguments[ 1 ];
@@ -199,7 +200,7 @@ IntNe::satisfied ()  {
   
   /*
    * Other cases: there is not enough information
-   * to state whether the constraint is satisfied.
+   * to state whether the constraint is satisfied or not.
    * Return true.
    */
   return true;

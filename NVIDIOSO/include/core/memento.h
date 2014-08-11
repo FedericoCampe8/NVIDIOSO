@@ -19,22 +19,23 @@
 #define __NVIDIOSO__memento__
 
 #include "globals.h"
-template <class T> class BacktrackableObject;
+#include "memento_state.h"
 
-template <class T>
+class BacktrackableObject;
+
 class Memento {
 protected:
   // Private members accessible only to BacktrackableObjects
-  friend class BacktrackableObject<T>;
+  friend class BacktrackableObject;
   
   // State representing the memento
-  T _memento_state;
+  MementoState * _memento_state;
   
   /**
    * Set a state as a memento object.
    * @param state the current state representing a mememnto object.
    */
-  virtual void set_state ( T& state ) {
+  virtual void set_state ( MementoState * state ) {
     _memento_state = state;
   }//set_state
   
@@ -42,7 +43,7 @@ protected:
    * Get the current state saved as memento.
    * @return the current state/memento.
    */
-  virtual T get_state () {
+  virtual MementoState * get_state () {
     return _memento_state;
   }//get_state
   

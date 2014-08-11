@@ -25,6 +25,9 @@ int main( int argc, char * argv[] )
    ***************************************/
   logger->message ( dbg + "Load Store." );
   
+  statistics->set_timer ( Statistics::T_ALL );
+  statistics->set_timer ( Statistics::T_PREPROCESS );
+  
   DataStore * d_store = CPStore::get_store ( i_data->get_in_file() );
   
   // Load model
@@ -68,6 +71,10 @@ int main( int argc, char * argv[] )
     exit( 2 );
   }
   
+  // Set some other user options to the solver
+  cp_solver->customize ( *i_data );
+  statistics->stopwatch ( Statistics::T_PREPROCESS );
+  
   logger->message ( dbg + "CP model created." );
   
   /***************************************
@@ -76,11 +83,14 @@ int main( int argc, char * argv[] )
 
   logger->message ( dbg + "Run solver." );
   
+  statistics->set_timer ( Statistics::T_SEARCH );
   cp_solver->run();
+  statistics->stopwatch ( Statistics::T_SEARCH );
   
   logger->message ( dbg + "End solver computation." );
   
   // Print statistics
+  statistics->stopwatch ( Statistics::T_ALL );
   if ( i_data->verbose() ) statistics->print ();
   
   /***************************************

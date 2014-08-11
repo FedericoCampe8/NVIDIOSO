@@ -73,7 +73,7 @@ FZNTokenization::analyze_token () {
   size_t found_sol = token_str.find ( SOL_TOKEN );
   size_t found_var = token_str.find ( VAR_TOKEN );
   size_t found_lns = token_str.find ( LNS_TOKEN );
-  
+
   if ( found_arr != std::string::npos ) {
     return analyze_token_arr ();
   }
@@ -127,15 +127,18 @@ FZNTokenization::analyze_token_arr () {
   size_t ptr, ptr_aux;
   ptr = token_str.find ( "var" );
   if ( ptr != string::npos ) {
+    
     // Variable type
     ptr_aux = ptr + 3;
     ptr     = token_str.find_first_of( ":", 0 );
     ptr_aux = token_str.find_first_not_of ( " ", ptr_aux );
     while ( (ptr > 0) && (token_str.at(ptr - 1 ) == ' ') ) ptr--;
+    
     // Get substring "variable_type" from var "variable_type"
     token_str = token_str.substr ( ptr_aux, ptr - ptr_aux );
   }
   else {
+    
     // Parameter type
     ptr = token_str.find ( "of" );
     ptr_aux = ptr + 2;
@@ -144,6 +147,7 @@ FZNTokenization::analyze_token_arr () {
     while ( (ptr > 0) && (token_str.at(ptr - 1 ) == ' ') ) ptr--;
     token_str = token_str.substr ( ptr_aux, ptr - ptr_aux );
   }
+  
   // Find the type
   ptr_aux = token_str.find_first_of( " " );
   string tkn_type = token_str.substr( 0, ptr_aux );
@@ -162,6 +166,7 @@ FZNTokenization::analyze_token_arr () {
     (std::static_pointer_cast<TokenArr>( tkn_ptr ))->set_int_domain ();
   }
   else if ( tkn_type.compare ( SET_TOKEN ) == 0 ) {
+    
     /*
      * According to FlatZinc, set could be on of the following:
      * int, x1..x2, {x1, x2, ..., xk}
@@ -190,7 +195,7 @@ FZNTokenization::analyze_token_arr () {
     if ( var_id.size() && x == ' ' ) break;
     if ( x == ' ') continue;
     if ( (x == ';') ||
-         (x == ':')) {
+         (x == ':') ) {
       break;
     }
     var_id += x;
@@ -209,7 +214,7 @@ FZNTokenization::analyze_token_arr () {
     (std::static_pointer_cast<TokenArr>( tkn_ptr ))->
     set_support_elements ( support_element );
   }
-  
+    
   // Set range array
   token_str.assign( _c_token );
   ptr     = token_str.find_first_of( "[", 0 );
@@ -224,6 +229,7 @@ FZNTokenization::analyze_token_arr () {
   //Check ' ' before ':'
   token_str = token_str.substr( token_str.find_first_of( ".", 0 ) + 2, ptr_aux );
   ptr_aux = token_str.find_first_of( " ", 0 );
+  
   if ( ptr_aux == std::string::npos ) {
     upper_bound = atoi ( token_str.c_str() );
   }
@@ -232,7 +238,7 @@ FZNTokenization::analyze_token_arr () {
   }
   
   (std::static_pointer_cast<TokenArr>( tkn_ptr ))->set_array_bounds ( lower_bound, upper_bound );
-  
+
   return tkn_ptr;
 }//analyze_token_arr
 
@@ -441,7 +447,7 @@ FZNTokenization::analyze_token_sol () {
 
 TokenPtr
 FZNTokenization::analyze_token_var () {
-  
+
   // Token (pointer) to return
   TokenPtr tkn_ptr = make_shared<TokenVar> ();
   
@@ -462,7 +468,7 @@ FZNTokenization::analyze_token_var () {
   size_t ptr;
   ptr = token_str.find_first_of( ":", 0 );
   while ( (ptr > 0) && (token_str.at(ptr - 1 ) == ' ') ) ptr--;
-  
+
   token_str = token_str.substr ( 0, ptr );
   
   /*

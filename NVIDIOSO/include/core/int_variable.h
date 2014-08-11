@@ -7,6 +7,10 @@
 //
 //  This class specializes the FD Variable on integers and it is an
 //  interface for concrete classes on integers.
+//  @note IntVariable objects are also BacktrackableObject, i.e., they
+//        notify a backtrack manager when their internal state changes.
+//        This will allow the manager to backtrack and restore previous states
+//        during backtrack operations.
 //
 
 #ifndef __NVIDIOSO__int_variable__
@@ -14,23 +18,47 @@
 
 #include "variable.h"
 #include "int_domain.h"
-#include "backtrackable_object.h"
+#include "backtrack_manager.h"
 
 class IntVariable;
 typedef std::shared_ptr<IntVariable> IntVariablePtr;
 
-class IntVariable : public Variable, public BacktrackableObject< std::vector<int> > {
+class IntVariable : public Variable, public BacktrackableObject {
 protected:
   /**
-   * Pointer to the domain of the variable.
+   * Reference to the domain of the variable.
    * IntDomain for IntVariable
    */
   IntDomainPtr _domain_ptr;
   
+  /**
+   * Reference to the backtrack manager that will 
+   * manage the state of this BacktrackableObject.
+   * This manager will be notified every time this variable
+   * changes its internal state.
+   */
+  BacktrackManagerPtr _backtack_manager;
+  
   IntVariable ();
   IntVariable ( int idv );
-
+  
+  /**
+   * Notifies the backtrack manager that a change happened
+   * on this variable, so the manager can manage this backtrackable object.
+   */
+  virtual void notify_backtrack_manager ();
+  
+  /**
+   * Notifies every listener which is observing any change
+   * on this variable.
+   * @note usually the store and the backtrack manager will be
+   *       notified on changes on this variable.
+   */
+  virtual void notify_observers ();
+  
 public:
+  
+  virtual ~IntVariable() {};
   
   /**
    * Set domain's bounds.
@@ -57,8 +85,18 @@ public:
    */
   virtual void set_domain ( std::vector < std::vector < int > > elems ) = 0;
   
+  /**
+   * Set a backtrack manager for this backtrackable object.
+   * @param bkt_manager a reference to the backtrack manager that will
+   *        manage this backtrackable object.
+   */
+  virtual void set_backtrack_manager ( BacktrackManagerPtr bkt_manager );
+  
   //! Get event on this domain
-  virtual EventType get_event () const;
+  EventType get_event () const;
+  
+  //! Reset default event on this domain.
+  void reset_event ();
   
   /**
    * Set domain according to the specific
@@ -138,6 +176,16 @@ public:
    * @param max domain value.
    */
   virtual void in_max ( int max );
+  
+  /**
+   * Set unique id for this backtrackable object.
+   * @note the (unique) variable id is used also for the id
+   *       of the backtrackable object.
+   */
+  void set_backtrackable_id () override;
+  
+  //! Print domain
+  void print_domain () const override;
   
   //! print info about the current domain
   virtual void print () const;

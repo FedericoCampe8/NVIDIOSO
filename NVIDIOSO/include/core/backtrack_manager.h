@@ -16,25 +16,41 @@
 #define __NVIDIOSO__backtrack_manager__
 
 #include "globals.h"
+#include "backtrackable_object.h"
+
+class BacktrackManager;
+typedef std::shared_ptr<BacktrackManager> BacktrackManagerPtr;
 
 class BacktrackManager {
-protected:
-  //! Debug info
-  std::string _dbg;
-  
-  //! Current active level in the manager
-  size_t _current_level;
-  
-  BacktrackManager ();
-  
 public:
-  virtual ~BacktrackManager ();
+  virtual ~BacktrackManager () {};
+  
+  /**
+   * Register a backtrackable object to this manager using the unique id
+   * of the  backtrackable object.
+   * @param bkt_obj a reference to a backtrackable object.
+   */
+  virtual void attach_backtracable ( BacktrackableObject * bkt_obj ) = 0;
+  
+  /**
+   * Detaches a backtrackable object fromt this manager, so
+   * its state won't be restored anymore.
+   * @param bkt_id the id of the backtrackable object to detach.
+   */
+  virtual void detach_backtracable ( size_t bkt_id ) = 0;
+  
+  /**
+   * Informs the manager that a given backtrackable object
+   * has changed at a given level.
+   * @param idx the (unique) id of the backtrackable object which is changed.
+   */
+  virtual void add_changed ( size_t idx ) = 0;
   
   /**
    * Get the current active level.
    * @return current active level in the manager.
    */
-  virtual size_t get_level () const;
+  virtual size_t get_level () const = 0;
   
   /**
    * Specifies the level which should become the
@@ -42,6 +58,13 @@ public:
    * @param lvl the active level at which the changes will be recorded.
    */
   virtual void set_level ( size_t lvl ) = 0;
+  
+  /**
+   * Forces the storage of all the backtrackable objects
+   * attached to this manager (at next set_level call),
+   * no matter if a backtrackable object has been modified or not.
+   */
+  virtual void force_storage () = 0;
   
   /**
    * Removes a level. 
@@ -57,8 +80,22 @@ public:
    */
   virtual void remove_until_level ( size_t lvl ) = 0;
   
-  //! Print info about the manager
-  virtual void print () = 0;
+  /**
+   * Returns the number of backtrackable objects attached
+   * to this backtrack manager.
+   * @return number of objects attached to this manager.
+   */
+  virtual size_t number_backtracable () const = 0;
+  
+  /**
+   * Returns the number of changed backtrackable objects
+   * from last call to set_level in this backtrack manager.
+   * @return number of changed objects.
+   */
+  virtual size_t number_changed_backtracable () const = 0;
+  
+  //! Print information about this backtrack manager
+  virtual void print () const = 0;
 };
 
 

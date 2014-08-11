@@ -32,7 +32,7 @@ CPModel::add_variable ( VariablePtr vpt ) {
 
 void
 CPModel::add_constraint ( ConstraintPtr cpt ) {
-  assert( cpt != nullptr );
+  if( cpt == nullptr ) return;
   _constraints.push_back( cpt );
 }//add_constraint
 
@@ -91,6 +91,16 @@ CPModel::attach_constraint_store () {
     var->attach_store( _store );
   }
 }//attach_constraint_store
+
+void
+CPModel::set_solutions_limit ( size_t sol_limit ) {
+  _search_engine->set_solution_limit ( sol_limit );
+}//set_solutions_limit
+
+void
+CPModel::set_timeout_limit ( double timeout ) {
+  _search_engine->set_timeout_limit ( timeout );
+}//set_timeout_limit
 
 void
 CPModel::print () const {

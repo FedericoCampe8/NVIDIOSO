@@ -65,6 +65,13 @@ CudaConcreteDomainBitmap ( size ) {
   shrink ( min, max );
 }//CudaConcreteDomainBitmap
 
+void
+CudaConcreteDomainBitmap::set_domain ( void * const domain,
+                                       int rep, int min, int max, int dsz ) {
+  CudaConcreteDomain::set_domain( domain, rep, min, max, dsz );
+  _num_valid_bits = dsz;
+}//set_domain
+
 unsigned int
 CudaConcreteDomainBitmap::size () const {
   return _num_valid_bits;
@@ -160,13 +167,13 @@ CudaConcreteDomainBitmap::subtract ( int value ) {
   
   // Decrease number of valid bits
   _num_valid_bits -= 1;
-  
+
   // Check for empty domain
   if ( _num_valid_bits == 0 ) {
     set_empty ();
     return;
   }
-  
+
   //Check for singleton
   if ( _num_valid_bits == 1 ) {
     if ( _lower_bound == value ) {
@@ -249,11 +256,6 @@ CudaConcreteDomainBitmap::add ( int min, int max ) {
   for ( int i = min; i <= max; i++ ) add ( i );
 }//add
 
-const void *
-CudaConcreteDomainBitmap::get_representation () const {
-  return (void *) _concrete_domain;
-}//get_representation
-
 bool
 CudaConcreteDomainBitmap::contains ( int value ) const {
   int chunk = IDX_CHUNK ( value );
@@ -271,11 +273,16 @@ CudaConcreteDomainBitmap::is_singleton () const {
 int
 CudaConcreteDomainBitmap::get_singleton () const {
   if ( !is_singleton() ) {
-    throw  NvdException ( (_dbg + "Domain not singleton").c_str() );
+    throw NvdException ( (_dbg + "Domain not singleton").c_str() );
   }
   
   return _lower_bound;
 }//get_singleton
+
+int
+CudaConcreteDomainBitmap::get_id_representation () const {
+  return  0;
+}
 
 void
 CudaConcreteDomainBitmap::print () const {

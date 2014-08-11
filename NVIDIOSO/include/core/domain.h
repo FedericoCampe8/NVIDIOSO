@@ -92,7 +92,14 @@ public:
   virtual DomainPtr clone () const = 0;
   
   /**
-   * Get the current event on the domain.
+   * Sets the no event on this domain.
+   * @note No event won't trigger 
+   *       any propagation on this domain.
+   */
+  virtual void reset_event () = 0;
+  
+  /**
+   * Returns the current event on the domain.
    * @return an event described as EventType that
    *         represents the current event (state)
    *         of this domain.

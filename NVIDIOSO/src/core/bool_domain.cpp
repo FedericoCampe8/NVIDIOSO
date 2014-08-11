@@ -32,6 +32,11 @@ BoolDomain::get_event () const {
   return  EventType::OTHER_EVT;
 }//get_event
 
+void
+BoolDomain::reset_event () {
+  throw string ( "Not yet implemented" );
+}//reset_event
+
 size_t
 BoolDomain::get_size () const {
   if ( is_singleton() ) return 1;

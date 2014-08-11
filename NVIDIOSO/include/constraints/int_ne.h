@@ -5,7 +5,7 @@
 //  Created by Federico Campeotto on 29/07/14.
 //  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
 //
-//  Constraints X #\= Y.
+//  Constraint X #\= Y.
 //  Domain consistency is used.
 //
 
@@ -25,7 +25,7 @@ public:
    * Basic constructor.
    * @note after this constructor the client should
    *       call the setup method to setup the variables
-   *       and parameters needed by the constraint.
+   *       and parameters needed by this constraint.
    */
   IntNe ();
   
@@ -72,14 +72,14 @@ public:
   IntNe ( IntVariablePtr x, IntVariablePtr y );
   
   //! Setup method, see fzn_constraint.h
-  void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args );
+  void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) override;
   
   /**
    * It returns the vector of (shared) pointers
    * of all the variables involved in a
    * given constraint (i.e., its scope).
    */
-  const std::vector<VariablePtr> scope () const;
+  const std::vector<VariablePtr> scope () const override;
   
   //! It performs domain consistency
   void consistency () override;

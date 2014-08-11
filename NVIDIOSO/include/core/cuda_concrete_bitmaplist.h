@@ -115,6 +115,19 @@ public:
    */
   CudaConcreteBitmapList ( size_t size, std::vector< std::pair <int, int> > pairs );
   
+  /**
+   * Sets the internal representation of the domain
+   * from a given concrete domain and given lower/upper bounds.
+   * @param domain a reference to a given concrete domain.
+   * @param rep current internal's domain representation.
+   * @param min lower bound to set.
+   * @param max upper bound to set.
+   * @param dsz domain size to set.
+   * @note the client must pass a valid concrete domain's representation.
+   */
+  void set_domain ( void * const domain,
+                    int rep, int min, int max, int dsz ) override;
+  
   //! It returns the current size of the domain.
   unsigned int size () const;
   
@@ -167,6 +180,13 @@ public:
    * @note val is given w.r.t. the lower bound of 0.
    */
   bool contains ( int val ) const;
+  
+  /**
+   * Returns the current CUDA concrete domain's representation.
+   * @return an integer id indicating the current representation of
+   *         this domain.
+   */
+  int get_id_representation () const override;
   
   /**
 	 * It prints the current domain representation (its state).

@@ -15,7 +15,7 @@ InDomainMin::InDomainMin () {
 
 int
 InDomainMin::metric_value ( Variable * var ) {
-  return (var->domain_iterator)->min_val();
+  return (var->domain_iterator)->min_val ();
 }//metric_value
 
 void

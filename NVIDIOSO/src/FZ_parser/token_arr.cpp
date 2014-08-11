@@ -11,12 +11,14 @@
 using namespace std;
 
 TokenArr::TokenArr () :
-_size        ( -1 ),
-_array_lwb   ( 0 ),
-_array_upb   ( -1 ),
+_size           ( -1 ),
+_array_lwb      ( 0 ),
+_array_upb      ( -1 ),
 _lw_var_glb_idx ( 0 ),
 _up_var_glb_idx ( 0 ),
-_output_arr  ( false ) {
+_output_arr     ( false ),
+_support_array  ( false ),
+_support_elements ( "" ) {
   _dbg = "TokenArr - ";
   set_type ( TokenType::FD_VAR_ARRAY );
 }//TokenArr
@@ -104,6 +106,17 @@ TokenArr::is_var_in ( string var_id ) const {
   int idx = atoi ( array_id.c_str() );
   return ( (idx >= _array_lwb) && (idx <= _array_upb) );
 }//is_var_in
+
+void
+TokenArr::set_support_elements ( std::string elem_str ) {
+  _support_array    = true;
+  _support_elements = elem_str;
+}//set_support_elements
+
+string
+TokenArr::get_support_elements () const {
+  return _support_elements;
+}//get_support_elements
 
 void
 TokenArr::print () const {

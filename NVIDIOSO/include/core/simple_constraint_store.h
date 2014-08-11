@@ -147,7 +147,7 @@ public:
    */
   size_t num_constraints_to_reevaluate () const;
   
-  //! Print info
+  //! Print infoformation about this simple constraint store.
   void print () const;
 };
 

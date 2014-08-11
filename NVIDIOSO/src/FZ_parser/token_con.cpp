@@ -61,19 +61,21 @@ TokenCon::get_expr_elements_array () {
     string tkn_str;
     strcpy(c_str, elem.c_str());
     pch = strtok ( c_str, " ,");
+    
     while ( pch != NULL ) {
       tkn_str = pch;
       
-      if ( (tkn_str.at( 0 ) == '[') &&
-           (tkn_str.at( tkn_str.length() - 1 ) != ']')) {
+      if ( tkn_str.at( 0 ) == '[' /*&&
+           (tkn_str.at( tkn_str.length() - 1 ) != ']')*/) {
         tkn_str = tkn_str. substr ( 1, tkn_str.length() );
       }
       
       if ( (tkn_str.size() >= 3) &&
            (tkn_str.at( 0 ) != '[') &&
-           (tkn_str.at( tkn_str.length() - 1 ) == ']') &&
+           (tkn_str.at( tkn_str.length() - 1 )  == ']') &&
            ((tkn_str.at( tkn_str.length() - 2 ) == ']') ||
-            (tkn_str.at( 0 ) >= '1' && tkn_str.at( 0 ) <= '9') )
+            ((tkn_str.at( 0 ) >= '1' && tkn_str.at( 0 ) <= '9') ||
+             (tkn_str.at( 0 ) == '+' || tkn_str.at( 0 ) == '-') ))
           ) {
         tkn_str = tkn_str. substr ( 0, tkn_str.length() - 1 );
       }
@@ -99,8 +101,8 @@ TokenCon::get_expr_var_elements_array () {
     while ( pch != NULL ) {
       tkn_str = pch;
       
-      if ( (tkn_str.at ( 0 ) == '[') &&
-           (tkn_str.at ( tkn_str.length() - 1 ) != ']')) {
+      if ( tkn_str.at ( 0 ) == '[' /* &&
+           (tkn_str.at ( tkn_str.length() - 1 ) != ']')*/) {
         tkn_str = tkn_str. substr ( 1, tkn_str.length() );
       }
       
@@ -132,13 +134,14 @@ TokenCon::get_expr_not_var_elements_array () {
   vector<string> all_elements = get_expr_elements_array ();
   vector<string> all_variable = get_expr_var_elements_array ();
   vector<string> all_non_vars;
+  
   // "Subtract" the second from the first
   for ( auto x: all_elements ) {
     auto iter = std::find( all_variable.begin (), all_variable.end (), x );
-    if ( iter == all_variable.end () ) {
-      all_non_vars.push_back( *iter );
-    }
+    if ( iter == all_variable.end () )
+      all_non_vars.push_back( x );
   }
+
   return all_non_vars;
 }//get_expr_not_var_elements_array
 

@@ -54,16 +54,17 @@ protected:
    */
   void set_empty ();
   
-public:
   /**
    * Constructor for CudaConcreteDomain.
-   * It instantiates a new object and 
+   * It instantiates a new object and
    * allocate size bytes for the array of integers
    * @param size the number of bytes to allocate.
    * @note the client should check whether integers
    *       are represented by 32 bit values.
    */
   CudaConcreteDomain ( size_t size );
+  
+public:
   virtual ~CudaConcreteDomain ();
   
   //! Returns lower bound
@@ -83,7 +84,7 @@ public:
    * bytes, i.e., the size of the internal
    * domain's representation.
    */
-   size_t get_alloc_bytes () const;
+   size_t allocated_bytes () const;
   
   /**
   * It checks whether the current domain is empty.
@@ -91,6 +92,33 @@ public:
    *         false otherwise.
    */
    bool is_empty () const;
+  
+  /**
+   * Sets the internal representation of the domain
+   * from a given concrete domain and given lower/upper bounds.
+   * @param domain a reference to a given concrete domain.
+   * @param rep current internal's domain representation.
+   * @param min lower bound to set.
+   * @param max upper bound to set.
+   * @param dsz domain size to set.
+   * @note the client must pass a valid concrete domain's representation.
+   */
+  void set_domain ( void * const domain,
+                    int rep, int min, int max, int dsz ) override;
+  
+  /**
+	 * It returns a void pointer to an object representing the
+   * current representation of the domain (e.g., bitmap).
+	 * @return void pointer to the concrete domain representation.
+	 */
+   const void * get_representation () const override;
+  
+  /**
+   * Returns the current CUDA concrete domain's representation.
+   * @return an integer id indicating the current representation of 
+   *         this domain.
+   */
+  virtual int get_id_representation () const = 0;
 };
 
 

@@ -20,6 +20,7 @@ InputData::init () {
   _verbose  = 0;
   _time     = 1;
   _max_sol  = 1;
+  _timeout  = -1;
   _in_file  = "";
   _out_file = "";
 }//init
@@ -41,6 +42,7 @@ InputData::InputData ( int argc, char* argv[] ) {
       {"help",        no_argument,        0, 'h'}, // Print help message
       {"device",      no_argument,        0, 'd'}, // Print device info
       {"solutions",   required_argument,  0, 'n'}, // Set number of solutions
+      {"timeout",     required_argument,  0, 't'}, // Set timeout in seconds
       {"input",       required_argument,  0, 'i'}, // Set input file
       {"output",      required_argument,  0, 'o'}, // Set output file
       {0, 0, 0, 0}
@@ -48,7 +50,7 @@ InputData::InputData ( int argc, char* argv[] ) {
     // getopt_long stores the option index here.
     int option_index = 0;
     
-    int c = getopt_long (argc, argv, "hvtdn:i:o:",
+    int c = getopt_long (argc, argv, "hvdn:t:i:o:",
                          long_options, &option_index);
     
     // Detect the end of the options.
@@ -78,7 +80,7 @@ InputData::InputData ( int argc, char* argv[] ) {
         break;
         
       case 't':
-        _time = 1;
+        _timeout = atof ( optarg );
         break;
         
       case 'n':
@@ -104,6 +106,16 @@ InputData::InputData ( int argc, char* argv[] ) {
     print_help();
     exit( 0 );
   }
+  else {
+    //Consistency check
+    ifstream infile ( _in_file.c_str(), ifstream::in );
+    if ( !infile.is_open() ) {
+      std::cerr << "Can't open file " << _in_file << std::endl;
+      exit ( 0 );
+    }
+    infile.close ();
+  }
+  
   if ( _verbose ) {
     puts ( "verbose flag is set" );
     logger->set_verbose ( true );
@@ -134,6 +146,11 @@ InputData::max_n_sol () const {
   return _max_sol;
 }//max_sol
 
+double
+InputData::timeout () const {
+  return _timeout;
+}//timeout
+
 std::string
 InputData::get_in_file () const {
   return _in_file;
@@ -156,13 +173,16 @@ InputData::print_help () {
   cout << "=========================== | ===========================\n";
   cout << " -v|--verbose               | - Printf verbose info\n";
   cout << "                            |   during computation.\n";
-  cout << " -t|--time                  | - Print computational time.\n";
   cout << " -h|--help                  | - Print this help message.\n";
   cout << " -d|--help                  | - Print device info message.\n";
   cout << " -i|--input      (string)   | - Read input file.\n";
   cout << " -o|--output     (string)   | - Set output file.\n";
-  cout << " -n|--solutions  (int)      | - Set number of solutions.\n";
-  cout << "                            |   Default: 1.\n";
+  cout << " -n|--solutions  (int)      | - Set number of solutions:\n";
+  cout << "                            |   -1 for all solutions,\n";
+  cout << "                            |   (default: 1).\n";
+  cout << " -t|--timeout    (double)   | - Set a timeout limit for\n";
+  cout << "                            |   solving each given model\n";
+  cout << "                            |   (default: inf).\n";
   cout << "=========================== | ===========================\n";
   cout << "You may want to try:\n";
   cout << "\t" << "./nvidioso -i test/nqueens.fzn\n";

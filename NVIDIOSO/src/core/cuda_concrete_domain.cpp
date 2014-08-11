@@ -51,13 +51,13 @@ CudaConcreteDomain::get_num_chunks () const {
 }//get_num_chunks
 
 size_t
-CudaConcreteDomain::get_alloc_bytes () const {
+CudaConcreteDomain::allocated_bytes () const {
   return ( get_num_chunks () * sizeof( int ) );
 }//get_alloc_bytes
 
 void
 CudaConcreteDomain::flush_domain () {
-  memset( _concrete_domain, 0, get_alloc_bytes() );
+  memset( _concrete_domain, 0, allocated_bytes() );
   set_empty ();
 }//empty_domain
 
@@ -71,4 +71,17 @@ bool
 CudaConcreteDomain::is_empty () const {
   return _upper_bound < _lower_bound;
 }//is_empty
+
+void
+CudaConcreteDomain::set_domain ( void * const domain,
+                                 int rep, int min, int max, int dsz ) {
+  _lower_bound = min;
+  _upper_bound = max;
+  memcpy( _concrete_domain, domain, allocated_bytes() );
+}//set_domain
+
+const void *
+CudaConcreteDomain::get_representation () const {
+  return (void *) _concrete_domain;
+}//get_representation
 

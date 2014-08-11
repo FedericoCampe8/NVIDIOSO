@@ -104,12 +104,12 @@ public:
    */
   DomainIterator * domain_iterator;
   
-  //! Get integer id of this variable
+  //! Get integer id of this variable.
   int get_id () const;
   
   /**
    * Set the (string) id of the variable.
-   * @param str the string to set as variable's identifier
+   * @param str the string to set as variable's identifier.
    */
   void set_str_id ( std::string str );
   
@@ -125,10 +125,11 @@ public:
   //! Get the type of variable (i.e., FD_VARIABLE, SUP_VARIABLE, etc.)
   VariableType get_type () const;
   
-  //! Set
-  
-  //! Get the event happened on this domain
+  //! Get the event happened on this domain.
   virtual EventType get_event () const = 0;
+  
+  //! Reset default event on this domain.
+  virtual void reset_event () = 0;
   
   /**
    * Set domain according to the specific
@@ -158,6 +159,9 @@ public:
    *         false otherwise.
    */
   virtual bool is_empty () const = 0;
+  
+  //! Print domain
+  virtual void print_domain () const = 0;
   
   /**
    * Set a constraint store as current constraint store

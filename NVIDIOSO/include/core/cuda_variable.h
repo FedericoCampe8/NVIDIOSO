@@ -56,6 +56,21 @@ public:
    */
   void set_domain ( std::vector < std::vector < int > > elems );
   
+  /**
+   * Restore a state from the current state
+   * hold by the BacktrackableObject.
+   */
+  void restore_state () override;
+  
+  /**
+   * Set internal state with other information
+   * hold by concrete BacktrackableObject objects.
+   */
+  void set_state () override;
+  
+  //! Print domain
+  void print_domain () const override;
+  
   //! print info about the current domain
   void print () const;
 };
