@@ -54,6 +54,9 @@ protected:
   //! Specifies if debug and trail debug options are on.
   bool _trail_debug;
   
+  //! Specifies if the time-watcher is on
+  bool _time_watcher;
+  
   //! Specifies if the current search has been terminated.
   bool _search_out;
   
@@ -194,6 +197,14 @@ public:
    * @note -1 for no timeout.
    */
   void set_timeout_limit ( double timeout ) override;
+  
+  /**
+   * Sets the time-watcher, i.e., it stores the
+   * computational times of consistency, backtrack, etc.
+   * @param watcher_on the boolean value that turns on the
+   *        of turns off the time watcher.
+   */
+  void set_time_watcher ( bool watcher_on ) override;
   
   /**
    * Return the last solution found if any.

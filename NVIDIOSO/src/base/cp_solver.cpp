@@ -68,6 +68,7 @@ CPSolver::customize ( const InputData& i_data, int model_idx ) {
   if ( model_idx >= 0 && model_idx < _models.size () ) {
     _models[ model_idx ]->set_timeout_limit  ( i_data.timeout   () );
     _models[ model_idx ]->set_solutions_limit( i_data.max_n_sol () );
+    (_models[ model_idx ]->get_search_engine())->set_time_watcher( i_data.timer() );
   }
 }//customize
 

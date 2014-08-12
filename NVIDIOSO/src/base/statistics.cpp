@@ -19,8 +19,9 @@ Statistics* statistics = Statistics::get_instance ();
 Statistics::Statistics () :
 _dbg        ( "Statistics - " ) {
   for ( int i = 0; i < MAX_T_TYPE; i++ ) {
-    _time       [ i ] = 0;
-    _stop_watch [ i ] = false;
+    _time         [ i ] = 0;
+    _partial_time [ i ] = 0;
+    _stop_watch   [ i ] = false;
   }
 }//Statistics
 
@@ -29,9 +30,13 @@ Statistics::~Statistics () {
 
 void
 Statistics::set_timer () {
-  for ( int i = 0; i < MAX_T_TYPE; i++ ) _stop_watch [ i ] = false;
   gettimeofday( &_time_stats, nullptr );
-  _time_start = _time_stats.tv_sec+( _time_stats.tv_usec / USEC );
+  
+  _time_start = _time_stats.tv_sec + ( _time_stats.tv_usec / USEC );
+  for ( int i = 0; i < MAX_T_TYPE; i++ ) {
+    _stop_watch [ i ]   = false;
+    _partial_time [ i ] = _time_start;
+  }
 }//set_timer
 
 void
@@ -39,8 +44,10 @@ Statistics::set_timer ( int tt ) {
   if ( tt < 0 || tt >= MAX_T_TYPE ) return;
   
   _stop_watch [ tt ] = false;
+  
   gettimeofday( &_time_stats, nullptr );
-  _time[ tt ] = _time_stats.tv_sec+( _time_stats.tv_usec / USEC );
+  
+  _partial_time[ tt ] = _time_stats.tv_sec + ( _time_stats.tv_usec / USEC );
 }//set_timer
 
 void
@@ -50,17 +57,16 @@ Statistics::stopwatch ( int tt ) {
   // Get current time
   gettimeofday( &_time_stats, nullptr );
   
-  // Stop watch set
-  _stop_watch [ tt ] = true;
-  
   // Set time in the store
-  if ( _time[ tt ] ) {
+  if ( !_stop_watch [ tt ] ) {
     _time[ tt ] =
-    _time_stats.tv_sec+(_time_stats.tv_usec/1000000.0) - _time[ tt ];
+    _time_stats.tv_sec + (_time_stats.tv_usec/1000000.0) - _partial_time[ tt ];
+    
+    // Stop watch set
+    _stop_watch [ tt ] = true;
   }
   else {
-    _time[ tt ] =
-    _time_stats.tv_sec+(_time_stats.tv_usec/1000000.0) - _time_start;
+    cerr << _dbg + "Set timer before stop watch." << endl;
   }
 }//stopwatch
 
@@ -71,17 +77,16 @@ Statistics::stopwatch_and_add ( int tt ) {
   // Get current time
   gettimeofday( &_time_stats, nullptr );
   
-  // Stop watch set
-  _stop_watch [ tt ] = true;
-  
   // Set time in the store
-  if ( _time[ tt ] ) {
+  if ( !_stop_watch [ tt ] ) {
     _time[ tt ] +=
-    _time_stats.tv_sec+(_time_stats.tv_usec/1000000.0) - _time[ tt ];
+    _time_stats.tv_sec + (_time_stats.tv_usec/1000000.0) - _partial_time[ tt ];
+    
+    // Stop watch set
+    _stop_watch [ tt ] = true;
   }
   else {
-    _time[ tt ] +=
-    _time_stats.tv_sec+(_time_stats.tv_usec/1000000.0) - _time_start;
+    cerr << _dbg + "Set timer before stop watch." << endl;
   }
 }//stopwatch
 
@@ -92,7 +97,6 @@ Statistics::get_timer ( int tt ) {
   // Check if the watch was already set
   if ( !_stop_watch [ tt ] ) {
     stopwatch ( tt );
-    _stop_watch [ tt ] = true;
   }
   
   return  _time[ tt ];
@@ -103,6 +107,8 @@ Statistics::print () const {
   cout << "\t============ NVIDIOSO Statistics ============\n";
   cout << "\t\tInitialization time: " << _time[ T_PREPROCESS ] << " sec.\n";
   cout << "\t\tSearch time:         " << _time[ T_SEARCH ]     << " sec.\n";
+  cout << "\t\tFiltering time:      " << _time[ T_FILTERING ]  << " sec.\n";
+  cout << "\t\tBacktrack time:      " << _time[ T_BACKTRACK ]  << " sec.\n";
   cout << "\t\tTotal time:          " << _time[ T_ALL ]        << " sec.\n";
   cout << "\t---------------------------------------------\n";
   

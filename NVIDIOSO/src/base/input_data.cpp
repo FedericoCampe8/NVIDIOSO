@@ -18,7 +18,7 @@ void
 InputData::init () {
   _dbg = "InputData - ";
   _verbose  = 0;
-  _time     = 1;
+  _time     = 0;
   _max_sol  = 1;
   _timeout  = -1;
   _in_file  = "";
@@ -36,7 +36,7 @@ InputData::InputData ( int argc, char* argv[] ) {
     {
       // These options set a flag.
       {"verbose", no_argument, &_verbose,      1},
-      {"time",    no_argument, &_time,         1},
+      {"watcher", no_argument, &_time,         1},
       /* These options don't set a flag.
         We distinguish them by their indices. */
       {"help",        no_argument,        0, 'h'}, // Print help message
@@ -50,7 +50,7 @@ InputData::InputData ( int argc, char* argv[] ) {
     // getopt_long stores the option index here.
     int option_index = 0;
     
-    int c = getopt_long (argc, argv, "hvdn:t:i:o:",
+    int c = getopt_long (argc, argv, "hvdwn:t:i:o:",
                          long_options, &option_index);
     
     // Detect the end of the options.
@@ -73,6 +73,10 @@ InputData::InputData ( int argc, char* argv[] ) {
         
       case 'd':
         print_gpu_info ();
+        break;
+       
+      case 'w':
+        _time = true;
         break;
         
       case 'v':
@@ -175,6 +179,7 @@ InputData::print_help () {
   cout << "                            |   during computation.\n";
   cout << " -h|--help                  | - Print this help message.\n";
   cout << " -d|--help                  | - Print device info message.\n";
+  cout << " -w|--watcher               | - Turns on the time-watcher.\n";
   cout << " -i|--input      (string)   | - Read input file.\n";
   cout << " -o|--output     (string)   | - Set output file.\n";
   cout << " -n|--solutions  (int)      | - Set number of solutions:\n";

@@ -31,6 +31,7 @@ DepthFirstSearch::init_search () {
   _num_wrong_decisions = 0;
   _debug               = false;
   _trail_debug         = false;
+  _time_watcher        = false;
   _search_out          = false;
   _backtrack_out_on    = false;
   _backtracks_out      = 0;
@@ -105,6 +106,11 @@ DepthFirstSearch::set_timeout_limit ( double timeout ) {
     _timeout_out = time_stats.tv_sec + (time_stats.tv_usec/1000000.0) + timeout;
   }
 }//set_timeout_limit
+
+void
+DepthFirstSearch::set_time_watcher ( bool watcher_on ) {
+  _time_watcher = watcher_on;
+}//set_time_watcher
 
 void
 DepthFirstSearch::set_solution_limit ( size_t num_sol ) {
@@ -187,7 +193,7 @@ DepthFirstSearch::search_out () {
 bool
 DepthFirstSearch::labeling () {
   
-  // Base case: no store implies trivially satisfied.
+  // Base case: no store implies that the model is trivially satisfied.
   if ( _store == nullptr ) return true;
   
   if ( _backtrack_manager == nullptr ) {
@@ -252,7 +258,13 @@ DepthFirstSearch::label( int var_idx ) {
   _num_nodes++;
   
   // Checks whether the current store is consistent
+  if ( _time_watcher )
+    statistics->set_timer( Statistics::T_FILTERING );
+  
   consistent = _store->consistency ();
+  
+  if ( _time_watcher )
+    statistics->stopwatch_and_add ( Statistics::T_FILTERING );
   
   if ( !consistent ) {
     if ( _debug )
@@ -314,8 +326,14 @@ DepthFirstSearch::label( int var_idx ) {
   
       _num_nodes--;
       
+      if ( _time_watcher )
+        statistics->set_timer ( Statistics::T_BACKTRACK );
+      
       _backtrack_manager->remove_level ( _depth );
       _backtrack_manager->set_level    ( --_depth );
+      
+      if ( _time_watcher )
+        statistics->stopwatch_and_add ( Statistics::T_BACKTRACK );
       
       if ( _trail_debug ) {
         cout<<"Trailstack after solution has been found at level " << _depth <<
@@ -346,8 +364,14 @@ DepthFirstSearch::label( int var_idx ) {
     if ( consistent ) {
       var = nullptr;
 
+      if ( _time_watcher )
+        statistics->set_timer ( Statistics::T_BACKTRACK );
+      
       _backtrack_manager->remove_level ( _depth   );
       _backtrack_manager->set_level    ( --_depth );
+      
+      if ( _time_watcher )
+        statistics->stopwatch_and_add ( Statistics::T_BACKTRACK );
       
       return  true;
     }
@@ -364,13 +388,18 @@ DepthFirstSearch::label( int var_idx ) {
         cout << _dbg << "Backtrack on V_" << var->get_id() << " from level " <<
         _depth << endl;
 
+      if ( _time_watcher )
+        statistics->set_timer ( Statistics::T_BACKTRACK );
+      
       _backtrack_manager->remove_level ( _depth );
+      
+      if ( _time_watcher )
+        statistics->stopwatch_and_add ( Statistics::T_BACKTRACK );
       
       if ( _trail_debug ) {
         cout << "Trailstack after pop:\n";
         _backtrack_manager->print();
         _solution_manager->print_variables ();
-        
       }
       
       if ( !var->is_singleton() ) {
@@ -409,7 +438,14 @@ DepthFirstSearch::label( int var_idx ) {
         
         if ( !consistent ) {
           _num_backtracks++;
+          
+          if ( _time_watcher )
+            statistics->set_timer ( Statistics::T_BACKTRACK );
+          
           _backtrack_manager->remove_level ( _depth );
+          
+          if ( _time_watcher )
+            statistics->stopwatch_and_add ( Statistics::T_BACKTRACK );
           
           if ( _trail_debug ) {
             cout << "Trailstack after pop:\n";

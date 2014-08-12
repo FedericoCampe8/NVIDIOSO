@@ -115,6 +115,14 @@ public:
    */
   virtual void set_timeout_limit ( double timeout ) = 0;
   
+  /**
+   * Sets the time-watcher, i.e., it stores the 
+   * computational times of consistency, backtrack, etc.
+   * @param watcher_on the boolean value that turns on the
+   *        of turns off the time watcher.
+   */
+  virtual void set_time_watcher ( bool watcher_on ) = 0;
+  
   //! Print on standard output last solution found.
   virtual void print_solution () const = 0;
   

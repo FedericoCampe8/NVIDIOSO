@@ -51,6 +51,9 @@ protected:
   //! Computational times are recorded here.
   double _time [ MAX_T_TYPE ];
   
+  //! Partial times (i.e., from set timer to stop watch) are recorded here.
+  double _partial_time [ MAX_T_TYPE ];
+  
   //! States if a watching has been stopped for a given computation.
   bool _stop_watch [ MAX_T_TYPE ];
   
@@ -66,7 +69,8 @@ public:
   static constexpr int T_FIRST_SOL  = 2;
   static constexpr int T_PREPROCESS = 3;
   static constexpr int T_FILTERING  = 4;
-  static constexpr int T_ALL        = 5;
+  static constexpr int T_BACKTRACK  = 5;
+  static constexpr int T_ALL        = 6;
   
   ~Statistics ();
   
