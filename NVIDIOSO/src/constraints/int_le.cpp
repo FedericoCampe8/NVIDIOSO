@@ -1,29 +1,30 @@
 //
-//  int_ne.cpp
+//  int_le.cpp
 //  NVIDIOSO
 //
-//  Created by Federico Campeotto on 29/07/14.
+//  Created by Federico Campeotto on 13/08/14.
 //  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
 //
 
-#include "int_ne.h"
+#include "int_le.h"
 
-IntNe::IntNe () :
-FZNConstraint ( INT_NE ) {
+IntLe::IntLe () :
+FZNConstraint ( INT_LE ) {
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
-  set_event( EventType::SINGLETON_EVT );
-}//IntNe
+  set_event( EventType::MIN_EVT );
+  set_event( EventType::MAX_EVT );
+}//IntLe
 
-IntNe::IntNe ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-IntNe () {
+IntLe::IntLe ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
+IntLe () {
   setup ( vars, args );
-}//IntNe
+}//IntLe
 
-IntNe::IntNe ( int x, int y ) :
-FZNConstraint ( INT_NE ) {
+IntLe::IntLe ( int x, int y ) :
+FZNConstraint ( INT_LE ) {
   
   /*
    * Set x and y as arguments.
@@ -32,10 +33,10 @@ FZNConstraint ( INT_NE ) {
    */
   _arguments.push_back( x );
   _arguments.push_back( y );
-}//IntNe
+}//IntLe
 
-IntNe::IntNe ( IntVariablePtr x, int y ) :
-FZNConstraint ( INT_NE ) {
+IntLe::IntLe ( IntVariablePtr x, int y ) :
+FZNConstraint ( INT_LE ) {
   
   // Consistency check on pointers
   if ( x == nullptr )
@@ -51,27 +52,27 @@ FZNConstraint ( INT_NE ) {
   _scope_size = 1;
 }//IntNe
 
-IntNe::IntNe ( int x, IntVariablePtr y ) :
-IntNe ( y, x ) {
-}//IntNe
+IntLe::IntLe ( int x, IntVariablePtr y ) :
+IntLe ( y, x ) {
+}//IntLe
 
-IntNe::IntNe ( IntVariablePtr x, IntVariablePtr y ) :
-FZNConstraint ( INT_NE ) {
+IntLe::IntLe ( IntVariablePtr x, IntVariablePtr y ) :
+FZNConstraint ( INT_LE ) {
   
   // Consistency check on pointers
   if ( x == nullptr )
     throw NvdException ( (_dbg + "x variable is NULL").c_str() );
   if ( y == nullptr )
     throw NvdException ( (_dbg + "y variable is NULL").c_str() );
-
+  
   // Common case: 2 FD variables
   _var_x = x;
   _var_y = y;
   _scope_size = 2;
-}//IntNe
+}//IntLe
 
 void
-IntNe::setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) {
+IntLe::setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) {
   
   // Consistency checking in order to avoid more than one setup
   if ( (_var_x != nullptr) || (_arguments.size() > 0) ) return;
@@ -117,14 +118,14 @@ IntNe::setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) {
     
     if ( _var_x == nullptr )
       throw NvdException ( (_dbg + "y variable is NULL").c_str() );
-
+    
     // Set scope size ang arguments list
     _scope_size = 2;
   }
 }//setup
 
 const std::vector<VariablePtr>
-IntNe::scope () const {
+IntLe::scope () const {
   // Return the constraint's scope
   std::vector<VariablePtr> scope;
   if ( _var_x != nullptr ) scope.push_back ( _var_x );
@@ -133,8 +134,8 @@ IntNe::scope () const {
 }//scope
 
 void
-IntNe::consistency () {
-
+IntLe::consistency () {
+  
   /*
    * Propagate constraint iff there are two
    * FD variables and one is ground OR
@@ -148,49 +149,48 @@ IntNe::consistency () {
   // 1 FD variable: if not singleton, propagate.
   if ( _scope_size == 1 ) {
     if ( !_var_x->is_singleton() ) {
-      _var_x->subtract( _arguments[ 0 ] );
+      _var_x->in_max ( _arguments[ 0 ] );
     }
     return;
   }
   
-  /* 
+  /*
    * 2 FD variables: if one is singleton,
    * propagate on the other.
    */
   if ( _scope_size == 2 ) {
     if ( (_var_x->is_singleton()) &&
-         (!_var_y->is_singleton()) ) {
-      _var_y->subtract( _var_x->min () );
+        (!_var_y->is_singleton()) ) {
+      _var_y->in_min ( _var_x->min () );
     }
     else if ( (_var_y->is_singleton()) &&
-              (!_var_x->is_singleton()) ) {
-      _var_x->subtract( _var_y->min () );
+             (!_var_x->is_singleton()) ) {
+      _var_x->in_max ( _var_y->min () );
     }
     return;
   }
 }//consistency
 
-//! It checks if x != y
+//! It checks if x <= y
 bool
-IntNe::satisfied ()  {
-
+IntLe::satisfied ()  {
+  
   // No FD variables, just check the integers values
   if ( _scope_size == 0 ) {
-    return _arguments[ 0 ] != _arguments[ 1 ];
+    return _arguments[ 0 ] <= _arguments[ 1 ];
   }
   
   // 1 FD variable, if singleton check
   if ( (_scope_size == 1) &&
-        _var_x->is_singleton() ) {
-    return _arguments[ 0 ] != _var_x->min ();
+      _var_x->is_singleton() ) {
+    return _arguments[ 0 ] <= _var_x->min ();
   }
   
   // 2 FD variables, if singleton check
   if ( (_scope_size == 2) &&
-       (_var_x->is_singleton()) &&
-       (_var_y->is_singleton()) ) {
-    return _var_x->min () !=
-           _var_y->min ();
+      (_var_x->is_singleton()) &&
+      (_var_y->is_singleton()) ) {
+    return _var_x->min () <= _var_y->min ();
   }
   
   /*
@@ -198,7 +198,7 @@ IntNe::satisfied ()  {
    * If it is the case: failed propagation.
    */
   if ( _var_x->is_empty () ||
-       _var_y->is_empty () )
+      _var_y->is_empty () )
     return false;
   
   /*
@@ -211,11 +211,10 @@ IntNe::satisfied ()  {
 
 //! Prints the semantic of this constraint
 void
-IntNe::print_semantic () const {
+IntLe::print_semantic () const {
   FZNConstraint::print_semantic();
-  std::cout << "a != b\n";
-  std::cout << "int_ne(var int: a, var int:b)\n";
+  std::cout << "a <= b\n";
+  std::cout << "int_le(var int: a, var int:b)\n";
 }//print_semantic
-
 
 

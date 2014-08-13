@@ -23,6 +23,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <exception>
 
 /* Arithmetic and Assertions */
 #include <cassert>
@@ -33,10 +34,12 @@
 #include <algorithm>
 #include <iterator>
 #include <map>
+#include <unordered_map>
 #include <list>
 #include <queue>
 #include <stack>
 #include <set>
+#include <unordered_set>
 #include <string>
 #include <regex>
 #include <vector>
@@ -44,8 +47,8 @@
 
 /* Global classes */
 #include "logger.h"
-#include "id_generator.h"
 #include "statistics.h"
+#include "id_generator.h"
 #include "nvd_exception.h"
 
 /* Environment variable */

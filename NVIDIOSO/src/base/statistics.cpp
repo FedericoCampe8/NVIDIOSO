@@ -105,12 +105,15 @@ Statistics::get_timer ( int tt ) {
 void
 Statistics::print () const {
   cout << "\t============ NVIDIOSO Statistics ============\n";
-  cout << "\t\tInitialization time: " << _time[ T_PREPROCESS ] << " sec.\n";
-  cout << "\t\tSearch time:         " << _time[ T_SEARCH ]     << " sec.\n";
-  cout << "\t\tFiltering time:      " << _time[ T_FILTERING ]  << " sec.\n";
-  cout << "\t\tBacktrack time:      " << _time[ T_BACKTRACK ]  << " sec.\n";
+  if ( _time[ T_PREPROCESS ] )
+    cout << "\t\tInitialization time: " << _time[ T_PREPROCESS ] << " sec.\n";
+  if ( _time[ T_SEARCH ] )
+    cout << "\t\tSearch time:         " << _time[ T_SEARCH ]     << " sec.\n";
+  if ( _time[ T_FILTERING ] )
+    cout << "\t\tFiltering time:      " << _time[ T_FILTERING ]  << " sec.\n";
+  if ( _time[ T_BACKTRACK ] )
+    cout << "\t\tBacktrack time:      " << _time[ T_BACKTRACK ]  << " sec.\n";
   cout << "\t\tTotal time:          " << _time[ T_ALL ]        << " sec.\n";
   cout << "\t---------------------------------------------\n";
-  
 }//print
 

@@ -27,7 +27,7 @@ _constraint_store    ( nullptr ),
 _var_type            ( VariableType::OTHER ),
 _number_of_constraints ( 0 ) {
 }//Variable
-
+ 
 Variable::~Variable () {
   _attached_constraints.clear();
   _detach_constraints.clear();

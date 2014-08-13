@@ -116,13 +116,13 @@ SimpleConstraintStore::consistency () {
     
     _constraint_to_reevaluate = getConstraint ();
     _constraint_to_reevaluate->consistency ();
-    
+
     if ( _satisfiability_check ) {
       succeed = _constraint_to_reevaluate->satisfied ();
       if ( !succeed ) break;
     }
   }//while
-  
+
   /*
    * @note here it is possible to add the possibility
    *       for nogood learning.

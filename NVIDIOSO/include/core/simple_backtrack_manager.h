@@ -31,7 +31,7 @@ protected:
    * Ordered list of backtrackable objects that are
    * subjects of this BacktrackManager observer.
    */
-  std::map < size_t, BacktrackableObject * > _backtrackable_objects;
+  std::unordered_map < size_t, BacktrackableObject * > _backtrackable_objects;
   
   /**
    * Set of changed backtrackable objects.

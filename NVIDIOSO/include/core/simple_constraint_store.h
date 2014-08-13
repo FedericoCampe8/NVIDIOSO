@@ -23,7 +23,7 @@ protected:
    * constraints' pointer. Any new constraint
    * imposed into the store is stored here.
    */
-  std::map < size_t, ConstraintPtr > _lookup_table;
+  std::unordered_map < size_t, ConstraintPtr > _lookup_table;
   
   /**
    * Stores the constraints for which reevaluation is needed.

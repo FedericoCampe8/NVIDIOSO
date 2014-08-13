@@ -103,30 +103,32 @@ enum class FZNConstraintType {
   INT_LIN_LE_REIF         = 65,
   INT_LIN_NE              = 66,
   INT_LIN_NE_REIF         = 67,
-  INT_MAX_C               = 68,
-  INT_MIN_C               = 69,
-  INT_MOD                 = 70,
-  INT_NE                  = 71,
-  INT_NE_REIF             = 72,
-  INT_PLUS                = 73,
-  INT_TIMES               = 74,
-  INT2FLOAT               = 75,
-  SET_CARD                = 76,
-  SET_DIFF                = 77,
-  SET_EQ                  = 78,
-  SET_EQ_REIF             = 79,
-  SET_IN                  = 80,
-  SET_IN_REIF             = 81,
-  SET_INTERSECT           = 82,
-  SET_LE                  = 83,
-  SET_LT                  = 84,
-  SET_NE                  = 85,
-  SET_NE_REIF             = 86,
-  SET_SUBSET              = 87,
-  SET_SUBSET_REIF         = 88,
-  SET_SYMDIFF             = 89,
-  SET_UNION               = 90,
-  OTHER                   = 91
+  INT_LT                  = 68,
+  INT_LT_REIF             = 69,
+  INT_MAX_C               = 70,
+  INT_MIN_C               = 71,
+  INT_MOD                 = 72,
+  INT_NE                  = 73,
+  INT_NE_REIF             = 74,
+  INT_PLUS                = 75,
+  INT_TIMES               = 76,
+  INT2FLOAT               = 77,
+  SET_CARD                = 78,
+  SET_DIFF                = 79,
+  SET_EQ                  = 80,
+  SET_EQ_REIF             = 81,
+  SET_IN                  = 82,
+  SET_IN_REIF             = 83,
+  SET_INTERSECT           = 84,
+  SET_LE                  = 85,
+  SET_LT                  = 86,
+  SET_NE                  = 87,
+  SET_NE_REIF             = 88,
+  SET_SUBSET              = 89,
+  SET_SUBSET_REIF         = 90,
+  SET_SYMDIFF             = 91,
+  SET_UNION               = 92,
+  OTHER                   = 93
 };
 
 class FZNConstraint : public Constraint {
@@ -220,6 +222,8 @@ public:
   static const std::string INT_LIN_LE_REIF;
   static const std::string INT_LIN_NE;
   static const std::string INT_LIN_NE_REIF;
+  static const std::string INT_LT;
+  static const std::string INT_LT_REIF;
   static const std::string INT_MAX_C;
   static const std::string INT_MIN_C;
   static const std::string INT_MOD;

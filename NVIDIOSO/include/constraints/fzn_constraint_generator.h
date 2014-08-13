@@ -15,6 +15,8 @@
 
 #include "int_ne.h"
 #include "int_lin_ne.h"
+#include "int_le.h"
+#include "int_lt.h"
 
 class FZNConstraintFactory {
 public:
@@ -40,6 +42,12 @@ public:
         break;
       case FZNConstraintType::INT_LIN_NE:
         c_ptr = new IntLinNe ();
+        break;
+      case FZNConstraintType::INT_LE:
+        c_ptr = new IntLe ();
+        break;
+      case FZNConstraintType::INT_LT:
+        c_ptr = new IntLt ();
         break;
       default:
         std::cout << "Constraint \"" << c_name << "\" not yet implemented.\n";
@@ -74,6 +82,10 @@ public:
         return std::make_shared<IntNe>( vars, args );
       case FZNConstraintType::INT_LIN_NE:
         return std::make_shared<IntLinNe>( vars, args );
+      case FZNConstraintType::INT_LE:
+        return std::make_shared<IntLe>( vars, args );
+      case FZNConstraintType::INT_LT:
+        return std::make_shared<IntLt>( vars, args );
       default:
         std::cout << "Constraint \"" << c_name << "\" not yet implemented.\n";
         std::cout << "Default action: skip this constraint.\n";

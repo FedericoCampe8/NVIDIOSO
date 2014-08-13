@@ -15,9 +15,6 @@ Constraint () {
   _str_id          = name;
   _number_id       = name_to_id ( name );
   _constraint_type = int_to_type ( name_to_id ( name ) );
-  
-  // Set events for that will trigger the current constraint (default: CHANGE_EVT).
-  set_event ();
 }//FZNConstraint
 
 FZNConstraint::~FZNConstraint () {
@@ -174,6 +171,10 @@ FZNConstraint::name_to_id ( std::string c_name ) {
     return static_cast<int> (FZNConstraintType::INT_LIN_NE);
   if ( c_name.compare ( INT_LIN_NE_REIF ) == 0 )
     return static_cast<int> (FZNConstraintType::INT_LIN_NE_REIF);
+  if ( c_name.compare ( INT_LT ) == 0 )
+    return static_cast<int> (FZNConstraintType::INT_LT);
+  if ( c_name.compare ( INT_LT_REIF ) == 0 )
+    return static_cast<int> (FZNConstraintType::INT_LT_REIF);
   if ( c_name.compare ( INT_MAX_C ) == 0 )
     return static_cast<int> (FZNConstraintType::INT_MAX_C);
   if ( c_name.compare ( INT_MIN_C ) == 0 )
@@ -339,6 +340,8 @@ const std::string FZNConstraint::INT_LIN_LE              = "int_lin_le";
 const std::string FZNConstraint::INT_LIN_LE_REIF         = "int_lin_le_reif";
 const std::string FZNConstraint::INT_LIN_NE              = "int_lin_ne";
 const std::string FZNConstraint::INT_LIN_NE_REIF         = "int_lin_ne_reif";
+const std::string FZNConstraint::INT_LT                  = "int_lt";
+const std::string FZNConstraint::INT_LT_REIF             = "int_lt_reif";
 const std::string FZNConstraint::INT_MAX_C               = "int_max";
 const std::string FZNConstraint::INT_MIN_C               = "int_min";
 const std::string FZNConstraint::INT_MOD                 = "int_mod";
