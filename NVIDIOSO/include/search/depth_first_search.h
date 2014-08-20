@@ -23,11 +23,15 @@ protected:
   static size_t _search_id;
   
   std::string _dbg;
+  
   /*
    * Depth of the search (i.e., height of the search tree
    * visited so far.
    */
   size_t _depth;
+  
+  //! Peak depth reached so far
+  size_t _peak_depth;
   
   /**
    * Stores the number of backtracks during search.

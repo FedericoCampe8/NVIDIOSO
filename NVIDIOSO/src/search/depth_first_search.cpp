@@ -26,6 +26,7 @@ void
 DepthFirstSearch::init_search () {
   _dbg                 = "DepthFirstSearch - ";
   _depth               = 0;
+  _peak_depth          = 0;
   _num_backtracks      = 0;
   _num_nodes           = 0;
   _num_wrong_decisions = 0;
@@ -281,6 +282,7 @@ DepthFirstSearch::label( int var_idx ) {
     // Consistent
     
     _backtrack_manager->set_level ( ++_depth );
+    if ( _depth > _peak_depth ) _peak_depth = _depth;
     
     if ( _trail_debug ) {
       cout<<"TrailStack after consistency at level " << _depth << ":\n";
@@ -496,20 +498,25 @@ DepthFirstSearch::print_solution ( size_t sol_idx ) const {
 
 void
 DepthFirstSearch::print () const {
-  cout << "DepthFirstSearch " << _search_id << ":\n";
-  cout << "Number of explored nodes:  " << get_nodes() << endl;
-  cout << "Number of backtracks:      " << get_backtracks() << endl;
-  cout << "Number of wrong decisions: " << get_wrong_decisions() << endl;
+  cout << "DepthFirstSearch:\n";
+  cout << "Summary\n";
+  cout << "\tSolutions:       " << _solution_manager->number_of_solutions () << endl;
+  cout << "\tPropagators:     " << _store->num_constraints () << endl;
+  cout << "\tPropagations:    " << _store->num_propagations () << endl;
+  cout << "\tExplored nodes:  " << get_nodes( ) << endl;
+  cout << "\tBacktracks:      " << get_backtracks () << endl;
+  cout << "\tWrong decisions: " << get_wrong_decisions () << endl;
+  cout << "\tPeak depth:      " << _peak_depth << endl;
   if ( _search_out ) {
-    cout << "Search aborted: ";
+    cout << "Search aborted ";
     if ( _timeout_out == 0 )
-      cout << "Timeout reached." << endl;
+      cout << "\tTimeout reached." << endl;
     else if ( _nodes_out_on && _num_nodes > _nodes_out )
-      cout << "Maximum number of nodes reached." << endl;
+      cout << "\tMaximum number of nodes reached." << endl;
     else if ( _wrong_out_on && _num_wrong_decisions > _wrong_out )
-      cout << "Maximum number of wrong decisions reached." << endl;
+      cout << "\tMaximum number of wrong decisions reached." << endl;
     else if ( _backtrack_out_on && _num_backtracks > _backtracks_out )
-      cout << "Maximum number of backtracks reached." << endl;
+      cout << "\tMaximum number of backtracks reached." << endl;
   }
   _heuristic->print();
 }//print

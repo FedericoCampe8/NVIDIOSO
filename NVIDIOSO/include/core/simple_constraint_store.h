@@ -44,6 +44,9 @@ protected:
   //! Number of constraints imposed into the store.
   size_t _number_of_constraints;
   
+  //! Number of propagations performed so far.
+  size_t _number_of_propagations;
+  
   /**
    * States whether the satisfiability check 
    * should be performed or not (default: true).
@@ -76,7 +79,7 @@ public:
    * somewhere else. This forces the store to clean up everything
    * and exit as soon as possible without re-evaluating any constraint.
    */
-   void fail ();
+   void fail () override;
   
   /**
    * Sets the satisfiability check during constraint propagation.
@@ -85,7 +88,7 @@ public:
    * @param sat_check boolean value representing whether or not the
    *        satisfiability check should be performed (default: true).
    */
-  void sat_check ( bool sat_check=true );
+  void sat_check ( bool sat_check=true ) override;
   
   /**
    * It adds the constraints given in input to the queue of
@@ -96,7 +99,7 @@ public:
    * @note only constraints that have been previously attached/imposed
    *       to this constraint store will be re-evaluated.
    */
-  void add_changed ( std::vector< size_t >& c_id, EventType event );
+  void add_changed ( std::vector< size_t >& c_id, EventType event ) override;
   
   /**
    * Imposes a constraint to the store. The constraint is added
@@ -108,7 +111,7 @@ public:
    * @note if c is already in the list of constraints in this 
    *       constraint store, it won't be added again nor re-evaluated.
    */
-  void impose ( ConstraintPtr c );
+  void impose ( ConstraintPtr c ) override;
   
   /**
    * Computes the consistency function.
@@ -117,7 +120,7 @@ public:
    * @return true if all propagate constraints are consistent,
    *         false otherwise.
    */
-  bool consistency ();
+  bool consistency () override;
   
   /**
    * Returns a constraint that is scheduled for re-evaluation.
@@ -126,29 +129,35 @@ public:
    * since it is assumed that it will be re-evaluated right away.
    * @return a const pointer to a constraint to re-evaluate.
    */
-   Constraint * const getConstraint ();
+   Constraint * const getConstraint () override;
   
   /**
    * Clears the queue of constraints to re-evaluate.
    * It can be used when implementing different scheme
    * of constraint propagation.
    */
-   void clear_queue ();
+   void clear_queue () override;
   
   /**
    * Returns the total number of constraints in
    * this constraint store.
    */
-  size_t num_constraints () const;
+  size_t num_constraints () const override;
   
   /**
    * Returns the number of constraints to re-evaluate.
    * @return number of constraints to re-evaluate.
    */
-  size_t num_constraints_to_reevaluate () const;
+  size_t num_constraints_to_reevaluate () const override;
+  
+  /**
+   * Returns the total number of propagations performed
+   * by this constraint store so far.
+   */
+  size_t num_propagations () const override;
   
   //! Print infoformation about this simple constraint store.
-  void print () const;
+  void print () const override;
 };
 
 #endif /* defined(__NVIDIOSO__simple_constraint_store__) */

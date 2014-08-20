@@ -1,22 +1,20 @@
 //
-//  int_lin_ne.h
+//  int_lin_eq.h
 //  NVIDIOSO
 //
-//  Created by Federico Campeotto on 11/08/14.
+//  Created by Federico Campeotto on 20/08/14.
 //  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
 //
-//  Constraint Sum_{i \in 1..n}: as[i].bs[i] #\= c,
+//  Constraint Sum_{i \in 1..n}: as[i].bs[i] #= c,
 //  where n is the common length of as and bs.
-//  Domain consistency is used.
 //
-
-#ifndef __NVIDIOSO__int_lin_ne__
-#define __NVIDIOSO__int_lin_ne__
+#ifndef __NVIDIOSO__int_lin_eq__
+#define __NVIDIOSO__int_lin_eq__
 
 #include "fzn_constraint.h"
 #include "int_variable.h"
 
-class IntLinNe : public FZNConstraint {
+class IntLinEq : public FZNConstraint {
 private:
   //! array [int] of int
   std::vector<int> _as;
@@ -34,20 +32,6 @@ private:
    */
   virtual bool all_ground ();
   
-  /**
-   * States whether at least one variable is ground.
-   * @return true if at least one variables in the scope is assigned,
-   *         false otherwise.
-   */
-  virtual bool at_least_one_ground ();
-  
-  /**
-   * States whether there is only one non ground variable.
-   * @return true if there is only one variable in the scope which has not
-   *         been assigned yet, false otherwise.
-   */
-  virtual bool only_one_not_ground ();
-  
 public:
   /**
    * Basic constructor.
@@ -55,7 +39,7 @@ public:
    *       call the setup method to setup the variables
    *       and parameters needed by this constraint.
    */
-  IntLinNe ();
+  IntLinEq ();
   
   /**
    * Basic constructor.
@@ -63,9 +47,9 @@ public:
    *       method to setup variables and arguments for
    *       this constraint.
    */
-  IntLinNe ( std::vector<VariablePtr> vars, std::vector<std::string> args );
+  IntLinEq ( std::vector<VariablePtr> vars, std::vector<std::string> args );
   
-  ~IntLinNe();
+  ~IntLinEq();
   
   //! Setup method, see fzn_constraint.h
   void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) override;
@@ -87,4 +71,5 @@ public:
   void print_semantic () const override;
 };
 
-#endif /* defined(__NVIDIOSO__int_lin_ne__) */
+
+#endif /* defined(__NVIDIOSO__int_lin_eq__) */

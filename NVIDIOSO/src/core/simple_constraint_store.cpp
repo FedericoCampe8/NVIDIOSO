@@ -16,6 +16,7 @@ _dbg                      ( "SimpleConstraintStore - " ),
 _constraint_to_reevaluate ( nullptr ),
 _constraint_queue_size    ( 0 ),
 _number_of_constraints    ( 0 ),
+_number_of_propagations   ( 0 ),
 _satisfiability_check     ( true ),
 _failure                  ( false ) {
 }//SimpleConstraintStore
@@ -46,6 +47,11 @@ size_t
 SimpleConstraintStore::num_constraints () const {
   return _number_of_constraints;
 }//num_constraints
+
+size_t
+SimpleConstraintStore::num_propagations () const {
+  return _number_of_propagations;
+}//num_propagations
 
 size_t
 SimpleConstraintStore::num_constraints_to_reevaluate () const {
@@ -116,7 +122,9 @@ SimpleConstraintStore::consistency () {
     
     _constraint_to_reevaluate = getConstraint ();
     _constraint_to_reevaluate->consistency ();
-
+    
+    _number_of_propagations++;
+    
     if ( _satisfiability_check ) {
       succeed = _constraint_to_reevaluate->satisfied ();
       if ( !succeed ) break;
@@ -157,6 +165,7 @@ SimpleConstraintStore::print () const {
   cout << "Constraint Store\n";
   cout << "Attached constraints:      " << _number_of_constraints << endl;
   cout << "Constraints to reevaluate: " << _constraint_queue_size << endl;
+  cout << "Number of propagations:    " << _number_of_propagations << endl;
   cout << "Satisfiability check:      ";
   if ( _satisfiability_check ) cout << " Enabled" << endl;
   else                         cout << " Disabled" << endl;

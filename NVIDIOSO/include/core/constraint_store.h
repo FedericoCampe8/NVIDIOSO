@@ -99,6 +99,12 @@ public:
    */
   virtual size_t num_constraints_to_reevaluate () const = 0;
   
+  /**
+   * Returns the total number of propagations performed
+   * by this constraint store so far.
+   */
+  virtual size_t num_propagations () const = 0;
+  
   //! Print information about this constraint store.
   virtual void print () const = 0;
 };

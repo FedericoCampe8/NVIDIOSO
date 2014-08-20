@@ -17,47 +17,11 @@
 #include "int_lin_ne.h"
 #include "int_le.h"
 #include "int_lt.h"
+#include "int_eq.h"
+#include "int_lin_eq.h"
 
 class FZNConstraintFactory {
 public:
-  
-  /**
-   * Get the right instance of FlatZinc constraint 
-   * according to its type described by the input string.
-   * @param c_name the FlatZinc name of the constraint to instantiate.
-   * @param vars the vector of (shared) pointer to the FD variables in the
-   *        scope of the constraint to instantiate.
-   * @param args the vector of strings representing the auxiliary arguments 
-   *        needed by the constraint to instantiate in order to be propagated.
-   */
-  static FZNConstraint* get_fzn_constraint ( std::string c_name,
-                                             std::vector<VariablePtr> vars,
-                                             std::vector<std::string> args ) {
-    FZNConstraint * c_ptr = nullptr;
-    FZNConstraintType c_type =
-    FZNConstraint::int_to_type( FZNConstraint::name_to_id ( c_name ) );
-    switch ( c_type ) {
-      case FZNConstraintType::INT_NE:
-        c_ptr = new IntNe ();
-        break;
-      case FZNConstraintType::INT_LIN_NE:
-        c_ptr = new IntLinNe ();
-        break;
-      case FZNConstraintType::INT_LE:
-        c_ptr = new IntLe ();
-        break;
-      case FZNConstraintType::INT_LT:
-        c_ptr = new IntLt ();
-        break;
-      default:
-        std::cout << "Constraint \"" << c_name << "\" not yet implemented.\n";
-        std::cout << "Default action: skip this constraint.\n";
-        return nullptr;
-    }
-    
-    if ( c_ptr != nullptr ) c_ptr->setup ( vars, args );
-    return c_ptr;
-  }//get_fzn_constraint
   
   /**
    * Get the right instance of FlatZinc constraint
@@ -86,6 +50,10 @@ public:
         return std::make_shared<IntLe>( vars, args );
       case FZNConstraintType::INT_LT:
         return std::make_shared<IntLt>( vars, args );
+      case FZNConstraintType::INT_EQ:
+        return std::make_shared<IntEq>( vars, args );
+      case FZNConstraintType::INT_LIN_EQ:
+        return std::make_shared<IntLinEq>( vars, args );
       default:
         std::cout << "Constraint \"" << c_name << "\" not yet implemented.\n";
         std::cout << "Default action: skip this constraint.\n";
