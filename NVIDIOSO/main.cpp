@@ -44,7 +44,7 @@ int main( int argc, char * argv[] )
   // Init store (variables, domains, and constraints)
   try {
     d_store->init_model();
-  } catch (...) {
+  } catch ( std::exception& e ) {
     logger->error ( dbg + "Failed to initialize the model." );
     logger->error ( dbg + "Clean and exit." );
     // Clean & exit
