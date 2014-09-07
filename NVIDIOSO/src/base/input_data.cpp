@@ -178,7 +178,7 @@ InputData::print_help () {
   cout << " -v|--verbose               | - Printf verbose info\n";
   cout << "                            |   during computation.\n";
   cout << " -h|--help                  | - Print this help message.\n";
-  cout << " -d|--help                  | - Print device info message.\n";
+  cout << " -d|--device                | - Print device info message.\n";
   cout << " -w|--watcher               | - Turns on the time-watcher.\n";
   cout << " -i|--input      (string)   | - Read input file.\n";
   cout << " -o|--output     (string)   | - Set output file.\n";
