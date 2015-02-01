@@ -31,7 +31,7 @@ protected:
   int _model_id;
   
   //! Variables
-  std::vector < VariablePtr > _variables;
+  std::vector < VariablePtr >    _variables;
   
   //! Constraint Store
   std::vector <  ConstraintPtr > _constraints;
@@ -52,6 +52,12 @@ public:
    * @return the model's id.
    */
   virtual int get_id () const;
+  
+  //! Return the current number of variabes in the model
+  virtual size_t num_variables () const;
+  
+  //! Return the current number of constraints in the model
+  virtual size_t num_constraints () const;
   
   /**
    * Add a variable to the model.
@@ -101,6 +107,13 @@ public:
    * the all the constraints into the model.
    */
   virtual void init_constraint_store ();
+  
+  /**
+   * Finalizes the model.
+   * @note This is an auxiliary method needed by some derived classes in
+   *       order to finalize the model on different architectures.
+   */
+  virtual void finalize ();
   
   /**
    * Defines the constraint graphs actually attaching the constraints

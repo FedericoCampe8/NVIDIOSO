@@ -40,7 +40,7 @@ int main( int argc, char * argv[] )
     delete logger;
     exit ( 1 );
   }
-  
+
   // Init store (variables, domains, and constraints)
   try {
     d_store->init_model();
@@ -53,7 +53,7 @@ int main( int argc, char * argv[] )
     delete logger;
     exit ( 1 );
   }
-  
+
   logger->message ( dbg + "Init model." );
   
   /***************************************
@@ -71,7 +71,7 @@ int main( int argc, char * argv[] )
     exit( 2 );
   }
   
-  // Set some other user options to the solver
+  // Set some other user options on the solver
   cp_solver->customize ( *i_data );
   statistics->stopwatch ( Statistics::T_PREPROCESS );
   

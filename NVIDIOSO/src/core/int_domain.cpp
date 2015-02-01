@@ -41,6 +41,21 @@ IntDomain::is_numeric () const {
   return true;
 }//is_numeric
 
+void 
+IntDomain::set_domain_status ( void * domain )
+{
+}//set_domain_status
+
+size_t
+IntDomain::get_domain_size () const {
+  return 0;
+}//get_domain_size
+
+const void *
+IntDomain::get_domain_status () const {
+  return nullptr;
+}//get_domain_status
+
 string
 IntDomain::get_string_representation () const {
   string domain_str = "";

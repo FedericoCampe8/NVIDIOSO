@@ -45,6 +45,29 @@ public:
   //! Get string rep. of this domain
   std::string get_string_representation () const;
   
+  /**
+   * Set a concrete domain.
+   * It overrides the current concrete domain representation.
+   * @note the client must provide a consistent internal domain's representation.
+   */
+  virtual void set_domain_status ( void * domain );
+  
+  /**
+   * Get the size if the current domain (internal representation).
+   * @return number of bytes of the internal domain representaion.
+   * @note default is 0.
+   */ 
+  virtual size_t get_domain_size () const; 
+  
+  /**
+   * Get a pointer to the area of memory representing
+   * the current internal representation of this domain.
+   * @return const void pointer to the current domain
+   (internal representation)
+   * @note default is nullptr
+   */
+  virtual const void * get_domain_status () const;
+  
   //! Print base info about int domain
   virtual void print () const;
   

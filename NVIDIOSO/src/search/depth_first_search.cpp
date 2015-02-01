@@ -224,7 +224,7 @@ DepthFirstSearch::labeling () {
       throw e;
     }
   }
-  
+   
   _backtrack_manager->remove_level( _backtrack_manager->get_level() );
   _backtrack_manager->set_level ( _backtrack_manager->get_level() - 1 );
 
@@ -473,7 +473,6 @@ DepthFirstSearch::label( int var_idx ) {
       else              return false;
     }
   }
-  return true;
 }//label
 
 void

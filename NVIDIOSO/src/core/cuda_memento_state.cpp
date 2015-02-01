@@ -30,7 +30,7 @@ CudaMementoState::set_memento ( IntDomainPtr int_domain ) {
     throw NvdException ( "Failed to set (concrete) Memento: no given pointer." );
   }
 
-  (static_cast<CudaDomain *>(int_domain.get()))->set_concrete_domain ( _domain_state );
+  (static_cast<CudaDomain *>(int_domain.get()))->set_domain_status ( _domain_state );
 }//set_memento
 
 void

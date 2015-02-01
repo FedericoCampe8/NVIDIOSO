@@ -56,6 +56,24 @@ public:
   virtual size_t domain_size () const;
   
   /**
+   * Set a concrete domain.
+   * It overrides the current concrete domain representation.
+   * @note the client must provide a consistent internal domain's representation.
+   */
+  virtual void set_domain_status ( void * concrete_domain );
+  
+  /**
+   * Returns a pointer to an area of memory storing
+   * the current internal domain.
+   * @return a pair containing: 
+   *         (1) the size of the current internal domain's representation; 
+   *         (2) a void pointer to an area of memory
+   *         where the current internal representation of the domain
+   *         associated to this iterator is store.
+   */
+  virtual std::pair<size_t, const void *> get_domain_status () const;
+  
+  /**
    * Returns a string description of this domain, i.e.,
    * the list of values in the current domain.
    * @return a string representing the values in this domain.

@@ -26,11 +26,9 @@ public:
     switch ( gt ) {
       case GeneratorType::CUDA:
         return new CudaGenerator ();
-        break;
       default:
   
         return nullptr;
-        break;
     }
   }//get_parser
 };

@@ -132,7 +132,7 @@ SimpleConstraintStore::consistency () {
   }//while
 
   /*
-   * @note here it is possible to add the possibility
+   * @note here it is possible to add the checks for
    *       for nogood learning.
    */
   _constraint_to_reevaluate = nullptr;
@@ -146,7 +146,7 @@ SimpleConstraintStore::consistency () {
 }//consistency
 
 
-Constraint * const
+Constraint *
 SimpleConstraintStore::getConstraint () {
   
   // Get next constraint to re-evalaute
@@ -158,7 +158,6 @@ SimpleConstraintStore::getConstraint () {
   
   return c;
 }//getConstraint
-
 
 void
 SimpleConstraintStore::print () const {

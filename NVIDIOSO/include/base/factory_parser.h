@@ -23,11 +23,9 @@ public:
     switch ( pt ) {
       case ParserType::FLATZINC:
         return new FZNParser();
-        break;
         
       default:
         return nullptr;
-        break;
     }
   }//get_parser
 };

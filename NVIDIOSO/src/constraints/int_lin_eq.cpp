@@ -36,8 +36,8 @@ IntLinEq::setup ( std::vector<VariablePtr> vars, std::vector<std::string> args )
   // Consistency checking in order to avoid more than one setup
   if ( _as.size() ) return;
   
-  if ( vars.size () != (args.size() - 1) ) {
-    throw NvdException ( "Bad parameters settings for int_lin_ne constraint." );
+  if ( vars.size() != (args.size() - 1) ) {
+    throw NvdException ( "Bad parameters settings for int_lin_eq constraint." );
   }
   
   for ( int parameter = 0; parameter < args.size() -1; parameter++ )

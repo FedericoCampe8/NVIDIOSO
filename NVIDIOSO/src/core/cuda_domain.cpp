@@ -173,39 +173,55 @@ EventType
 CudaDomain::get_event () const {
   return int_to_event ();
 }//get_event
-
+ 
 void
 CudaDomain::reset_event () {
   event_to_int ( EventType::NO_EVT );
 }//reset_event
 
 void
-CudaDomain::set_concrete_domain ( int * const concrete_domain ) {
+CudaDomain::set_domain_status ( void * concrete_domain ) {
   if ( concrete_domain == nullptr ) {
     throw NvdException("Can't set new concrete domain.");
   }
   
   memcpy( _domain, concrete_domain, allocated_bytes() );
-  
-  _concrete_domain->set_domain ( (void *) &concrete_domain[ BIT_IDX() ],
-                                 _domain[ REP_IDX() ],
-                                 _domain[ LB_IDX()  ],
-                                 _domain[ UB_IDX()  ],
-                                 _domain[ DSZ_IDX() ] );
-}//set_concrete_domain
+  int * const dom_ptr = (int *) concrete_domain;
+  _concrete_domain->set_domain ( (void *) &dom_ptr[ BIT_IDX() ],  
+                            	_domain[ REP_IDX() ],
+                            	_domain[ LB_IDX()  ],
+                                _domain[ UB_IDX()  ],
+                            	_domain[ DSZ_IDX() ] );                     	
+}//set_domain_status
 
-int * const
+size_t
+CudaDomain::get_domain_size () const {
+  return allocated_bytes ();
+}//get_domain_size
+
+const void *
+CudaDomain::get_domain_status () const {
+	void const * ptr = (void *) get_concrete_domain ();
+  	return ptr;
+}//get_domain_status
+
+const int *
 CudaDomain::get_concrete_domain () const {
+
+  // Copy the actual status of the domain
   memcpy( (void *) &_domain[ BIT_IDX() ],
           (void *) _concrete_domain->get_representation(),
           _concrete_domain->allocated_bytes() );
   
-  // Set every parameter with the most recent values.
+  /*
+   * Set every parameter with the most recent values.
+   * @note event already set at this time.
+   */
   _domain[ REP_IDX() ] = _concrete_domain->get_id_representation ();
   _domain[ LB_IDX()  ] = _concrete_domain->lower_bound ();
   _domain[ UB_IDX()  ] = _concrete_domain->upper_bound ();
   _domain[ DSZ_IDX() ] = _concrete_domain->size();
-  
+
   return _domain;
 }//get_concrete_domain
 

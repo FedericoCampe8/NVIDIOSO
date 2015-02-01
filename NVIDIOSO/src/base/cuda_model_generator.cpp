@@ -13,12 +13,13 @@
 #include "token_sol.h"
 #include "fzn_constraint_generator.h"
 #include "fzn_search_generator.h"
+#include "cuda_simple_constraint_store.h"
 
 using namespace std;
 
 CudaGenerator::CudaGenerator () :
 _dbg( "CudaGenerator - " ){
-  logger->message ( _dbg + "Instantiate a generator for CUDA." );
+  logger->message ( _dbg + "Instantiate a model generator." );
 }//CudaGenerator
 
 CudaGenerator::~CudaGenerator () {
@@ -34,7 +35,8 @@ CudaGenerator::get_variable ( TokenPtr tkn_ptr ) {
   // Check consistency of current token
   if ( (tkn_ptr->get_type() != TokenType::FD_VARIABLE) &&
        (tkn_ptr->get_type() != TokenType::FD_VAR_ARRAY) ) {
-    throw  NvdException ( (_dbg + "Error while instantiating a FD Variables").c_str(),  __FILE__, __LINE__ );
+    throw  NvdException ( (_dbg + "Error while instantiating a FD Variables").c_str(),  
+    					   __FILE__, __LINE__ );
   }
 
   /*
@@ -119,7 +121,6 @@ CudaGenerator::get_variable ( TokenPtr tkn_ptr ) {
        * specilize this method if other types will be added.
        */
       return nullptr;
-      break;
   }
   
   // Store the string id of the current variable in the lookup table.
@@ -212,7 +213,14 @@ CudaGenerator::get_search_engine ( TokenPtr tkn_ptr ) {
 
 ConstraintStorePtr
 CudaGenerator::get_store () {
-  ConstraintStorePtr store = make_shared<SimpleConstraintStore> ();
+  ConstraintStorePtr store;
+  
+#if CUDAON
+  store = make_shared<CudaSimpleConstraintStore> ();
+#else
+  store = make_shared<SimpleConstraintStore> ();
+#endif
+  
   return store;
 }//get_store
 

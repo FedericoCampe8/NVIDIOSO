@@ -223,13 +223,27 @@ public:
    * It overrides the current concrete domain representation.
    * @note the client must provide a consistent internal domain's representation.
    */
-  void set_concrete_domain ( int * const concrete_domain );
+  void set_domain_status ( void * concrete_domain );
+  
+  /**
+   * Get the size if the current domain (internal representation).
+   * @return number of bytes of the internal domain representaion.
+   */
+   size_t get_domain_size () const;
+  
+  /**
+   * Get a pointer to the area of memory representing
+   * the current internal representation of this domain.
+   * @return const void pointer to the current domain
+             (internal representation)
+   */
+  const void * get_domain_status () const;
   
   /**
    * Gets a reference to the current internal representation.
    * @return a reference to a (cuda) concrete domain.
    */
-  int * const get_concrete_domain () const;
+  const int * get_concrete_domain () const;
   
   /**
    * Get domain size.

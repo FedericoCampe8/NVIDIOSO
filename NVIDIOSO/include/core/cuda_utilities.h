@@ -41,7 +41,7 @@ namespace CudaBitUtils {
    * Counts the number of bits that are set to 1 
    * from bit 0 to i (inclusive).
    */
-  inline uint num_1bit_0_through_i ( uint n, int i ) {
+  inline int num_1bit_0_through_i ( uint n, int i ) {
     if (  i < 0 || i > 31 ) return -1;
     uint c = 0;
     uint sum = 0;

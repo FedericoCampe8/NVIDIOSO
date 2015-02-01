@@ -73,7 +73,7 @@ InputData::InputData ( int argc, char* argv[] ) {
         
       case 'd':
         print_gpu_info ();
-        break;
+	exit ( 0 );
        
       case 'w':
         _time = true;
@@ -167,7 +167,33 @@ InputData::get_out_file () const {
 
 void
 InputData::print_gpu_info () {
-  std::cerr << "@Todo - print_gpu_info\n";
+#if CUDAON
+  int nDevices;
+  cudaGetDeviceCount ( &nDevices );
+  
+  for ( int i = 0; i < nDevices; i++ ) {
+    cudaDeviceProp devProp;
+    cudaGetDeviceProperties( &devProp, i );
+    cout << " Device characteristics:\n";
+    cout << " Device Number:                 " << i << endl;
+    cout << " Device name:                   " << devProp.name << endl;
+    cout << " Total global memory:           " << devProp.totalGlobalMem << endl;
+    cout << " Total shared memory per block: " << devProp.sharedMemPerBlock << endl;
+    cout << " Total registers per block:     " << devProp.regsPerBlock << endl;
+    cout << " Total constant memory:         " << devProp.totalConstMem << endl;
+    cout << " Warp size:                     " << devProp.warpSize << endl;
+    cout << " Maximum threads per block:     " << devProp.maxThreadsPerBlock << endl;
+    cout << " Number of multiprocessors:     " << devProp.multiProcessorCount << endl;
+    cout << " Memory Clock Rate (KHz):       " << devProp.memoryClockRate << endl;
+    cout << " Memory Bus Width (bits):       " << devProp.memoryBusWidth << endl;
+    cout << " Peak Memory Bandwidth (GB/s):  " <<
+    2.0*devProp.memoryClockRate*(devProp.memoryBusWidth/8)/1.0e6 << endl;
+  }
+  
+#else
+  cout << "Use \"make CFLAGS=-DCUDAON=true\" to enable CUDA capabilities" << endl;
+#endif
+
 }//print_help
 
 void

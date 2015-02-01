@@ -254,7 +254,7 @@ CudaConcreteDomainList::shrink ( int min, int max ) {
   /*
    * Translate the pairs on the left:
    * {1, 4} {6, 10} {22, 25} (min = 8, max = 23) ->
-   * {8, 10}, {23, 25}.
+   * {8, 10}, {22, 23}.
    */
   if ( pair_with_min > 0 ) {
     memcpy( _concrete_domain,

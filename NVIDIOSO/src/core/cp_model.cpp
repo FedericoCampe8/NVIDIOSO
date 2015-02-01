@@ -24,6 +24,16 @@ CPModel::get_id () const {
   return _model_id;
 }//get_id
 
+size_t
+CPModel::num_variables () const {
+  return _variables.size ();
+}//num_variables
+
+size_t
+CPModel::num_constraints () const {
+  return _constraints.size ();
+}//num_variables
+
 void
 CPModel::add_variable ( VariablePtr vpt ) {
   assert( vpt != nullptr );
@@ -70,6 +80,10 @@ CPModel::init_constraint_store () {
     _store->impose( c );
   }
 }//init_constraint_store
+
+void
+CPModel::finalize () {
+}//finalize
 
 void
 CPModel::create_constraint_graph () {

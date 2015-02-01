@@ -145,13 +145,13 @@ SimpleHeuristic::get_choice_value () {
 
 void
 SimpleHeuristic::print () const {
-  std::cout << "Heuristic:\n";
+  std::cout << "Heuristic\n";
   if ( _value_metric != nullptr ) {
-    std::cout << "Value choice metric:   \t";
+    std::cout << "\tValue choice metric:   \t";
     _value_metric->print();
   }
   if ( _variable_metric != nullptr ) {
-    std::cout << "Variable choice metric:\t";
+    std::cout << "\tVariable choice metric:\t";
     _variable_metric->print();
   }
 }//print

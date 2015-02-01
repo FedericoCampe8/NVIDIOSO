@@ -78,7 +78,7 @@ public:
    * since it is assumed that it will be re-evaluated right away.
    * @return a const pointer to a constraint to re-evaluate.
    */
-  virtual Constraint * const getConstraint () = 0;
+  virtual Constraint * getConstraint () = 0;
   
   /**
    * Clears the queue of constraints to re-evaluate.

@@ -44,7 +44,7 @@ protected:
   /**
    * Get index of the chunk of bits containing the bit
    * representing the value given in input.
-   * @param max lower bound used to calculated the index of the bitmap
+   * @param val is the (integer) value for which the chunk is needed
    * @return number of int used as bitmaps to represent max
    */
   static constexpr int IDX_CHUNK ( int val ) {

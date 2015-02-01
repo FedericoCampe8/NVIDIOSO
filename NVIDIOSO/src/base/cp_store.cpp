@@ -10,6 +10,7 @@
 #include "factory_parser.h"
 #include "model_generator.h"
 #include "factory_generator.h"
+#include "cuda_cp_model.h"
 
 using namespace std;
 
@@ -24,6 +25,9 @@ _parser   ( nullptr ) {
 
 CPStore::~CPStore () {
   delete _parser;
+#if CUDAON
+  cudaDeviceReset();
+#endif
 }//~CSPStore
 
 bool
@@ -65,9 +69,24 @@ CPStore::load_model ( string ifile ) {
 
 void
 CPStore::init_model () {
+  string cp_mdl;
   
-  // New Model
+  // Create a new CPModel
+#if CUDAON
+  _cp_model = new CudaCPModel ();
+  cp_mdl    = "CP_Model (CUDA version)";
+#else
   _cp_model = new CPModel ();
+  cp_mdl    = "CP_Model";
+#endif
+
+  if ( _cp_model ) {
+    logger->message ( _dbg + cp_mdl + " created.");
+  }
+  else {
+    logger->message ( _dbg + cp_mdl + " failed.");
+    throw;
+  }
   
   /*
    * Use a model generator to instantiate variables,
@@ -99,23 +118,52 @@ CPStore::init_model () {
   
   // Constraints
   while ( _parser->more_constraints () ) {
-    _cp_model->add_constraint ( generator->get_constraint ( _parser->get_constraint() ) );
+    try {
+      _cp_model->add_constraint ( generator->get_constraint ( _parser->get_constraint() ) );
+    } catch ( exception& e ) {
+      // Log exception
+      logger->error( e.what() );
+      // Throw again to exit the program in a clean fashion
+      throw;
+    }
   }
   
   // Constraint store
-  _cp_model->add_constraint_store( generator->get_store () );
+  try {
+    _cp_model->add_constraint_store( generator->get_store () );
+  } catch ( exception& e ) {
+    // Log exception
+    logger->error( e.what() );
+    // Throw again to exit the program in a clean fashion
+    throw;
+  }
+  
   
   /*
    * Search engine.
    * @note search engine needs a constraint store.
    */
   while ( _parser->more_search_engines () ) {
-  _cp_model->add_search_engine ( generator->get_search_engine ( _parser->get_search_engine() ) );
+    try {
+      _cp_model->add_search_engine ( generator->get_search_engine ( _parser->get_search_engine() ) );
+    } catch ( exception& e ) {
+      // Log exception
+      logger->error( e.what() );
+      // Throw again to exit the program in a clean fashion
+      throw;
+    }
+  }
+  
+  // Finalize the model according to different architectures
+  try {
+    _cp_model->finalize ();
+  } catch ( NvdException& e ) {
+    cout << e.what() << endl;
+    throw;
   }
   
   delete generator;
-}//init_store
-
+}//init_model
 
 // Print info about the model
 void

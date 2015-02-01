@@ -17,7 +17,8 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <unistd.h>
-
+#include <cstddef>
+ 
 /* Input/Output */
 #include <iomanip>
 #include <iostream>
@@ -44,6 +45,7 @@
 #include <regex>
 #include <vector>
 #include <utility>
+#include <memory>
 
 /* Global classes */
 #include "logger.h"
@@ -51,7 +53,14 @@
 #include "id_generator.h"
 #include "nvd_exception.h"
 
+/* Cuda */
+#if CUDAON
+#include <cuda.h>
+#include <cuda_runtime_api.h>
+#endif
+
 /* Environment variable */
 constexpr int VECTOR_MAX = 256;
+constexpr int CUDA_STACK_MAX = 1073741824;
 
 #endif

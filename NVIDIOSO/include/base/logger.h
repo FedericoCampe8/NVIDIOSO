@@ -21,6 +21,10 @@
 #include <fstream>
 #include <sstream>
 
+#if CUDAON
+#include <cuda_runtime_api.h>
+#endif 
+
 class Logger;
 //! logger instance: global to all classes if included
 extern Logger* logger;
@@ -68,6 +72,16 @@ public:
   void error     ( std::string );
   void error     ( std::string, const char* );
   void error     ( std::string, const char*, const int );
+  
+#if CUDAON
+  /** Error handling for CUDA
+   * @return true if there is an error on the device
+   */
+  bool cuda_handle_error ( cudaError_t err );
+  bool cuda_handle_error ( cudaError_t err, const char *file );
+  bool cuda_handle_error ( cudaError_t err, const char *file, const int line );
+#endif
+  
 };
 
 #endif
