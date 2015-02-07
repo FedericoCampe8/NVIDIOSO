@@ -36,6 +36,9 @@ set CUDAOPT = "-arch=sm_30"
 #                                                                                       #
 # THE FOLLOWING OPTION SETS THE PATH FOR THE HOST COMPILER TO USE IN AN OSX ENVIRONMENT #
 set OSXENV = '-ccbin /usr/local/Cellar/gcc47/4.7.4/bin/g++-4.7'
+# THE FOLLOWING OPTION SETS THE PATH THE CUDA COMPILER                                  #
+# SET HERE GLOBAL PATH TO NVCC, e.g., set NVCC =/machine_name/cuda-6.5/bin/nvcc
+set NVCC = nvcc
 #########################################################################################
 
 #########################################################################################
@@ -58,7 +61,8 @@ if ( $INST != "y" && $INST != "Y" ) then
 	exit 0
 endif
 
-if ( { find -f uniojnb } != 0 ) then
+set PROG_COUNT = `ls | grep -c -x nvidioso`
+if ( $PROG_COUNT != 0 ) then
 	echo "A version of the solver is already present in this folder."
 	echo "Press any key to continue or ctrl-c to exit."
 	set EXT = $< 

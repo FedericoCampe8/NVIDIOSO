@@ -118,7 +118,7 @@ CudaCPModel::alloc_variables () {
     _domain_state_size += ( (var->domain_iterator)->get_domain_status() ).first;
     _cuda_var_lookup[ var->get_id() ] = var_id++;
   }
-  
+
   // Allocate space on host and device
   _h_domain_states = (uint*) malloc ( _domain_state_size );
   if ( logger->cuda_handle_error ( cudaMalloc( (void**)&_d_domain_states, _domain_state_size ) ) ) {
@@ -223,7 +223,7 @@ CudaCPModel::upload_device_state () {
   }
   if ( logger->cuda_handle_error ( cudaMemcpy (_d_domain_states, &_h_domain_states[ 0 ],
                                                _domain_state_size, cudaMemcpyHostToDevice ) ) ) {
-    string err = "Error updating device.\n";
+    string err = "Error updating device from host.\n";
     throw NvdException ( err.c_str(), __FILE__, __LINE__ );
   }
 #endif
@@ -237,7 +237,7 @@ CudaCPModel::download_device_state ()
 #if CUDAON
 	if ( logger->cuda_handle_error ( cudaMemcpy (&_h_domain_states[ 0 ], _d_domain_states, 
                                             	_domain_state_size, cudaMemcpyDeviceToHost ) ) ) {
-    	string err = "Error updating device.\n";
+    	string err = "Error updating host from device.\n";
     	throw NvdException ( err.c_str(), __FILE__, __LINE__ );
   	}
 

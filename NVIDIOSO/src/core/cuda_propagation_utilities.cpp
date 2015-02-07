@@ -18,19 +18,12 @@ using uint = unsigned int;
 __global__ void
 cuda_consistency ( size_t * constraint_queue )
 {
-
-	//blocchi paralleli lavorano sugli stessi domini -> raice condition
-	//chiamare il kernel con un blocco per variabli e propagare i relativi vincoli 
+	// Now everything is sequential here
 	if (blockIdx.x == 0) {
-	//gridDim.x
-	int j = 0;
-	for (int i = 0; i < 50; i++) {
-	j = i % 30;
-	printf ("VALUE %d\n",constraint_queue [ i ] );
-	d_constraints_ptr [ constraint_queue [ j ] ]->consistency(); 
-	d_constraints_ptr [ constraint_queue [ j ] ]->satisfied();
-	//d_constraints_ptr [ constraint_queue [ i ] ]->print();
-	}
+		for (int i = 0; i < gridDim.x; i++) {
+			d_constraints_ptr [ constraint_queue [ i ] ]->consistency(); 
+			d_constraints_ptr [ constraint_queue [ i ] ]->satisfied();
+		}
 	}
 }//cuda_consistency
 

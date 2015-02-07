@@ -33,7 +33,6 @@ CudaSimpleConstraintStore::finalize ( CudaCPModel* ptr ) {
   
 #if CUDAON
   size_t num_constraints = _cp_model_ptr->num_constraints ();
-  cout  << "Propagate constraints: " << _cp_model_ptr->num_constraints () << endl;
 
   if (
       logger->cuda_handle_error ( cudaMalloc ( (void**)&_d_constraint_queue,
