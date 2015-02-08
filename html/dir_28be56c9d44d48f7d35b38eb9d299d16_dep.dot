@@ -1,0 +1,10 @@
+digraph "/Users/fedecampe/Desktop/NVIDIOSO-PRJ" {
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_28be56c9d44d48f7d35b38eb9d299d16 {
+    graph [ bgcolor="#eeeeff", pencolor="black", label="" URL="dir_28be56c9d44d48f7d35b38eb9d299d16.html"];
+    dir_28be56c9d44d48f7d35b38eb9d299d16 [shape=plaintext label="NVIDIOSO-PRJ"];
+    dir_9d0a883e17f05da08c4b96704d6398cb [shape=box label="NVIDIOSO" color="red" fillcolor="white" style="filled" URL="dir_9d0a883e17f05da08c4b96704d6398cb.html"];
+  }
+}
