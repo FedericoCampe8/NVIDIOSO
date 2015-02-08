@@ -5,7 +5,7 @@
 //  Created by Federico Campeotto on 07/07/14.
 //  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
 //
-//  This class represents a genral Constraint Programming model.
+//  This class represents a general Constraint Programming model.
 //  It holds the state concerning all the information needed to
 //  explore the search space in order to find solutions.
 //  It holds the following finite sets:

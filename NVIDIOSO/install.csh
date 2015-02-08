@@ -1,31 +1,31 @@
 #!/bin/csh
 #########################################################################################
-# Copyright (c) 2015, CLP Lab Members.													#								
-# All rights reserved.																	#
-#																						#
-# Redistribution and use in source and binary forms, with or without					#
+# Copyright (c) 2015, CLP Lab Members.                                                  #								
+# All rights reserved.                                                                  #
+#                                                                                       #
+# Redistribution and use in source and binary forms, with or without                    #
 # modification, are permitted provided that the following conditions are met:			#
-#																						#
+#                                                                                       #
 # 1. Redistributions of source code must retain the above copyright notice, this 		#
-#    list of conditions and the following disclaimer. 									#
+#    list of conditions and the following disclaimer.                                   #
 # 2. Redistributions in binary form must reproduce the above copyright notice,			#
 #    this list of conditions and the following disclaimer in the documentation			#
-#    and/or other materials provided with the distribution.								#
-#																						#
+#    and/or other materials provided with the distribution.                             #
+#                                                                                       #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND		#
 # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED			#
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE				#
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                #
 # DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR		#
 # ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES		#
 # (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;			#
 # LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			#
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			#
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS			#
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.							#
-#																						#
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                          #
+#                                                                                       #
 # The views and conclusions contained in the software and documentation are those		#
 # of the authors and should not be interpreted as representing official policies, 		#
-# either expressed or implied, of the FreeBSD Project.									#
+# either expressed or implied, of the FreeBSD Project.                                  #
 #########################################################################################
 
 #########################################################################################
@@ -36,8 +36,8 @@ set CUDAOPT = "-arch=sm_30"
 #                                                                                       #
 # THE FOLLOWING OPTION SETS THE PATH FOR THE HOST COMPILER TO USE IN AN OSX ENVIRONMENT #
 set OSXENV = '-ccbin /usr/local/Cellar/gcc47/4.7.4/bin/g++-4.7'
-# THE FOLLOWING OPTION SETS THE PATH THE CUDA COMPILER                                  #
-# SET HERE GLOBAL PATH TO NVCC, e.g., set NVCC =/machine_name/cuda-6.5/bin/nvcc
+# THE FOLLOWING OPTION SETS THE PATH FOR THE CUDA COMPILER                              #
+# SET HERE GLOBAL PATH TO NVCC, e.g., set NVCC =/machine_name/cuda-6.5/bin/nvcc         #
 set NVCC = nvcc
 #########################################################################################
 
@@ -211,56 +211,56 @@ touch $MAKEINC
 echo "#------------------------------------------------------------" 	>> $MAKEINC
 echo "# Compiler options and definition for the GNU libraries      " 	>> $MAKEINC
 echo "#------------------------------------------------------------" 	>> $MAKEINC
-echo "" 																>> $MAKEINC
-echo "CC = $CC"     													>> $MAKEINC
-echo "COMPILE = -c" 													>> $MAKEINC
-echo "DEBUGFLAG = -W -Wall" 											>> $MAKEINC
-echo "CCOPT = $machine_val -DIL_STD"									>> $MAKEINC
-echo "CCOPT += -O3 -std=c++11"									    	>> $MAKEINC
-echo "CFLAGS = -DCUDAON=$CUDAON"										>> $MAKEINC
-echo "" 																>> $MAKEINC
+echo ""                                                                 >> $MAKEINC
+echo "CC = $CC"                                                         >> $MAKEINC
+echo "COMPILE = -c"                                                     >> $MAKEINC
+echo "DEBUGFLAG = -W -Wall"                                             >> $MAKEINC
+echo "CCOPT = $machine_val -DIL_STD"                                    >> $MAKEINC
+echo "CCOPT += -O3 -std=c++11"                                          >> $MAKEINC
+echo "CFLAGS = -DCUDAON=$CUDAON"                                        >> $MAKEINC
+echo ""                                                                 >> $MAKEINC
 if ( $CC == "nvcc" ) then 
 echo "#------------------------------------------------------------" 	>> $MAKEINC
 echo "# CUDA options                                               " 	>> $MAKEINC
 echo "#------------------------------------------------------------" 	>> $MAKEINC
-echo "" 																>> $MAKEINC
-echo "CCOPT += $CUDAOPT"                     							>> $MAKEINC
+echo ""                                                                 >> $MAKEINC
+echo "CCOPT += $CUDAOPT"                                                >> $MAKEINC
 if ( $OS == "OSX" ) then
-echo "CUDAOPT += $OSXENV"												>> $MAKEINC
+echo "CUDAOPT += $OSXENV"                                               >> $MAKEINC
 endif
-echo "COMPILE = -x cu -dc"  											>> $MAKEINC
-echo "" 																>> $MAKEINC
+echo "COMPILE = -x cu -dc"                                              >> $MAKEINC
+echo ""                                                                 >> $MAKEINC
 endif 
 echo "#------------------------------------------------------------" 	>> $MAKEINC
 echo "# Other options                                              " 	>> $MAKEINC
 echo "#------------------------------------------------------------" 	>> $MAKEINC
-echo "" 																>> $MAKEINC
-echo "OK_STRING=[OK]"													>> $MAKEINC
-echo "OK_DONE =iNVIDIOSO compilation succeeded"							>> $MAKEINC
-echo "CLEAN_DONE =NVIDIOSO Cleaning succeeded"							>> $MAKEINC
-echo 'PRINT_COMPILE = @echo compiling...${OK_STRING}'					>> $MAKEINC
-echo 'PRINT_CLEAN   = @echo ${CLEAN_DONE}'								>> $MAKEINC
-echo "" 																>> $MAKEINC
+echo ""                                                                 >> $MAKEINC
+echo "OK_STRING=[OK]"                                                   >> $MAKEINC
+echo "OK_DONE =iNVIDIOSO compilation succeeded"                         >> $MAKEINC
+echo "CLEAN_DONE =NVIDIOSO Cleaning succeeded"                          >> $MAKEINC
+echo 'PRINT_COMPILE = @echo compiling...${OK_STRING}'                   >> $MAKEINC
+echo 'PRINT_CLEAN   = @echo ${CLEAN_DONE}'                              >> $MAKEINC
+echo ""                                                                 >> $MAKEINC
 echo "#------------------------------------------------------------" 	>> $MAKEINC
 echo "# Paths                                                      " 	>> $MAKEINC
 echo "#------------------------------------------------------------" 	>> $MAKEINC
-echo "" 																>> $MAKEINC
-echo "PRG_PATH=."														>> $MAKEINC
-echo "NVIDIOSO_INC = include"											>> $MAKEINC
-echo "NVIDIOSO_SRC = src"												>> $MAKEINC
-echo "NVIDIOSO_LIB = lib"												>> $MAKEINC
-echo 'LIBNVIDIOSO = $(NVIDIOSO_LIB)/libnvidioso.a'						>> $MAKEINC
-echo "" 																>> $MAKEINC
+echo ""                                                                 >> $MAKEINC
+echo "PRG_PATH=."                                                       >> $MAKEINC
+echo "NVIDIOSO_INC = include"                                           >> $MAKEINC
+echo "NVIDIOSO_SRC = src"                                               >> $MAKEINC
+echo "NVIDIOSO_LIB = lib"                                               >> $MAKEINC
+echo 'LIBNVIDIOSO = $(NVIDIOSO_LIB)/libnvidioso.a'                      >> $MAKEINC
+echo ""                                                                 >> $MAKEINC
 echo "#------------------------------------------------------------" 	>> $MAKEINC
 echo "# SRC Folders’ name                                          " 	>> $MAKEINC
 echo "#------------------------------------------------------------" 	>> $MAKEINC
-echo "" 																>> $MAKEINC
-echo "BASE=base"														>> $MAKEINC
-echo "CORE=core"														>> $MAKEINC
-echo "SEARCH=search"													>> $MAKEINC
-echo "PARSER=FZ_parser"													>> $MAKEINC
-echo "CONSTRAINTS=constraints"											>> $MAKEINC
-echo "EXCEPTION=exception"												>> $MAKEINC
+echo ""                                                                 >> $MAKEINC
+echo "BASE=base"                                                        >> $MAKEINC
+echo "CORE=core"                                                        >> $MAKEINC
+echo "SEARCH=search"                                                    >> $MAKEINC
+echo "PARSER=FZ_parser"                                                 >> $MAKEINC
+echo "CONSTRAINTS=constraints"                                          >> $MAKEINC
+echo "EXCEPTION=exception"                                              >> $MAKEINC
 
 goto ProceedWithMake
 
