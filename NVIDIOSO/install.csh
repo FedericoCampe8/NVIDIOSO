@@ -35,6 +35,7 @@
 set CUDAOPT = "-arch=sm_30"
 #                                                                                       #
 # THE FOLLOWING OPTION SETS THE PATH FOR THE HOST COMPILER TO USE IN AN OSX ENVIRONMENT #
+# CHANGE THE PATH IF USING OSX AND THE COMPILER OR THE PATH ARE DIFFERENT               #
 set OSXENV = '-ccbin /usr/local/Cellar/gcc47/4.7.4/bin/g++-4.7'
 # THE FOLLOWING OPTION SETS THE PATH FOR THE CUDA COMPILER                              #
 # SET HERE GLOBAL PATH TO NVCC, e.g., set NVCC =/machine_name/cuda-6.5/bin/nvcc         #
@@ -119,7 +120,7 @@ if ( $VERSION == "g" ) then
 		exit 0
 	else
 		echo ""
-		echo "Note: CUDA architecture setting: 3.5."
+		echo "Note: CUDA architecture setting: $CUDAOPT."
 		echo "If different, please change architecture in '"'install.csh'"' before proceeding."
 		echo "Note: This version of the solver is written in C++11 which is supported"
 		echo "      only by CUDA 6.5 and higher."
@@ -274,26 +275,36 @@ OSXNote:
 echo ""
 echo "On OSX system the nvcc compiler might cause some problems."
 echo "Here are some useful tips:"
-echo "1 - Check whether clang is installed by writing clang++ in the terminal."
+echo "1 - Check if clang is installed in the system by writing clang++ in the terminal." 
 echo "2 - Xcode Command Line Tools should be installed."
 echo '    To install Xcode Command Line Tools enter "xcode-select --install" in the terminal' 
-echo "3 - g++ should be installed as well since nvcc does not support clang."
+echo "3 - g++ should be installed in order to work with nvcc."
+echo "    If g++4.7 or higher is already installed in your system you can go directly 
+echo "    to step 4. Otherwise, install g++ as follows.
 echo "    To install g++ we suggest to use Homebrew."
 echo "    Type:"
 echo '        ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"'
-echo "    to install homebrew if it is not present in your system."
-echo "    Type:"
+echo "    to install homebrew if not present in your system."
+echo "    To install gcc and g++ type the following commands:"
 echo "        brew update"
 echo '        brew tap homebrew/versions'
-echo "        brew install gcc47"
-echo "    to install the g++ compiler."
-echo "    The copiler is located in"
+echo "        brew install [flags] gcc48"
+echo "    You can view available install flags by using"
+echo "        brew options gcc48 
+echo "    If you don't want to use Homebrew," 
+echo "    you may want to have a look at the gcc website
+echo '        gcc.gnu.org'
+echo "    and, in particular, at the Installation section."
+echo "    If you used Homebrew to install the compiler,"
+echo "    you should be able to locate it in the following directory:"
 echo '        /usr/local/Cellar/gcc47/' 
-echo "    This is also the path that needs to be added as option to nvcc:"
-echo '        -ccbin /usr/local/bin/c++-4.7'
+echo "    In any case, you need to change the global variable storing the path"
+echo "    where the compiler is located to be used together with nvcc."
+echo '4 - If <path> is the path where the compiler is located, open "install.csh" '
+echo '    and change the global variable "OSXENV" as follows:'
+echo "    set OSXENV = '-ccbin <path>'"
 echo '    Note that -ccbin <dir> specify the directory <dir> containing'
 echo "    the compiler to use as host compiler."
-echo '    If different from the above path, change the variable OSXENV in "install.csh".'
 echo "    Note the gcc48 is also available but at this time there is "
 echo "    a bug in some of its libraries which makes it incompatible with nvcc."
 echo "    Please, use gcc47."
