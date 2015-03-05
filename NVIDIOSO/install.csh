@@ -40,6 +40,8 @@ set OSXENV = '-ccbin /usr/local/Cellar/gcc47/4.7.4/bin/g++-4.7'
 # THE FOLLOWING OPTION SETS THE PATH FOR THE CUDA COMPILER                              #
 # SET HERE GLOBAL PATH TO NVCC, e.g., set NVCC =/machine_name/cuda-6.5/bin/nvcc         #
 set NVCC = nvcc
+# SET HERE c++0x for gcc versions less than 4.7                                         #
+set CCPP = c++11
 #########################################################################################
 
 #########################################################################################
@@ -217,7 +219,7 @@ echo "CC = $CC"                                                         >> $MAKE
 echo "COMPILE = -c"                                                     >> $MAKEINC
 echo "DEBUGFLAG = -W -Wall"                                             >> $MAKEINC
 echo "CCOPT = $machine_val -DIL_STD"                                    >> $MAKEINC
-echo "CCOPT += -O3 -std=c++11"                                          >> $MAKEINC
+echo "CCOPT += -O3 $CCPP -fPIC"                                         >> $MAKEINC
 echo "CFLAGS = -DCUDAON=$CUDAON"                                        >> $MAKEINC
 echo ""                                                                 >> $MAKEINC
 if ( $CC == "nvcc" ) then 
