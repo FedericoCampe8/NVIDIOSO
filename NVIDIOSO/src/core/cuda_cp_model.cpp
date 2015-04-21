@@ -21,6 +21,11 @@ using namespace std;
 __device__ CudaConstraint** d_constraints_ptr;
 
 __global__ void
+cuda_print_constraints () {
+  d_constraints_ptr [ blockIdx.x ]->print();
+}//cuda_print_constraints
+
+__global__ void
 cuda_constraint_factory ( int* constraint_description, size_t size,
                           int* domain_index, uint* domain_states ) {
   // Allocate memory for pointers to constraint classes
@@ -53,10 +58,6 @@ cuda_constraint_factory ( int* constraint_description, size_t size,
   }//c
 }//cuda_constraint_factory
 
-__global__ void
-cuda_print_constraints () {
-  d_constraints_ptr [ blockIdx.x ]->print();
-}//cuda_print_constraints
 #endif
 
 CudaCPModel::CudaCPModel () :
@@ -162,15 +163,20 @@ CudaCPModel::alloc_constraints () {
   // Prepare info for cuda constraint factory
   int con_id = 0;
   vector<int> con_info;
+
   for ( auto con : _constraints ) {
     // Constraint type
     con_info.push_back ( con->get_number_id () );
+    
     // Constraint id
     con_info.push_back ( con->get_unique_id () );
+    
     // Scope size
     con_info.push_back ( con->get_scope_size () );
+    
     // Aux args size
     con_info.push_back ( con->get_arguments_size () );
+    
     // List of variables involved in this constraint
     for ( auto var : con->scope () ) {
       // Note: id w.r.t. vars ids on device
@@ -179,12 +185,11 @@ CudaCPModel::alloc_constraints () {
     
     // List of aux arguments
     for ( auto args : con->arguments () ) {
-      con_info.push_back ( args );
+      con_info.push_back ( args ); 
     }
-    
     constraint_mapping_h_d [ con->get_unique_id () ] = con_id++;
   }//con
-  
+
   // Copy above info on device
   if ( logger->cuda_handle_error ( cudaMalloc ((void**)&d_constraint_description,
                                                con_info.size() * sizeof (int) ) ) ) {
@@ -196,7 +201,7 @@ CudaCPModel::alloc_constraints () {
                                                cudaMemcpyHostToDevice ) ) ) {
     return false;
   }
-  
+  cudaDeviceSynchronize ();
   // Create constraints on device
   cuda_constraint_factory<<<1, 1>>> ( d_constraint_description, _constraints.size(),
                                       _d_domain_index, _d_domain_states );
@@ -204,8 +209,7 @@ CudaCPModel::alloc_constraints () {
 #if CUDAVERBOSE
   cuda_print_constraints<<<_constraints.size(), 1>>> ();
 #endif
-
-  cudaDeviceSynchronize ();
+  	cudaDeviceSynchronize ();
 #endif
 
   return true;
@@ -214,6 +218,7 @@ CudaCPModel::alloc_constraints () {
 bool
 CudaCPModel::upload_device_state () {
 #if CUDAON
+cudaDeviceSynchronize ();
   int idx = 0;
   for ( auto var : _variables ) {
     memcpy ( &_h_domain_states[idx], (uint*)( (var->domain_iterator)->get_domain_status() ).second,
@@ -226,6 +231,7 @@ CudaCPModel::upload_device_state () {
     string err = "Error updating device from host.\n";
     throw NvdException ( err.c_str(), __FILE__, __LINE__ );
   }
+  cudaDeviceSynchronize ();
 #endif
 
 return true;
@@ -235,6 +241,7 @@ bool
 CudaCPModel::download_device_state () 
 {
 #if CUDAON
+cudaDeviceSynchronize ();
 	if ( logger->cuda_handle_error ( cudaMemcpy (&_h_domain_states[ 0 ], _d_domain_states, 
                                             	_domain_state_size, cudaMemcpyDeviceToHost ) ) ) {
     	string err = "Error updating host from device.\n";
@@ -249,6 +256,7 @@ CudaCPModel::download_device_state ()
   		
   		if ( var->is_empty() ) return false;
   	}
+  	cudaDeviceSynchronize ();
 #endif
 
 return true;

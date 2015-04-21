@@ -219,7 +219,7 @@ echo "CC = $CC"                                                         >> $MAKE
 echo "COMPILE = -c"                                                     >> $MAKEINC
 echo "DEBUGFLAG = -W -Wall"                                             >> $MAKEINC
 echo "CCOPT = $machine_val -DIL_STD"                                    >> $MAKEINC
-echo "CCOPT += -O3 $CCPP -fPIC"                                         >> $MAKEINC
+echo "CCOPT += -O3 -std=$CCPP"                                          >> $MAKEINC
 echo "CFLAGS = -DCUDAON=$CUDAON"                                        >> $MAKEINC
 echo ""                                                                 >> $MAKEINC
 if ( $CC == "nvcc" ) then 
@@ -281,8 +281,8 @@ echo "1 - Check if clang is installed in the system by writing clang++ in the te
 echo "2 - Xcode Command Line Tools should be installed."
 echo '    To install Xcode Command Line Tools enter "xcode-select --install" in the terminal' 
 echo "3 - g++ should be installed in order to work with nvcc."
-echo "    If g++4.7 or higher is already installed in your system you can go directly 
-echo "    to step 4. Otherwise, install g++ as follows.
+echo "    If g++4.7 or higher is already installed in your system you can go directly "
+echo "    to step 4. Otherwise, install g++ as follows. "
 echo "    To install g++ we suggest to use Homebrew."
 echo "    Type:"
 echo '        ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"'
@@ -292,9 +292,9 @@ echo "        brew update"
 echo '        brew tap homebrew/versions'
 echo "        brew install [flags] gcc48"
 echo "    You can view available install flags by using"
-echo "        brew options gcc48 
+echo "        brew options gcc48 "
 echo "    If you don't want to use Homebrew," 
-echo "    you may want to have a look at the gcc website
+echo "    you may want to have a look at the gcc website"
 echo '        gcc.gnu.org'
 echo "    and, in particular, at the Installation section."
 echo "    If you used Homebrew to install the compiler,"
