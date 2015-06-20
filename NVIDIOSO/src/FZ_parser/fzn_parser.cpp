@@ -70,7 +70,10 @@ FZNParser::get_variable () {
       if ( dim > 0 ) {
         size_t ptr_idx = it->second[ dim - 1 ];
         it->second.pop_back();
-        _num_tokens--;
+        _num_tokens--; 
+        cout << "Returning here.......... " << ptr_idx << endl;
+        _map_tokens.at( ptr_idx )->print();
+        cout << "................... " << endl;
         return _map_tokens.at( ptr_idx );
       }
     }
@@ -217,7 +220,7 @@ FZNParser::get_next_content () {
 }//get_next_content
 
 void
-FZNParser::store_token ( TokenPtr token ) {
+FZNParser::store_token ( TokenPtr token ) { token->print();
   // Check for pointer consistency
   if ( token == nullptr ) return;
   
@@ -230,7 +233,7 @@ FZNParser::store_token ( TokenPtr token ) {
       
       // Token (pointer) to return
       TokenPtr tkn_ptr = make_shared<TokenVar> ();
-      
+      tkn_ptr->print();
       // Set domain
       if ( (std::static_pointer_cast<TokenArr>( token ))->get_var_dom_type() == VarDomainType::RANGE ) {
         (std::static_pointer_cast<TokenVar>( tkn_ptr ))->
@@ -252,16 +255,24 @@ FZNParser::store_token ( TokenPtr token ) {
                                      ));
       }
       
-      (std::static_pointer_cast<TokenVar>( tkn_ptr ))->set_var_dom_type ( (std::static_pointer_cast<TokenArr>( token ))->get_var_dom_type() );
+      (std::static_pointer_cast<TokenVar>( tkn_ptr ))->
+      set_var_dom_type ( (std::static_pointer_cast<TokenArr>( token ))->get_var_dom_type() );
       
       // Set objective var
-      if ( (std::static_pointer_cast<TokenArr>( token ))->is_support_var () ) {
+      if ( (std::static_pointer_cast<TokenArr>( token ))->is_support_var () ) { cout << "ahahahahahahaaha\n";
         (std::static_pointer_cast<TokenVar>( tkn_ptr ))->set_support_var ();
       }
       
       // Set support var
-      if ( (std::static_pointer_cast<TokenArr>( token ))->is_objective_var () ) {
+      if ( (std::static_pointer_cast<TokenArr>( token ))->is_objective_var () ) { 
+      cout << "------------\n";
+      	token->print();
+      	cout << "------------\n";
+      	cout << "bhbhbhbhbbhhb " << _num_tokens << endl;
         (std::static_pointer_cast<TokenVar>( tkn_ptr ))->set_objective_var ();
+        cout << "------------\n";
+        tkn_ptr->print();
+        cout << "------------\n";
       }
       
       // Set variable id

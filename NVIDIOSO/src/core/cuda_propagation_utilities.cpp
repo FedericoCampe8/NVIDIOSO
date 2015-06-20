@@ -21,8 +21,9 @@ cuda_consistency ( size_t * constraint_queue )
 	// Now everything is sequential here
 	if (blockIdx.x == 0) {
 		for (int i = 0; i < gridDim.x; i++) {
-			d_constraints_ptr [ constraint_queue [ i ] ]->consistency(); 
-			d_constraints_ptr [ constraint_queue [ i ] ]->satisfied();
+			//d_constraints_ptr [ constraint_queue [ i ] ]->consistency(); 
+			//d_constraints_ptr [ constraint_queue [ i ] ]->satisfied();
+			d_constraints_ptr [ constraint_queue [ i ] ]->print();
 		}
 	}
 }//cuda_consistency

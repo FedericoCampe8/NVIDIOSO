@@ -75,6 +75,8 @@ protected:
   __device__ CudaConstraint ( int n_id, int n_vars, int n_args,
                               int* vars, int* args,
                               int* domain_idx, uint* domain_states );
+                              
+  __device__ bool all_ground() const;
 #endif
   
 public:

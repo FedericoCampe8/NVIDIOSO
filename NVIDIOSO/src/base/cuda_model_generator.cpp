@@ -78,17 +78,18 @@ CudaGenerator::get_variable ( TokenPtr tkn_ptr ) {
    * Switch in order to set the actual domain for the current variable,
    * depending on the (variable) token type.
    */
+  cout << "TYPE: " << (int)(std::static_pointer_cast<TokenVar>( tkn_ptr ))->get_var_dom_type() << endl; getchar();
   switch ( (std::static_pointer_cast<TokenVar>( tkn_ptr ))->get_var_dom_type() ) {
     case VarDomainType::BOOLEAN:
       (std::static_pointer_cast<CudaVariable>( var_ptr ))->set_domain( 0, 1 );
       break;
-    case VarDomainType::INTEGER:
+    case VarDomainType::INTEGER: 
       (std::static_pointer_cast<CudaVariable>( var_ptr ))->set_domain ();
       break;
     case VarDomainType::FLOAT:
       (std::static_pointer_cast<CudaVariable>( var_ptr ))->set_domain ();
       break;
-    case VarDomainType::RANGE:
+    case VarDomainType::RANGE: 
       (std::static_pointer_cast<CudaVariable>( var_ptr ))->
       set_domain ( (std::static_pointer_cast<TokenVar>( tkn_ptr ))->
                     get_lw_bound_domain(),
@@ -96,7 +97,7 @@ CudaGenerator::get_variable ( TokenPtr tkn_ptr ) {
                     get_up_bound_domain()
                   );
       break;
-    case VarDomainType::SET:
+    case VarDomainType::SET: 
       (std::static_pointer_cast<CudaVariable>( var_ptr ))->
       set_domain (
                   (std::static_pointer_cast<TokenVar>( tkn_ptr ))->

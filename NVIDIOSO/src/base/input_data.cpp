@@ -175,8 +175,10 @@ InputData::print_gpu_info () {
     cudaDeviceProp devProp;
     cudaGetDeviceProperties( &devProp, i );
     cout << " Device characteristics:\n";
-    cout << " Device Number:                 " << i << endl;
+    cout << " Device Number:                 " << i+1 << endl;
     cout << " Device name:                   " << devProp.name << endl;
+    cout << " Device's compute capability:   " << devProp.major 
+     										   << "." << devProp.minor << endl;
     cout << " Total global memory:           " << devProp.totalGlobalMem << endl;
     cout << " Total shared memory per block: " << devProp.sharedMemPerBlock << endl;
     cout << " Total registers per block:     " << devProp.regsPerBlock << endl;
@@ -216,7 +218,7 @@ InputData::print_help () {
   cout << "                            |   (default: inf).\n";
   cout << "=========================== | ===========================\n";
   cout << "You may want to try:\n";
-  cout << "\t" << "./nvidioso -i test/nqueens.fzn\n";
+  cout << "\t" << "./invidioso -i test/nqueens.fzn\n";
   cout << "For any questions, feel free to write at: campe8@nmsu.edu.\n";
 }//print_gpu_info
 

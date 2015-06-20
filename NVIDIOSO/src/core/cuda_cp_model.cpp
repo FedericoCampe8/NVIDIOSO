@@ -7,7 +7,9 @@
 //
 
 #include "cuda_cp_model.h"
+#include "fzn_constraint.h"
 #include "cuda_int_ne.h"
+#include "cuda_int_lin_ne.h"
 #include "cuda_simple_constraint_store.h"
 
 #if CUDAON
@@ -21,8 +23,9 @@ using namespace std;
 __device__ CudaConstraint** d_constraints_ptr;
 
 __global__ void
-cuda_print_constraints () {
-  d_constraints_ptr [ blockIdx.x ]->print();
+cuda_print_constraints ( int n ) {
+	for ( int i = 0; i < n; i++ )
+  		d_constraints_ptr [ i ]->print();
 }//cuda_print_constraints
 
 __global__ void
@@ -45,10 +48,14 @@ cuda_constraint_factory ( int* constraint_description, size_t size,
     vars   = (int*) &constraint_description [ index + 4 ];
     args   = (int*) &constraint_description [ index + 4 + n_vars ];
     
-    switch ( constraint_description[ index ] ) {
-      case 73:
+    switch ( (FZNConstraintType) constraint_description[ index ] ) {
+      case FZNConstraintType::INT_NE:
         d_constraints_ptr[ c ] = new CudaIntNe ( c_id, n_vars, n_aux, vars, args,
                                                  domain_index, domain_states );
+        break;
+        case FZNConstraintType::INT_LIN_NE:
+        d_constraints_ptr[ c ] = new CudaIntLinNe ( c_id, n_vars, n_aux, vars, args,
+                                                 	domain_index, domain_states );
         break;
       default:
         break;
@@ -57,7 +64,6 @@ cuda_constraint_factory ( int* constraint_description, size_t size,
     index += 4 + n_vars + n_aux;
   }//c
 }//cuda_constraint_factory
-
 #endif
 
 CudaCPModel::CudaCPModel () :
@@ -77,6 +83,7 @@ CudaCPModel::~CudaCPModel () {
  
 void
 CudaCPModel::finalize () {
+	/*
   if ( (_variables.size   () == 0) ||
        (_constraints.size () == 0) ) {
     string err = "No variables or constraints to initialize on device.\n";
@@ -93,7 +100,7 @@ CudaCPModel::finalize () {
     string err = "Error in allocating constraints on device.\n";
     throw NvdException ( err.c_str(), __FILE__, __LINE__ );
   }
-  
+  */
   // Init constraint_store for cuda
   CudaSimpleConstraintStore* cuda_store_ptr =
     dynamic_cast<CudaSimpleConstraintStore* >( _store.get() );
@@ -195,7 +202,7 @@ CudaCPModel::alloc_constraints () {
                                                con_info.size() * sizeof (int) ) ) ) {
     return false;
   }
-  
+  cudaDeviceSynchronize();
   if ( logger->cuda_handle_error ( cudaMemcpy (d_constraint_description, &con_info[ 0 ],
                                                con_info.size() * sizeof (int),
                                                cudaMemcpyHostToDevice ) ) ) {
@@ -207,7 +214,7 @@ CudaCPModel::alloc_constraints () {
                                       _d_domain_index, _d_domain_states );
                                       
 #if CUDAVERBOSE
-  cuda_print_constraints<<<_constraints.size(), 1>>> ();
+  cuda_print_constraints<<<1, 1>>> ( _constraints.size() );
 #endif
   	cudaDeviceSynchronize ();
 #endif

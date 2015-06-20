@@ -58,7 +58,7 @@ CudaDomain::init_domain ( int min, int max ) {
     // Create domains representations
     _domain          = new int [ _num_allocated_bytes / sizeof( int ) ];
     _concrete_domain = make_shared<CudaConcreteDomainBitmap>( _num_allocated_bytes - MAX_STATUS_SIZE, min, max );
-    
+
     set_bit_representation ();
   }
   else {
@@ -124,6 +124,7 @@ CudaDomain::int_to_event () const {
   assert( _domain[ EVT_IDX() ] >= 0 );
   
   if ( _domain[ EVT_IDX() ] < static_cast< int >( EventType::OTHER_EVT ) ) {
+  	if ( static_cast< EventType >( _domain[ EVT_IDX() ] ) == EventType::FAIL_EVT ) {cout << "FOLKS\n"; getchar(); }
     return static_cast< EventType >( _domain[ EVT_IDX() ] );
   }
   
@@ -269,7 +270,7 @@ CudaDomain::shrink ( int min, int max ) {
   
   int new_size = _concrete_domain->size ();
   
-  if ( _concrete_domain->is_empty() ) {
+  if ( _concrete_domain->is_empty() ) { cout<<"ECCCOOOOOO\n"; getchar();
     _domain [ DSZ_IDX() ] =  0;
     _domain [ LB_IDX()  ] =  1;
     _domain [ UB_IDX()  ] = -1;

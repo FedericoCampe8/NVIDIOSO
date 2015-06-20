@@ -35,7 +35,7 @@ CudaConcreteDomainBitmap ( size ) {
   _bitmap_size = NUM_CHUNKS ( max_bitmap_size );
   
   // Check minimum space requirements
-  if ( _num_chunks < pairs.size() * (2 + _bitmap_size) ) {
+  if ( _num_chunks < pairs.size() * (2 + _bitmap_size) ) { 
     set_empty ();
     return;
   }
@@ -302,7 +302,7 @@ CudaConcreteBitmapList::shrink ( int min, int max ) {
   }//idx
   
   // If domain's size is 0, empty domain
-  if ( _domain_size == 0 ) {
+  if ( _domain_size == 0 ) { 
     set_empty ();
     return;
   }
@@ -344,7 +344,7 @@ CudaConcreteBitmapList::subtract ( int value ) {
   _domain_size -= 1;
   
   // Check for empty domain
-  if ( _domain_size == 0 ) {
+  if ( _domain_size == 0 ) {  
     set_empty ();
     return;
   }

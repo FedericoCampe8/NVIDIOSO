@@ -32,6 +32,14 @@ CudaConstraint::~CudaConstraint () {
 }//~Constraint
 
 
+__device__ bool 
+CudaConstraint::all_ground () const {
+	// ToDo: consider whether to implement it in parallel
+	for ( int i = 0; i < _scope_size; i++ )
+		if ( !is_singleton ( _status[ i ] ) ) return false;
+	return true;
+}//all_ground
+
 __device__ size_t
 CudaConstraint::get_unique_id () const {
   return _unique_id;

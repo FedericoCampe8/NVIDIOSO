@@ -1,9 +1,39 @@
 
-                                      	NVIDIOSO
+                                      	iNVIDIOSO
                           NVIDIa-based cOnstraint SOlver v. 1.0
  
                                 __CSP/COP REPRESENTATION__
- 
+  
+    
+  iNVIDIOSO is a constraint solver for 
+  constraint satisfaction and optimization problems.
+  It uses GPU computation to speedup the exploration of 
+  the search space and propagation of constraints.
+  The solver implements several search strategies, complete 
+  (e.g., DFS) and incomplete (e.g., local search, MCMC sampling, etc.).
+  The user can decide whether to install the sequential or the parallel 
+  version of the solver.
+  We briefly describe the representation of Variable, Domains, and 
+  Constraints in what follows. 
+  
+  To install iNVIDIOSO, check and set first the environment variables
+  in iNVIDIOSO.envs, then run install.csh.
+  
+   
+  Note that this is an ongoing project and we have some new ideas 
+  for the solver for the next future:
+  1) Allow the user to define different local search strategies
+     in a declarative way as input for the solver.
+     The solver will automatically run the local search strategy in 
+     parallel on the GPU.
+  2) Use a multi-GPU environment to scale horizontally when 
+     searching for sub-optimal solutions for optimization problems.
+
+  Please, refer to Manual.pdf to get more information about the solver.  
+  The folder html contains the descriptions of the classes created
+  using Doxygen. You can use you browser to navigate through the classes.
+
+
   VARIABLES:
  
   Variable has variable types.
@@ -105,8 +135,19 @@
         The chunk is easily retrieved computing num / 32, while the 
         position within each chunk can be retrieved by num % 32.
 	
-  See refman.pdf for further information about the implementation.
+  CONSTRAINTS:
+
+  We implemented (almost) all the FlatZinc constraints on integers.
+  The list of FlatZinc constraints is present at http://www.minizinc.org/.	
+
   
   Thanks for reading this page.
   If you've got any further questions, please don't hesitate to contact campe8@nmsu.edu.
-	
+  
+  Why “iNVIDIOSO”?
+  “INVIDIA” is an italian word which means “envy”. “INVIDIOSO” is used to 
+  refer someone who is envious.
+  Moreover, the solver is based on GPU computation run on NVIDIA graphic cards.
+  Therefore
+  i + NVIDI + OSO 
+  

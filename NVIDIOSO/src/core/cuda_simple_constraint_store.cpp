@@ -30,7 +30,7 @@ CudaSimpleConstraintStore::finalize ( CudaCPModel* ptr ) {
   assert ( ptr != nullptr );
   
   _cp_model_ptr = ptr;
-  
+
 #if CUDAON
   size_t num_constraints = _cp_model_ptr->num_constraints ();
 
@@ -58,13 +58,17 @@ CudaSimpleConstraintStore::move_states_from_device () {
 void
 CudaSimpleConstraintStore::move_queue_to_device () {
 #if CUDAON
+
   int i = 0;
   for ( auto c: _constraint_queue ) {
     _h_constraint_queue[ i++ ] = _cp_model_ptr->constraint_mapping_h_d[ c ];
   }
-
+  
   cudaMemcpy( _d_constraint_queue, &_h_constraint_queue[0],
-    	      _constraint_queue.size() * sizeof( size_t ), cudaMemcpyHostToDevice );
+  _constraint_queue.size() * sizeof( size_t ), cudaMemcpyHostToDevice );
+  
+  cudaDeviceSynchronize ();    	      
+  	      
 #endif
 }//move_queue_to_device
 
@@ -79,28 +83,29 @@ CudaSimpleConstraintStore::consistency ()
   
   	// Check for some failure happened somewhere else
   	if ( _failure ) 
-  	{
+  	{cout<<"here......." << endl; getchar();
     	handle_failure ();
     	return false;
  	}
-	
+	/*
   	// Update states on device
   	move_states_to_device ();
   
   	// Move queue on device
   	move_queue_to_device ();
-	cudaDeviceSynchronize ();
+
   	// Propagate constraints in parallel
   	cuda_consistency<<< _constraint_queue.size(), 1 >>> ( _d_constraint_queue );
-	cudaDeviceSynchronize ();
+	
   	// Clear queue since propagation of constraints is all performed on device
   	clear_queue ();
-  
 	if ( !move_states_from_device () ) 
   	{
 		clear_queue ();
     	return false;
 	}
+	*/
+	cudaDeviceSynchronize ();
 #endif
 
 	return true;

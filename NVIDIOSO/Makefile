@@ -1,5 +1,6 @@
 # Include a definition file
 include ./make.inc
+include ./make_cuda.inc
 
 # ---------------------------------------------------------------------
 # Objects
@@ -7,7 +8,6 @@ include ./make.inc
 MAIN=domain_test
 MAIN=int_ne_test
 MAIN=main
-TARGET=nvidioso
  
 OBJECTS =  $(patsubst %.cpp,%.o, $(PRG_PATH)/$(MAIN).cpp)
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(BASE)/*.cpp))
@@ -46,19 +46,7 @@ INCLDIRS += -I$(PRG_PATH)/$(NVIDIOSO_INC)/$(EXCEPTION)
 ## Compiler Flags
 CCFLAGS = $(CCOPT) $(INCLDIRS)
 
-## Check compiler version 
-## GCC 10 and above: 
-#$(shell echo `gcc -dumpversion | cut -f1-2 -d.` \>= 4.7 | sed -e 's/\./*100+/g' | bc ) 
-#GCC_VER_GTE47 := $(shell echo `gcc -dumpversion | cut -f1-2 -d.` \>= 4.7 | bc )
-#ifeq ($(GCC_VER_GTE47),0)
-#	DMACRO   = -Dnullptr=NULL	
-#       	DMACRO  += -Dconstexpr=const
-#	DMACRO  += -DGCC_OLD
-#	CCFLAGS += $(DMACRO) 
-#endif
-
 DEPS = $(HEADERS)
-
 
 ## Note for developers: add the following macro
 ## -DCUDAVERBOSE=true
