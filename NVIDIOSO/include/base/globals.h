@@ -59,6 +59,11 @@
 #include <cuda_runtime_api.h>
 #endif
 
+#if GCC4
+#define nullptr NULL
+#define noexcept throw()
+#endif
+
 /* Environment variable */
 constexpr int VECTOR_MAX = 256;
 constexpr int CUDA_STACK_MAX = 1073741824;

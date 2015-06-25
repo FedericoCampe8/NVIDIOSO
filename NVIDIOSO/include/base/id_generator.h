@@ -21,6 +21,12 @@
 #include <fstream>
 #include <sstream>
 
+#if GCC4
+#define nullptr NULL
+#define noexcept throw()
+#endif
+
+
 class IdGenerator;
 
 //! IdGenerator instance: global to all classes if included

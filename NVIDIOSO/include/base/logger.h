@@ -23,7 +23,11 @@
 
 #if CUDAON
 #include <cuda_runtime_api.h>
-#endif 
+#endif
+
+#if GCC4
+#define nullptr NULL
+#endif
 
 class Logger;
 //! logger instance: global to all classes if included

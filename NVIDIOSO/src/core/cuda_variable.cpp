@@ -34,12 +34,12 @@ CudaVariable::~CudaVariable () {
 }//~CudaVariable
 
 void
-CudaVariable::set_domain () { std::cout<< "------here1----- " << Domain::MIN_DOMAIN()/2 << endl; getchar();
+CudaVariable::set_domain () {
   _domain_ptr->init_domain ( Domain::MIN_DOMAIN()/2, Domain::MAX_DOMAIN() );
 }//set_domain
 
 void
-CudaVariable::set_domain ( int lower_bound, int upper_bound ) { std::cout<< "------here2----- " << lower_bound << endl; getchar();
+CudaVariable::set_domain ( int lower_bound, int upper_bound ) { 
   _domain_ptr->init_domain( lower_bound, upper_bound);
 }//set_domain
 

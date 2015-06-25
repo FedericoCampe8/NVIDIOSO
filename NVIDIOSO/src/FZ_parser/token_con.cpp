@@ -53,8 +53,11 @@ const std::vector<std::string>
 TokenCon::get_expr_elements_array () {
   
   vector<string> elements;
-  for ( auto elem : _exprs ) {
-    
+  //for ( auto elem : _exprs ) {
+  for ( int ii = 0; ii < _exprs.size(); ii++ )
+  {
+      auto elem = _exprs[ii];
+      
     // Make sure to avoid useless '[' or ']'
     char * pch;
     char c_str[ elem.size() + 1 ];
@@ -90,8 +93,10 @@ TokenCon::get_expr_elements_array () {
 const std::vector<std::string>
 TokenCon::get_expr_var_elements_array () {
   vector<string> elements;
-  for ( auto elem : _exprs ) {
-    
+  //for ( auto elem : _exprs ) {
+  for ( int ii = 0; ii < _exprs.size(); ii++ )
+  {
+      auto elem = _exprs[ii];
     // Make sure to avoid useless '[' or ']'
     char * pch;
     char c_str[ elem.size() + 1 ];
@@ -136,10 +141,13 @@ TokenCon::get_expr_not_var_elements_array () {
   vector<string> all_non_vars;
   
   // "Subtract" the second from the first
-  for ( auto x: all_elements ) {
-    auto iter = std::find( all_variable.begin (), all_variable.end (), x );
-    if ( iter == all_variable.end () )
-      all_non_vars.push_back( x );
+  //for ( auto x: all_elements ) {
+  for ( int i = 0; i < all_elements.size(); i++  )
+  {
+      auto x = all_elements[i];
+      auto iter = std::find( all_variable.begin (), all_variable.end (), x );
+      if ( iter == all_variable.end () )
+          all_non_vars.push_back( x );
   }
 
   return all_non_vars;
@@ -150,7 +158,9 @@ TokenCon::print () const {
   cout << "Constraint_" << get_id() << ":\n";
   cout << "Type: " << _con_id << endl;
   cout << "Defined on: ";
-  for ( auto x: _exprs ) cout << x << " ";
+  //for ( auto x: _exprs ) cout << x << " ";
+  for ( int i = 0; i < _exprs.size(); i++ )
+      cout << _exprs[i] << " ";
   cout << "\n";
 }//print
 

@@ -83,24 +83,27 @@ CudaCPModel::~CudaCPModel () {
  
 void
 CudaCPModel::finalize () {
-	/*
-  if ( (_variables.size   () == 0) ||
-       (_constraints.size () == 0) ) {
-    string err = "No variables or constraints to initialize on device.\n";
-    throw NvdException ( err.c_str(), __FILE__, __LINE__ );
-  }
+	
+	if ( (_variables.size   () == 0) ||
+       (_constraints.size () == 0) ) 
+	{
+    	string err = "No variables or constraints to initialize on device.\n";
+    	throw NvdException ( err.c_str(), __FILE__, __LINE__ );
+  	}
   
   // Alloc variables and constraints on device
-  if ( !alloc_variables   () ) {
+  if ( !alloc_variables   () ) 
+  {
     string err = "Error in allocating variables on device.\n";
     throw NvdException ( err.c_str(), __FILE__, __LINE__ );
   }
 
-  if ( !alloc_constraints () ) {
+  if ( !alloc_constraints () ) 
+  {
     string err = "Error in allocating constraints on device.\n";
     throw NvdException ( err.c_str(), __FILE__, __LINE__ );
   }
-  */
+  
   // Init constraint_store for cuda
   CudaSimpleConstraintStore* cuda_store_ptr =
     dynamic_cast<CudaSimpleConstraintStore* >( _store.get() );
@@ -108,9 +111,12 @@ CudaCPModel::finalize () {
     string err = "Error in casting the store (need CudaSimpleConstraintStore).\n";
     throw NvdException ( err.c_str(), __FILE__, __LINE__ );
   }
-  try {
+  try 
+  {
     cuda_store_ptr->finalize ( this );
-  } catch ( NvdException& e ) {
+  } 
+  catch ( NvdException& e ) 
+  {
     throw e;
   }
   
@@ -209,6 +215,7 @@ CudaCPModel::alloc_constraints () {
     return false;
   }
   cudaDeviceSynchronize ();
+  
   // Create constraints on device
   cuda_constraint_factory<<<1, 1>>> ( d_constraint_description, _constraints.size(),
                                       _d_domain_index, _d_domain_states );
@@ -225,7 +232,7 @@ CudaCPModel::alloc_constraints () {
 bool
 CudaCPModel::upload_device_state () {
 #if CUDAON
-cudaDeviceSynchronize ();
+
   int idx = 0;
   for ( auto var : _variables ) {
     memcpy ( &_h_domain_states[idx], (uint*)( (var->domain_iterator)->get_domain_status() ).second,
@@ -238,7 +245,6 @@ cudaDeviceSynchronize ();
     string err = "Error updating device from host.\n";
     throw NvdException ( err.c_str(), __FILE__, __LINE__ );
   }
-  cudaDeviceSynchronize ();
 #endif
 
 return true;
@@ -248,7 +254,7 @@ bool
 CudaCPModel::download_device_state () 
 {
 #if CUDAON
-cudaDeviceSynchronize ();
+
 	if ( logger->cuda_handle_error ( cudaMemcpy (&_h_domain_states[ 0 ], _d_domain_states, 
                                             	_domain_state_size, cudaMemcpyDeviceToHost ) ) ) {
     	string err = "Error updating host from device.\n";
@@ -263,7 +269,6 @@ cudaDeviceSynchronize ();
   		
   		if ( var->is_empty() ) return false;
   	}
-  	cudaDeviceSynchronize ();
 #endif
 
 return true;

@@ -16,28 +16,27 @@
 
 class CudaGenerator : public ModelGenerator {
 private:
-  //! This map is used to link strings ids with variables.
-  std::map<std::string, VariablePtr>  _var_lookup_table;
+    //! This map is used to link strings ids with variables.
+    std::map<std::string, VariablePtr>  _var_lookup_table;
   
 protected:
-  std::string _dbg;
+    std::string _dbg;
   
 public:
-  CudaGenerator  ();
-  ~CudaGenerator ();
+    CudaGenerator  ();
+    ~CudaGenerator ();
   
-  //! See "model_generator.h"
-  VariablePtr     get_variable      ( TokenPtr );
+    //! See "model_generator.h"
+    VariablePtr get_variable ( UTokenPtr );
   
-  //! See "model_generator.h"
-  ConstraintPtr   get_constraint    ( TokenPtr );
+    //! See "model_generator.h"
+    ConstraintPtr get_constraint ( UTokenPtr );
   
-  //! See "model_generator.h"
-  SearchEnginePtr get_search_engine ( TokenPtr );
+    //! See "model_generator.h"
+    SearchEnginePtr get_search_engine ( UTokenPtr );
   
-  //! See "model_generator.h"
-  ConstraintStorePtr get_store ();
-  
+    //! See "model_generator.h"
+    ConstraintStorePtr get_store ();
 };
 
 #endif

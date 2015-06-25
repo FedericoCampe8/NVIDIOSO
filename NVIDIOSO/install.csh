@@ -164,6 +164,7 @@ set MAKEBG = `echo $!`
 set CNT     = 1
 set VARMAKE = `ps -e -f -o pid -u ${USER} | grep -v grep | grep -c $MAKEBG`
 echo -n "Installing..."
+echo ""
 while ( $VARMAKE > 0 )
 	set VARMAKE = `ps -e -f -o pid -u ${USER} | grep -v grep | grep -c $MAKEBG`
 	echo -n "."

@@ -144,10 +144,15 @@ TokenArr::print () const {
       break;
     case VarDomainType::SET:
       cout << "set of { ";
-      for ( auto x: _subset_domain ) {
-        cout << "{";
-        for ( auto y: x ) cout << y << " ";
-        cout << "} ";
+      //for ( auto x: _subset_domain ) {
+      for ( int i = 0; i < _subset_domain.size(); i++ )
+      {
+          auto x = _subset_domain[i];
+          cout << "{";
+          //for ( auto y: x ) cout << y << " ";
+          for ( int ii = 0; ii < x.size(); ii++ )
+              cout << x[ii] << " ";
+          cout << "} ";
       }
       cout << "}\n";
       break;

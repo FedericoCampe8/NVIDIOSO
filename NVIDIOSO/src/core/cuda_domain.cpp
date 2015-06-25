@@ -124,7 +124,6 @@ CudaDomain::int_to_event () const {
   assert( _domain[ EVT_IDX() ] >= 0 );
   
   if ( _domain[ EVT_IDX() ] < static_cast< int >( EventType::OTHER_EVT ) ) {
-  	if ( static_cast< EventType >( _domain[ EVT_IDX() ] ) == EventType::FAIL_EVT ) {cout << "FOLKS\n"; getchar(); }
     return static_cast< EventType >( _domain[ EVT_IDX() ] );
   }
   
@@ -270,7 +269,8 @@ CudaDomain::shrink ( int min, int max ) {
   
   int new_size = _concrete_domain->size ();
   
-  if ( _concrete_domain->is_empty() ) { cout<<"ECCCOOOOOO\n"; getchar();
+  if ( _concrete_domain->is_empty() ) 
+  {
     _domain [ DSZ_IDX() ] =  0;
     _domain [ LB_IDX()  ] =  1;
     _domain [ UB_IDX()  ] = -1;

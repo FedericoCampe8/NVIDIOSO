@@ -23,7 +23,9 @@
 #include "search_engine.h"
 #include "simple_constraint_store.h"
 
-enum class GeneratorType {
+enum class
+GeneratorType
+{
   CUDA,
   CPU,
   THREAD_CPU,
@@ -43,7 +45,7 @@ public:
    *        If the token does not correspond to the object to
    *        instantiate, it returns nullptr.
    */
-  virtual VariablePtr     get_variable      ( TokenPtr ) = 0;
+  virtual VariablePtr     get_variable      ( UTokenPtr ) = 0;
   
   /**
    * These methods create the instances of the
@@ -53,7 +55,7 @@ public:
    *        If the token does not correspond to the object to
    *        instantiate, it returns nullptr.
    */
-  virtual ConstraintPtr   get_constraint    ( TokenPtr ) = 0;
+  virtual ConstraintPtr   get_constraint    ( UTokenPtr ) = 0;
   
   /**
    * These methods create the instances of the
@@ -63,7 +65,7 @@ public:
    *        If the token does not correspond to the object to
    *        instantiate, it returns nullptr.
    */
-  virtual SearchEnginePtr get_search_engine ( TokenPtr ) = 0;
+  virtual SearchEnginePtr get_search_engine ( UTokenPtr ) = 0;
   
   /**
    * These methods create the instances of the

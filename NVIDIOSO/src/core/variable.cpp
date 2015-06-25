@@ -151,7 +151,8 @@ Variable::notify_store () {
    * notify store to stop re-evaluating constraints
    * as soon as possible.
    */
-  if ( event == EventType::FAIL_EVT ) { cout << ".....HERE .." << endl;getchar();
+  if ( event == EventType::FAIL_EVT ) 
+  {
     _constraint_store->fail ();
     return;
   }

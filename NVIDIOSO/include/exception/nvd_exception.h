@@ -22,6 +22,10 @@
 #include <fstream>
 #include <sstream>
 
+#if GCC4
+#define nullptr NULL
+#define noexcept throw()
+#endif
 
 class NvdException : public std::exception {
 protected:
@@ -56,7 +60,13 @@ public:
    * @param line of code where the excpetion has been raised.
    */
   NvdException ( const char* msg, const char* file, int line );
-  
+
+#if GCC4
+    ~NvdException () throw();
+#else
+    ~NvdException();
+#endif
+    
   /**
    * Overwrite the what method to print other
    * information about the exception.

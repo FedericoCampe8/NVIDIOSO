@@ -83,11 +83,11 @@ CudaSimpleConstraintStore::consistency ()
   
   	// Check for some failure happened somewhere else
   	if ( _failure ) 
-  	{cout<<"here......." << endl; getchar();
+  	{
     	handle_failure ();
     	return false;
  	}
-	/*
+	
   	// Update states on device
   	move_states_to_device ();
   
@@ -96,6 +96,7 @@ CudaSimpleConstraintStore::consistency ()
 
   	// Propagate constraints in parallel
   	cuda_consistency<<< _constraint_queue.size(), 1 >>> ( _d_constraint_queue );
+	cudaDeviceSynchronize (); 
 	
   	// Clear queue since propagation of constraints is all performed on device
   	clear_queue ();
@@ -104,8 +105,6 @@ CudaSimpleConstraintStore::consistency ()
 		clear_queue ();
     	return false;
 	}
-	*/
-	cudaDeviceSynchronize ();
 #endif
 
 	return true;

@@ -16,15 +16,29 @@ _expt_line ( -1 ) {
   _expt_message = "___RAISED EXCEPTION___ :" + *new std::string ( msg );
 }//NvdException
 
-NvdException::NvdException ( const char* msg, const char* file ) :
-NvdException ( msg ) {
-  _expt_file = file;
+// @note No delegating constructor for gcc < 4.7
+NvdException::NvdException ( const char* msg, const char* file ) : 
+    _expt_file ( "" ),
+    _expt_line ( -1 ) {
+    _expt_message = "___RAISED EXCEPTION___ :" + *new std::string ( msg );
+    _expt_file = file;
 }//NvdException
 
+// @note No delegating constructor for gcc < 4.7
 NvdException::NvdException ( const char* msg, const char* file, int line ) :
-NvdException ( msg, file ) {
-  _expt_line = line;
+    _expt_file ( "" ),
+    _expt_line ( -1 ) {
+    _expt_message = "___RAISED EXCEPTION___ :" + *new std::string ( msg );
+    _expt_file = file;
+    _expt_line = line;
 }//NvdException
+
+#if GCC4
+NvdException::~NvdException () throw() {}
+#else
+NvdException::~NvdException() {}
+#endif
+
 
 const char*
 NvdException::what () const noexcept {

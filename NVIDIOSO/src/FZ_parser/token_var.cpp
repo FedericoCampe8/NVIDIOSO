@@ -11,65 +11,77 @@
 using namespace std;
 
 TokenVar::TokenVar () :
-Token         ( TokenType::FD_VARIABLE ),
-_var_id       ( "" ),
-_support_var  ( false ),
-_lw_bound     ( 0  ),
-_up_bound     ( -1 ),
-_var_dom_type ( VarDomainType::OTHER ) {
-  _dbg = "TokenVar - ";
+    Token         ( TokenType::FD_VARIABLE ),
+    _var_id       ( "" ),
+    _support_var  ( false ),
+    _lw_bound     ( 0  ),
+    _up_bound     ( -1 ),
+    _var_dom_type ( VarDomainType::OTHER ) {
+    _dbg = "TokenVar - ";
 }//TokenVar
 
+TokenVar::~TokenVar () {
+}//~TokenVar
+
 void
-TokenVar::set_subset_domain ( std::string token_str ) {
-  if ( token_str.find ( "int" ) != std::string::npos ) {
-    set_subset_domain ();
-  }
-  else if ( token_str.find ( ".." ) != std::string::npos ) {
-    set_subset_domain ( get_range ( token_str ) );
-  }
-  else if ( token_str.find ( "{" ) != std::string::npos ) {
-    set_subset_domain ( get_subset ( token_str ) );
-  }
-  else {
-    logger->error( _dbg + "Parse Error in variable declaration: " + token_str,
-                   __FILE__, __LINE__);
-    set_subset_domain ();
-  }
+TokenVar::set_subset_domain ( std::string token_str )
+{
+    if ( token_str.find ( "int" ) != std::string::npos )
+    {
+        set_subset_domain ();
+    }
+    else if ( token_str.find ( ".." ) != std::string::npos )
+    {
+        set_subset_domain ( get_range ( token_str ) );
+    }
+    else if ( token_str.find ( "{" ) != std::string::npos )
+    {
+        set_subset_domain ( get_subset ( token_str ) );
+    }
+    else
+    {
+        logger->error( _dbg + "Parse Error in variable declaration: " + token_str,
+                       __FILE__, __LINE__);
+        set_subset_domain ();
+    }
 }//set_subset_domain
 
 
 pair<int, int>
 TokenVar::get_range ( std::string token_str ) const {
-  size_t ptr, ptr_aux;
-  pair<int, int> range;
-  range.first =  0;
-  range.first = -1;
+    size_t ptr, ptr_aux;
+    pair<int, int> range;
+    range.first  =  0;
+    range.second = -1;
   
-  if ( token_str.find( ".." ) != std::string::npos ) {
-    ptr = token_str.find_first_of( ".", 0 );
+    if ( token_str.find( ".." ) != std::string::npos ) {
+        ptr = token_str.find_first_of( ".", 0 );
     
-    // Clear string
-    ptr_aux = ptr;
-    while ( (token_str[ ptr_aux ] != ' ') && (ptr_aux != 0) ) ptr_aux--;
-    if ( ptr_aux != 0 ) ptr_aux++;
+        // Clear string
+        ptr_aux = ptr;
+        while ( (token_str[ ptr_aux ] != ' ') && (ptr_aux != 0) ) ptr_aux--;
+        if ( ptr_aux != 0 ) ptr_aux++;
     
-    range.first = atoi( token_str.substr( ptr_aux, ptr ).c_str() );
-    ptr = token_str.find_first_of( ":", ptr+2 );
-    //Check ' ' before ':'
-    token_str = token_str.substr( token_str.find_first_of( ".", 0 ) + 2, ptr );
-    ptr = token_str.find_first_of( " ", 0 );
-    if ( ptr == std::string::npos ) {
-      range.second = atoi ( token_str.c_str() );
+        range.first = atoi( token_str.substr( ptr_aux, ptr ).c_str() );
+        ptr = token_str.find_first_of( ":", ptr+2 );
+
+        //Check ' ' before ':'
+        token_str = token_str.substr( token_str.find_first_of( ".", 0 ) + 2, ptr );
+        ptr = token_str.find_first_of( " ", 0 );
+        if ( ptr == std::string::npos )
+        {
+            range.second = atoi ( token_str.c_str() );
+        }
+        else
+        {
+            range.second = atoi ( token_str.substr( 0, ptr ).c_str() );
+        }
     }
-    else {
-      range.second = atoi ( token_str.substr( 0, ptr ).c_str() );
+    else
+    {
+        logger->error( _dbg + "Domain range not valid", __FILE__, __LINE__ );
     }
-  }
-  else {
-    logger->error( _dbg + "Domain range not valid", __FILE__, __LINE__ );
-  }
-  return range;
+    return range;
 }//get_range
 
 vector<int>
@@ -215,10 +227,13 @@ TokenVar::set_subset_domain ( const vector <int>& dom_vec ) {
 
 void
 TokenVar::set_subset_domain ( const vector < vector <  int > >& elems ) {
-  for ( auto x : elems ) set_subset_domain ( x );
+    // The following is not recognized by gcc < 47
+    //for ( auto x : elems ) set_subset_domain ( x );
+    for ( int i = 0; i < elems.size(); i++ )
+        set_subset_domain ( elems[i] );
 }//set_subset_domain
 
-const vector < vector< int> >
+vector < vector< int> >
 TokenVar::get_subset_domain () {
   return _subset_domain;
 }//get_set_domain
@@ -254,28 +269,42 @@ TokenVar::print () const {
       break;
     case VarDomainType::SET:
       cout << "set of { ";
-      for ( auto x: _subset_domain ) {
-        cout << "{ ";
-        for ( auto y: x ) cout << y << " ";
-        cout << "} ";
+      //for ( auto x: _subset_domain ) {
+      for ( int i = 0; i < _subset_domain.size(); i++ )
+      {
+          auto x = _subset_domain[i];
+          cout << "{ ";
+          //for ( auto y: x ) cout << y << " ";
+          for ( int ii = 0; ii < x.size(); ii++ )
+              cout << x[ii] << " ";
+          cout << "} ";
       }
       cout << "}\n";
       break;
     case VarDomainType::SET_RANGE:
       cout << "set of ";
       cout << _lw_bound << ".." << _up_bound << "\n";
-      for ( auto x: _subset_domain ) {
-        cout << "{ ";
-        for ( auto y: x ) cout << y << " ";
-        cout << "} ";
+      //for ( auto x: _subset_domain ) {
+      for ( int i = 0; i < _subset_domain.size(); i++ )
+      {
+          auto x = _subset_domain[i];
+          cout << "{ ";
+          //for ( auto y: x ) cout << y << " ";
+          for ( int ii = 0; ii < x.size(); ii++ )
+              cout << x[ii] << " ";
+          cout << "} ";
       }
       break;
     case VarDomainType::SET_INT:
       cout << "set of int\n";
-      for ( auto x: _subset_domain ) {
-        cout << "{ ";
-        for ( auto y: x ) cout << y << " ";
-        cout << "} ";
+      for ( int i = 0; i < _subset_domain.size(); i++ )
+      {
+          auto x = _subset_domain[i];
+          cout << "{ ";
+          //for ( auto y: x ) cout << y << " ";
+          for ( int ii = 0; ii < x.size(); ii++ )
+              cout << x[ii] << " ";
+          cout << "} ";
       }
       break;
     default:

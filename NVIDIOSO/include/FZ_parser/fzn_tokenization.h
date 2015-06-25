@@ -28,85 +28,110 @@
 
 class FZNTokenization : public Tokenization {
 private:
-  // FlatZinc specific keywords
-  const std::string ARR_TOKEN = "array";
-  const std::string BOO_TOKEN = "bool";
-  const std::string CON_TOKEN = "constraint";
-  const std::string FAL_TOKEN = "false";
-  const std::string FLO_TOKEN = "float";
-  const std::string INT_TOKEN = "int";
-  const std::string LNS_TOKEN = "lns";
-  const std::string MIN_TOKEN = "minimize";
-  const std::string MAX_TOKEN = "maximize";
-  const std::string OAR_TOKEN = "output_array";
-  const std::string OBJ_TOKEN = "obj_var";
-  const std::string OUT_TOKEN = "output";
-  const std::string RAN_TOKEN = "..";
-  const std::string SAT_TOKEN = "satisfy";
-  const std::string SET_TOKEN = "set";
-  const std::string SHO_TOKEN = "show";
-  const std::string SOL_TOKEN = "solve";
-  const std::string VAR_TOKEN = "var";
-  const std::string VII_TOKEN = ":: var_is_introduced";
+    
+    /**
+     * FlatZinc specific keywords:
+     * <string_1, string_2>
+     * where
+     * string_2 is a keyword from FlatZinc syntax, while
+     * string_1 is a keyword (not necessarly different from string_2) used
+     * within this parser to refer to string_2.
+     * @note a map is used here for two reasons:
+     *       1) future code extensions
+     *       2) compatibility with older gcc compilers
+     */
+    std::unordered_map < std::string, std::string > _fzn_keywords;
+
+    //! Set new keywork mapping lookup table
+    void set_flatzinc_map ( std::unordered_map < std::string, std::string >& m );
+    
+    //! Add new keywork to lookup table
+    void add_flatzinc_word ( std::string key, std::string value );
+    /*
+    const std::string ARR_TOKEN = "array";
+    const std::string BOO_TOKEN = "bool";
+    const std::string CON_TOKEN = "constraint";
+    const std::string FAL_TOKEN = "false";
+    const std::string FLO_TOKEN = "float";
+    const std::string INT_TOKEN = "int";
+    const std::string LNS_TOKEN = "lns";
+    const std::string MIN_TOKEN = "minimize";
+    const std::string MAX_TOKEN = "maximize";
+    const std::string OAR_TOKEN = "output_array";
+    const std::string OBJ_TOKEN = "obj_var";
+    const std::string OUT_TOKEN = "output";
+    const std::string RAN_TOKEN = "..";
+    const std::string SAT_TOKEN = "satisfy";
+    const std::string SET_TOKEN = "set";
+    const std::string SHO_TOKEN = "show";
+    const std::string SOL_TOKEN = "solve";
+    const std::string VAR_TOKEN = "var";
+    const std::string VII_TOKEN = ":: var_is_introduced";
+    */
+    //! Specialized method
+    UTokenPtr analyze_token (); // override
+    
+    // Some methods used to analyze FlatZinc predicates
   
-  //! Specialized method
-  TokenPtr analyze_token ();
+    /**
+     * Analyze the token corresponding to an 
+     * array of variables.
+     * @return returns the corresponding (pointer to) token
+     *         initialized with the information read 
+     *         from the model.
+     */
+    UTokenPtr analyze_token_arr ();
   
-  // Some methods used to analyze FlatZinc predicates
+    /**
+     * Analyze the token corresponding to a constraint
+     * @return returns the (pointer to) token
+     *         initialized with the information read
+     *         from the model.
+     */
+    UTokenPtr analyze_token_con ();
   
-  /**
-   * Analyze the token corresponding to an 
-   * array of variables.
-   * @return returns the corresponding (pointer to) token
-   *         initialized with the information read 
-   *         from the model.
-   */
-  TokenPtr analyze_token_arr ();
+    /**
+     * Analyze the token corresponding to a solution predicate.
+     * @return returns the (pointer to) token
+     *         initialized with the information read
+     *         from the model.
+     */
+    UTokenPtr analyze_token_sol ();
   
-  /**
-   * Analyze the token corresponding to a constraint
-   * @return returns the (pointer to) token
-   *         initialized with the information read
-   *         from the model.
-   */
-  TokenPtr analyze_token_con ();
+    /**
+     * Analyze the token corresponding to a variable
+     * @return returns the (pointer to) token
+     *         initialized with the information read
+     *         from the model.
+     */
+    UTokenPtr analyze_token_var ();
   
-  /**
-   * Analyze the token corresponding to a solution predicate.
-   * @return returns the (pointer to) token
-   *         initialized with the information read
-   *         from the model.
-   */
-  TokenPtr analyze_token_sol ();
-  
-  /**
-   * Analyze the token corresponding to a variable
-   * @return returns the (pointer to) token
-   *         initialized with the information read
-   *         from the model.
-   */
-  TokenPtr analyze_token_var ();
-  
-  /**
-   * Analyze the token corresponding to a LNS predicate
-   * @return returns the (pointer to) token
-   *         initialized with the information read
-   *         from the model.
-   */
-  TokenPtr analyze_token_lns ();
+    /**
+     * Analyze the token corresponding to a LNS predicate
+     * @return returns the (pointer to) token
+     *         initialized with the information read
+     *         from the model.
+     */
+    UTokenPtr analyze_token_lns ();
   
 public:
+    FZNTokenization  ();
+    ~FZNTokenization ();
   
-  FZNTokenization  ();
-  ~FZNTokenization ();
-  
-  /** 
-   * Specialized method:
-   * It actually gets the right token
-   * according to the FlatZinc format.
-   * Analysis is perfomed on "_c_token".
-   */
-  TokenPtr get_token ();
+  	/**
+  	 * This function is used for testing.
+  	 * Sets the current line to tokenize.
+  	 * @param: string of at most 250 chars to tokenize.
+  	 */
+  	 void set_internal_state ( std::string str );
+  	 
+    /** 
+     * Specialized method:
+     * It actually gets the right token
+     * according to the FlatZinc format.
+     * Analysis is perfomed on "_c_token".
+     */
+    UTokenPtr get_token (); // override
 };
 
 

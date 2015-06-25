@@ -168,8 +168,11 @@ TokenSol::print () const {
   }
   if ( num_var_to_label() ) {
     cout << "On:\n";
-    for ( auto x : _var_to_label ) {
-      cout << x << " ";
+    //for ( auto x : _var_to_label ) {
+    for ( int i = 0; i < _var_to_label.size(); i++ )
+    {
+        auto x = _var_to_label[i];
+        cout << x << " ";
     }
     cout << "\n";
   }

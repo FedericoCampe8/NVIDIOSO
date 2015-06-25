@@ -11,8 +11,6 @@
 
 #include "token_var.h"
 
-
-
 class TokenArr : public TokenVar {
 private:
   //! Info: array's size
