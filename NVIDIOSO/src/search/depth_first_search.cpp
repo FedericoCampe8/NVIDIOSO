@@ -161,7 +161,7 @@ DepthFirstSearch::search_out () {
       	_search_out  = true;
     }
   }
-  if ( _nodes_out_on     && _num_nodes > _nodes_out ) 
+  if ( _nodes_out_on && _num_nodes > _nodes_out ) 
   {
     	ostringstream s;
     	s << _depth;
@@ -173,7 +173,7 @@ DepthFirstSearch::search_out () {
     _search_out = true;
     return true;
   }
-  if ( _wrong_out_on     && _num_wrong_decisions > _wrong_out ) 
+  if ( _wrong_out_on && _num_wrong_decisions > _wrong_out ) 
   {
 	ostringstream s;
     s << _depth;
@@ -270,12 +270,12 @@ DepthFirstSearch::label( int var_idx ) {
   
   // Checks whether the current store is consistent
   if ( _time_watcher )
-    statistics->set_timer( Statistics::T_FILTERING );
+    statistics.set_timer( Statistics::TIMING::FILTERING );
   
   consistent = _store->consistency ();
   
   if ( _time_watcher )
-    statistics->stopwatch_and_add ( Statistics::T_FILTERING );
+    statistics.stopwatch_and_add ( Statistics::TIMING::FILTERING );
   
   if ( !consistent ) {
     if ( _debug )
@@ -339,13 +339,13 @@ DepthFirstSearch::label( int var_idx ) {
       _num_nodes--;
       
       if ( _time_watcher )
-        statistics->set_timer ( Statistics::T_BACKTRACK );
+        statistics.set_timer ( Statistics::TIMING::BACKTRACK );
       
       _backtrack_manager->remove_level ( _depth );
       _backtrack_manager->set_level    ( --_depth );
       
       if ( _time_watcher )
-        statistics->stopwatch_and_add ( Statistics::T_BACKTRACK );
+        statistics.stopwatch_and_add ( Statistics::TIMING::BACKTRACK );
       
       if ( _trail_debug ) {
         cout << "Trailstack after solution has been found at level " << _depth <<
@@ -378,13 +378,13 @@ DepthFirstSearch::label( int var_idx ) {
       var = nullptr;
 
       if ( _time_watcher )
-        statistics->set_timer ( Statistics::T_BACKTRACK );
+        statistics.set_timer ( Statistics::TIMING::BACKTRACK );
       
       _backtrack_manager->remove_level ( _depth   );
       _backtrack_manager->set_level    ( --_depth );
       
       if ( _time_watcher )
-        statistics->stopwatch_and_add ( Statistics::T_BACKTRACK );
+        statistics.stopwatch_and_add ( Statistics::TIMING::BACKTRACK );
       
       return  true;
     }
@@ -402,12 +402,12 @@ DepthFirstSearch::label( int var_idx ) {
         _depth << endl;
 
       if ( _time_watcher )
-        statistics->set_timer ( Statistics::T_BACKTRACK );
+        statistics.set_timer ( Statistics::TIMING::BACKTRACK );
       
       _backtrack_manager->remove_level ( _depth );
       
       if ( _time_watcher )
-        statistics->stopwatch_and_add ( Statistics::T_BACKTRACK );
+        statistics.stopwatch_and_add ( Statistics::TIMING::BACKTRACK );
       
       if ( _trail_debug ) 
       {
@@ -454,12 +454,12 @@ DepthFirstSearch::label( int var_idx ) {
           _num_backtracks++;
           
           if ( _time_watcher )
-            statistics->set_timer ( Statistics::T_BACKTRACK );
+            statistics.set_timer ( Statistics::TIMING::BACKTRACK );
           
           _backtrack_manager->remove_level ( _depth );
           
           if ( _time_watcher )
-            statistics->stopwatch_and_add ( Statistics::T_BACKTRACK );
+            statistics.stopwatch_and_add ( Statistics::TIMING::BACKTRACK );
           
           if ( _trail_debug ) {
             cout << "Trailstack after pop:\n";

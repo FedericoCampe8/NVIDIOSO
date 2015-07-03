@@ -74,7 +74,7 @@ protected:
   			
   		if ( _verbose )
   		{
-  			_out << to_file;
+  			_out << str;
   		}
   		
   		if ( flush )

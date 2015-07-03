@@ -25,8 +25,8 @@ int main( int argc, char * argv[] )
    	 ***************************************/
 	LogMsg << dbg << "Load Store" << std::endl;
   
-  	statistics->set_timer ( Statistics::T_ALL );
-  	statistics->set_timer ( Statistics::T_PREPROCESS );
+  	statistics.set_timer ( Statistics::TIMING::ALL );
+  	statistics.set_timer ( Statistics::TIMING::PREPROCESS );
 
   	// Load model
   	DataStore& d_store = CPStore::get_store ( i_data.get_in_file() );
@@ -44,8 +44,8 @@ int main( int argc, char * argv[] )
   	} 
   	catch ( std::exception& e ) 
   	{
-  		LogMsg << dbg << "Failed to initialize the Model" << std::endl;  
-    	exit ( 3 );
+  		LogMsg << dbg << "Failed to initialize the Model" << std::endl;
+  		exit ( 3 );
   	}
   
   	/***************************************
@@ -56,13 +56,13 @@ int main( int argc, char * argv[] )
   	CPSolver * cp_solver = new CPSolver( d_store.get_model() );
   	if ( cp_solver == nullptr ) 
   	{
-    	LogMsg << dbg << "Failed to create the constraint model" << std::endl;  
-    	exit( 4 );
+  		LogMsg << dbg << "Failed to create the constraint model" << std::endl;
+  		exit( 4 );
   	}
   
   	// Set some other user options on the solver
   	cp_solver->customize  ( i_data );
-  	statistics->stopwatch ( Statistics::T_PREPROCESS );
+  	statistics.stopwatch ( Statistics::TIMING::PREPROCESS );
   
   	LogMsg << dbg + "CP model created" << std::endl;
   
@@ -71,15 +71,15 @@ int main( int argc, char * argv[] )
    	 ***************************************/
 	LogMsg << dbg + "Run solver" << std::endl;
   
-  	statistics->set_timer ( Statistics::T_SEARCH );
+  	statistics.set_timer ( Statistics::TIMING::SEARCH );
   	cp_solver->run();
-  	statistics->stopwatch ( Statistics::T_SEARCH );
+  	statistics.stopwatch ( Statistics::TIMING::SEARCH );
   	
   	LogMsg << dbg + "Solver end computation" << std::endl;
   
   	// Print statistics
-  	statistics->stopwatch ( Statistics::T_ALL );
-  	if ( i_data.verbose() ) statistics->print ();
+  	statistics.stopwatch ( Statistics::TIMING::ALL );
+  	if ( i_data.verbose() ) statistics.print ();
   
   	/***************************************
    	 *            CLEAN AND EXIT           *
