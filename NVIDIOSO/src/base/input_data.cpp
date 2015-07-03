@@ -11,18 +11,16 @@
 
 using namespace std;
 
-/// Init static variable
-InputData* InputData::_id_instance = nullptr;
-
 void
 InputData::init () {
   _dbg = "InputData - ";
-  _verbose  = 0;
-  _time     = 0;
-  _max_sol  = 1;
-  _timeout  = -1;
-  _in_file  = "";
-  _out_file = "";
+  _verbose   = 0;
+  _time      = 0;
+  _max_sol   = 1;
+  _timeout   = -1;
+  _in_file   = "";
+  _out_file  = "";
+  _help_file = "config/.idata_help.txt";
 }//init
 
 InputData::InputData ( int argc, char* argv[] ) {
@@ -121,8 +119,8 @@ InputData::InputData ( int argc, char* argv[] ) {
   }
   
   if ( _verbose ) {
-    puts ( "verbose flag is set" );
-    logger->set_verbose ( true );
+    //puts ( "verbose flag is set" );
+    LogMsg.set_verbose ( true );
   }
   
   // Print any remaining command line arguments (not options).
@@ -133,7 +131,9 @@ InputData::InputData ( int argc, char* argv[] ) {
     putchar ('\n');
   }
   
-}//Input_data
+}//-
+
+InputData::~InputData () {}
 
 bool
 InputData::verbose () const {
@@ -199,27 +199,22 @@ InputData::print_gpu_info () {
 }//print_help
 
 void
-InputData::print_help () {
-  cout << "Usage: ./nvidioso -i <infile> [options]\n" << endl;
-  cout << "          Options           |          Description      \n";
-  cout << "=========================== | ===========================\n";
-  cout << " -v|--verbose               | - Printf verbose info\n";
-  cout << "                            |   during computation.\n";
-  cout << " -h|--help                  | - Print this help message.\n";
-  cout << " -d|--device                | - Print device info message.\n";
-  cout << " -w|--watcher               | - Turns on the time-watcher.\n";
-  cout << " -i|--input      (string)   | - Read input file.\n";
-  cout << " -o|--output     (string)   | - Set output file.\n";
-  cout << " -n|--solutions  (int)      | - Set number of solutions:\n";
-  cout << "                            |   -1 for all solutions,\n";
-  cout << "                            |   (default: 1).\n";
-  cout << " -t|--timeout    (double)   | - Set a timeout limit for\n";
-  cout << "                            |   solving each given model\n";
-  cout << "                            |   (default: inf).\n";
-  cout << "=========================== | ===========================\n";
-  cout << "You may want to try:\n";
-  cout << "\t" << "./invidioso -i test/nqueens.fzn\n";
-  cout << "For any questions, feel free to write at: campe8@nmsu.edu.\n";
+InputData::print_help () 
+{
+	ifstream ifs ( _help_file );
+	if ( !ifs.is_open() )
+	{
+		cerr << "No help available\n";
+		return;
+	}
+	string line;
+	getline ( ifs, line );
+	while ( ifs.good() )
+	{	
+		std::cout << line << endl;
+		getline ( ifs, line );
+	}
+	ifs.close ();
 }//print_gpu_info
 
 

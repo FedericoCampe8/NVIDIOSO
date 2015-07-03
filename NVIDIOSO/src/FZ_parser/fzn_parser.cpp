@@ -207,8 +207,8 @@ FZNParser::parse () {
                 {
                     _failure = true;
                     _more_tokens = false;
-                    logger->error ( _dbg + "Not able to get token",
-                                    __FILE__, __LINE__ );
+                    LogMsg.error ( _dbg + "Not able to get token",
+                                   __FILE__, __LINE__ );
                     return false;
                 }
       
@@ -241,8 +241,8 @@ FZNParser::parse () {
         {       
             _failure = true;
             _more_tokens = false;
-            logger->error ( _dbg + "Not able to get token",
-                            __FILE__, __LINE__ );
+            LogMsg.error ( _dbg + "Not able to get token",
+                           __FILE__, __LINE__ );
             return false;
         }
         _new_line = _tokenizer->find_new_line();

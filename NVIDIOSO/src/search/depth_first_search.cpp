@@ -154,36 +154,46 @@ DepthFirstSearch::search_out () {
     timeval time_stats;
     gettimeofday( &time_stats, NULL );
     double current_time = time_stats.tv_sec + (time_stats.tv_usec/1000000.0);
-    if ( current_time >= _timeout_out ) {
-      logger->message( _dbg + "Terminated: timeout reached." );
-      _timeout_out = 0;
-      _search_out  = true;
+    if ( current_time >= _timeout_out ) 
+    {
+    	LogMsg << _dbg + "Terminated: timeout reached" << endl;
+      	_timeout_out = 0;
+      	_search_out  = true;
     }
   }
-  if ( _nodes_out_on     && _num_nodes > _nodes_out ) {
-    ostringstream s;
-    s << _depth;
-    logger->message( _dbg +
-                     "Terminated: limit on the number of nodes reached - " +
-                     "Depth: " + s.str() );
+  if ( _nodes_out_on     && _num_nodes > _nodes_out ) 
+  {
+    	ostringstream s;
+    	s << _depth;
+    	
+    	LogMsg << _dbg +
+                  "Terminated: limit on the number of nodes reached - " +
+                  "Depth: " + s.str() << endl;
+                  
     _search_out = true;
     return true;
   }
-  if ( _wrong_out_on     && _num_wrong_decisions > _wrong_out ) {
-    ostringstream s;
+  if ( _wrong_out_on     && _num_wrong_decisions > _wrong_out ) 
+  {
+	ostringstream s;
     s << _depth;
-    logger->message( _dbg +
-                     "Terminated: limit on the number of wrong decisions reached." +
-                     "Depth: " + s.str() );
+    
+    LogMsg << _dbg +
+              "Terminated: limit on the number of wrong decisions reached." +
+              "Depth: " + s.str() << endl;
+              
     _search_out = true;
     return true;
   }
-  if ( _backtrack_out_on && _num_backtracks > _backtracks_out ) {
-    ostringstream s;
+  if ( _backtrack_out_on && _num_backtracks > _backtracks_out ) 
+  {
+	ostringstream s;
     s << _depth;
-    logger->message( _dbg +
+    
+    LogMsg << _dbg +
                      "Terminated: limit on the number of backtracks reached." +
-                     "Depth: " + s.str());
+                     "Depth: " + s.str() << endl;
+                     
     _search_out = true;
     return true;
   }
@@ -338,8 +348,9 @@ DepthFirstSearch::label( int var_idx ) {
         statistics->stopwatch_and_add ( Statistics::T_BACKTRACK );
       
       if ( _trail_debug ) {
-        cout<<"Trailstack after solution has been found at level " << _depth <<
+        cout << "Trailstack after solution has been found at level " << _depth <<
         " (after pop):\n";
+        
         _backtrack_manager->print();
         _solution_manager->print_variables ();
       }
@@ -398,7 +409,8 @@ DepthFirstSearch::label( int var_idx ) {
       if ( _time_watcher )
         statistics->stopwatch_and_add ( Statistics::T_BACKTRACK );
       
-      if ( _trail_debug ) {
+      if ( _trail_debug ) 
+      {
         cout << "Trailstack after pop:\n";
         _backtrack_manager->print();
         _solution_manager->print_variables ();

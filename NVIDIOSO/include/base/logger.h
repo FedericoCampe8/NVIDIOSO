@@ -3,7 +3,7 @@
 //  NVIDIOSO
 //
 //  Created by Federico Campeotto on 27/06/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 ___UDNMSU___. All rights reserved.
 //
 //  Logger class used for log messages, prints and errors.
 //
@@ -20,6 +20,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <typeinfo>
 
 #if CUDAON
 #include <cuda_runtime_api.h>
@@ -29,36 +30,116 @@
 #define nullptr NULL
 #endif
 
-class Logger;
+#define LOG_PREFIX std::string ("iNVIDIOSO")
+
+#define LogMsg logger
+
 //! logger instance: global to all classes if included
-extern Logger* logger;
+class Logger;
+extern Logger& logger;
 
 class Logger {
-  
 private:
-  //! Static (singleton) instance of logger
-  static Logger * _l_instance;
-  // Variables for loggin
+
+  // Variables for log
   bool _verbose;
   std::string _out_log_file;
-  time_t _rawtime;
-  struct tm * _timeinfo;
+  std::stringstream _ss_log;
+
+  time_t _raw_time;
+  struct tm * _time_info;
+  
+  //! Output log stream (to stdout)
+  std::ostream&    _out;
   
   //! Output log stream (to file)
-  std::ofstream  * _of_stream;
-protected:
-  Logger ( std::string="" );
+  std::ofstream _of_stream;
   
+protected:
+  	Logger ( std::ostream& out, std::string = "" );
+  
+  	//! Time stamp
+	virtual std::string get_time_stamp ();
+	
+  //! Print log on stdout or file
+  template<typename T>
+  void log  ( const T& v, bool flush = false )
+  {
+  	_ss_log << v;
+  	std::string str = _ss_log.str();
+  	if ( (find ( str.begin(), str.end(), '\n' ) != str.end()) || flush )
+  	{
+  		_ss_log.str("");
+  		std::string to_file = "[" +  get_time_stamp() + "]: " + str;
+  			
+  		if ( _verbose )
+  		{
+  			_out << to_file;
+  		}
+  		
+  		if ( flush )
+  			to_file += "\n";
+  		oflog<std::string> ( to_file );
+  	}
+  }//log
+  
+  template<typename T>
+  void oflog ( const T& v )
+  { 
+    // Sanity check
+    if ( _out_log_file.compare( "" ) == 0 )
+    {
+      	std::cerr << "No log file found\n";
+      	return;
+    }
+    
+    if ( !_of_stream.is_open() )
+    {
+      _of_stream.open( _out_log_file );
+    }
+    if ( _of_stream.is_open() )
+    {
+      _of_stream << v;
+    }
+    else
+    {
+      std::cerr << "Can't open file " << _out_log_file << " - At "
+      << __FILE__ << __LINE__ << std::endl;
+    }
+  }//oflog
+  
+  	
 public:
-  ~Logger();
+  virtual ~Logger();
+  
+  Logger ( const Logger& other )            = delete;
+  Logger& operator= ( const Logger& other ) = delete;
   
   //! Constructor get (static) instance
-  static Logger* get_instance ( std::string log_file="" ) {
-    if ( _l_instance == nullptr ) {
-      _l_instance = new Logger ( log_file );
-    }
-    return _l_instance;
+  static Logger& get_instance ( std::ostream& out, std::string log_file="" ) 
+  {
+    static Logger log_instance ( out, log_file );
+    return log_instance;
   }//get_instance
+  
+  // Input operator
+  template<typename T>
+  Logger& operator<< ( const T& v )
+  {
+	// Store log
+    log<T> ( v );
+    return *this;
+  }//<<
+  
+  // Input operator
+  Logger const& operator<< ( std::ostream& (*F)(std::ostream&) )
+  {
+  	// Flush the stream
+  	log<std::string> ( "", true );
+  	
+    F ( _out );
+    return *this;
+  }//<<
   
   // Set method
   void set_out_file ( std:: string );

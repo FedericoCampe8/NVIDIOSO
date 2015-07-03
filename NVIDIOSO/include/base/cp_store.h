@@ -35,15 +35,16 @@ public:
   ~CPStore();
   
   //! Constructor get (static) instance
-  static CPStore* get_store ( std::string in_file ) {
-    if ( _cp_ds_instance == nullptr ) {
-      if ( in_file.compare ( "" ) == 0 ) {
-        logger->error( "DataStore: No input file.", __FILE__, __LINE__ );
-        return nullptr;
-      }
-      _cp_ds_instance = new CPStore ( in_file );
+  static CPStore& get_store ( std::string in_file ) 
+  {
+  	if ( in_file == "" ) 
+  	{
+  		LogMsg << "DataStore::CPStore: No input file for constructor" << std::endl;
+        logger.error( "DataStore: No input file", __FILE__, __LINE__ );
+        throw NvdException( "DataStore::CPStore: constructor - file missing" ); 
     }
-    return _cp_ds_instance;
+    static CPStore cp_store ( in_file );
+    return cp_store;
   }//get_instance
   
   //! Load model from input file (FlatZinc model)

@@ -39,7 +39,7 @@ void
 TokenArr::set_array_bounds ( int lwb, int upb ) {
   bool valid = true;
   if ( upb < lwb ) {
-    logger->error( _dbg + "Array bounds not valid", __FILE__, __LINE__ );
+    LogMsg.error( _dbg + "Array bounds not valid", __FILE__, __LINE__ );
     valid = false;
   }
   if ( _array_lwb > _array_upb ) {

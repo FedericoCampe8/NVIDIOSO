@@ -49,7 +49,7 @@ CPStore::load_model ( string ifile ) {
     // Check whether the parser has failed
     if ( _parser->is_failed() || !success )
     {
-        logger->error( _dbg + "Error while loading the model" );
+    	LogMsg << _dbg + "Error while loading the model" << endl;
         return false;
     }
 
@@ -72,11 +72,11 @@ CPStore::init_model ()
 
     if ( _cp_model )
     {
-        logger->message ( _dbg + cp_mdl + " created.");
+    	LogMsg << _dbg + cp_mdl + " created." << endl;
     }
     else
     {
-        logger->message ( _dbg + cp_mdl + " failed.");
+    	LogMsg << _dbg + cp_mdl + " failed." << endl;
         throw;
     }
   
@@ -97,15 +97,16 @@ CPStore::init_model ()
      */
   
     // Variables
-    while ( _parser->more_variables () ) {
-        try
+    while ( _parser->more_variables () ) 
+    {
+    	try
         {
             _cp_model->add_variable ( generator->get_variable ( _parser->get_variable() ) );
         }
         catch ( exception& e )
         {
             // Log exception
-            logger->error( e.what() );
+            LogMsg << e.what() << endl;
 
             // Throw again to exit the program in a clean fashion
             throw;
@@ -122,7 +123,7 @@ CPStore::init_model ()
         catch ( exception& e )
         {
             // Log exception
-            logger->error( e.what() );
+            LogMsg << e.what() << endl;
             
             // Throw again to exit the program in a clean fashion
             throw;
@@ -137,7 +138,7 @@ CPStore::init_model ()
     catch ( exception& e )
     {
         // Log exception
-        logger->error( e.what() );
+        LogMsg << e.what() << endl;
         
         // Throw again to exit the program in a clean fashion
         throw;
@@ -157,7 +158,7 @@ CPStore::init_model ()
         catch ( exception& e )
         {
             // Log exception
-            logger->error( e.what() );
+            LogMsg << e.what() << endl;
             
             // Throw again to exit the program in a clean fashion
             throw;

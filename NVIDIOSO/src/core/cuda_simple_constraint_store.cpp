@@ -97,7 +97,7 @@ CudaSimpleConstraintStore::consistency ()
   	// Propagate constraints in parallel
   	cuda_consistency<<< _constraint_queue.size(), 1 >>> ( _d_constraint_queue );
 	cudaDeviceSynchronize (); 
-	
+	getchar();
   	// Clear queue since propagation of constraints is all performed on device
   	clear_queue ();
 	if ( !move_states_from_device () ) 

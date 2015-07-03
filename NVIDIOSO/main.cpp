@@ -3,7 +3,7 @@
 //  NVIDIOSO
 //
 //  Created by Federico Campeotto on 26/06/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 ___UDNMSU___. All rights reserved.
 //
 
 #include "globals.h"
@@ -13,95 +13,79 @@
 
 int main( int argc, char * argv[] )
 {
-  std::string dbg = "Main - ";
+  	std::string dbg = "Main - ";
   
-  /***************************************
-   *         INIT DATA/READ INPUT        *
-   ***************************************/
-  InputData * i_data = InputData::get_instance ( argc, argv );
-  
-  /***************************************
-   *  LOAD MODEL & INIT DATA STRUCURES   *
-   ***************************************/
-  logger->message ( dbg + "Load Store." );
-  
-  statistics->set_timer ( Statistics::T_ALL );
-  statistics->set_timer ( Statistics::T_PREPROCESS );
-  
-  DataStore * d_store = CPStore::get_store ( i_data->get_in_file() );
-  
-  // Load model
-  if ( (d_store == nullptr) || (!d_store->load_model()) ) {
-    logger->error ( dbg + "Failed to load the Model." );
-    logger->error ( dbg + "Clean and exit." );
-    // Clean & exit
-    delete d_store;
-    delete i_data;
-    delete logger;
-    exit ( 1 );
-  }
+  	/***************************************
+   	 *         INIT DATA/READ INPUT        *
+   	 ***************************************/
+  	InputData& i_data = InputData::get_instance ( argc, argv );
 
-  // Init store (variables, domains, and constraints)
-  try {
-    d_store->init_model();
-  } catch ( std::exception& e ) {
-    logger->error ( dbg + "Failed to initialize the model." );
-    logger->error ( dbg + "Clean and exit." );
-    // Clean & exit
-    delete d_store;
-    delete i_data;
-    delete logger;
-    exit ( 1 );
-  }
+  	/***************************************
+   	 *  LOAD MODEL & INIT DATA STRUCURES   *
+   	 ***************************************/
+	LogMsg << dbg << "Load Store" << std::endl;
+  
+  	statistics->set_timer ( Statistics::T_ALL );
+  	statistics->set_timer ( Statistics::T_PREPROCESS );
 
-  logger->message ( dbg + "Init model." );
+  	// Load model
+  	DataStore& d_store = CPStore::get_store ( i_data.get_in_file() );
+  	if ( !d_store.load_model() )
+  	{
+  		LogMsg << dbg << "Failed to load the Model" << std::endl; 
+  		exit ( 2 );
+  	}
+  	
+  	// Init store (variables, domains, and constraints)
+  	try 
+  	{
+  		LogMsg << dbg + "Model Initialization" << std::endl;
+    	d_store.init_model();
+  	} 
+  	catch ( std::exception& e ) 
+  	{
+  		LogMsg << dbg << "Failed to initialize the Model" << std::endl;  
+    	exit ( 3 );
+  	}
   
-  /***************************************
-   *      CREATE CONSTRAINT PROGRAM      *
-   ***************************************/
-  logger->message ( dbg + "Instantiate CP solver." );
+  	/***************************************
+   	 *      	   CREATE MODEL            *
+   	 ***************************************/
+	LogMsg << dbg + "Instantiate CP solver" << std::endl;
   
-  CPSolver * cp_solver = new CPSolver( d_store->get_model() );
-  if ( cp_solver == nullptr ) {
-    logger->error ( dbg + "Failed to create the constraint program." );
-    logger->error ( dbg + "Clean and exit." );
-    delete d_store;
-    delete i_data;
-    delete logger;
-    exit( 2 );
-  }
+  	CPSolver * cp_solver = new CPSolver( d_store.get_model() );
+  	if ( cp_solver == nullptr ) 
+  	{
+    	LogMsg << dbg << "Failed to create the constraint model" << std::endl;  
+    	exit( 4 );
+  	}
   
-  // Set some other user options on the solver
-  cp_solver->customize ( *i_data );
-  statistics->stopwatch ( Statistics::T_PREPROCESS );
+  	// Set some other user options on the solver
+  	cp_solver->customize  ( i_data );
+  	statistics->stopwatch ( Statistics::T_PREPROCESS );
   
-  logger->message ( dbg + "CP model created." );
+  	LogMsg << dbg + "CP model created" << std::endl;
   
-  /***************************************
-   *              RUN SOLVER             *
-   ***************************************/
+  	/***************************************
+   	 *              RUN SOLVER             *
+   	 ***************************************/
+	LogMsg << dbg + "Run solver" << std::endl;
+  
+  	statistics->set_timer ( Statistics::T_SEARCH );
+  	cp_solver->run();
+  	statistics->stopwatch ( Statistics::T_SEARCH );
+  	
+  	LogMsg << dbg + "Solver end computation" << std::endl;
+  
+  	// Print statistics
+  	statistics->stopwatch ( Statistics::T_ALL );
+  	if ( i_data.verbose() ) statistics->print ();
+  
+  	/***************************************
+   	 *            CLEAN AND EXIT           *
+   	***************************************/
+   	LogMsg << dbg << "Exit" << std::endl;
 
-  logger->message ( dbg + "Run solver." );
-  
-  statistics->set_timer ( Statistics::T_SEARCH );
-  cp_solver->run();
-  statistics->stopwatch ( Statistics::T_SEARCH );
-  
-  logger->message ( dbg + "End solver computation." );
-  
-  // Print statistics
-  statistics->stopwatch ( Statistics::T_ALL );
-  if ( i_data->verbose() ) statistics->print ();
-  
-  /***************************************
-   *            CLEAN AND EXIT           *
-   ***************************************/
-  logger->message ( dbg + "Clean objects & Exit." );
-  
-  delete cp_solver;
-  delete d_store;
-  delete i_data;
-  delete logger;
-  return 0;
+  	return 0;
 }
 

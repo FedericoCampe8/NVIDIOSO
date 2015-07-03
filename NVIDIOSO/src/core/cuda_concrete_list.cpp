@@ -494,7 +494,7 @@ CudaConcreteDomainList::add ( int min, int max ) {
     if ( (next_pair_idx > prev_pair_idx) ||
         ((next_pair_idx < 0) && ( prev_pair_idx >= 0 )) ) {
       if ( _num_pairs + 1 > _max_allowed_pairs ) {
-        logger->error( _dbg + "Can't add another pair",
+        LogMsg.error( _dbg + "Can't add another pair",
                       __FILE__, __LINE__ );
         set_empty ();
         return;

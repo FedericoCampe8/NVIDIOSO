@@ -20,16 +20,15 @@ private:
   //! Debug string
   std::string _dbg;
   
-  //! Static instance for singleton
-  static InputData* _id_instance;
-  
   // Other flags and params
   int _verbose;
   int _time;
   int _max_sol;
   double _timeout;
+  
   std::string _in_file;
   std::string _out_file;
+  std::string _help_file;
   
   // Private methods
   void init();
@@ -45,12 +44,17 @@ protected:
   InputData ( int argc, char* argv[] );
   
 public:
+	
+  virtual ~InputData ();
+
+  InputData ( const InputData& other ) 			  = delete; 
+  InputData& operator= ( const InputData& other ) = delete; 
+  
   //! Constructor to get the (static) InputData instance
-  static InputData* get_instance ( int argc, char* argv[] ) {
-    if ( _id_instance == nullptr ) {
-      _id_instance = new InputData ( argc, argv );
-    }
-    return _id_instance;
+  static InputData& get_instance ( int argc, char* argv[] ) 
+  {
+  	static InputData id_instance ( argc, argv );
+    return id_instance;
   }//get_instance
   
   /**

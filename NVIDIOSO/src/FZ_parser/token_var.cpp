@@ -40,7 +40,7 @@ TokenVar::set_subset_domain ( std::string token_str )
     }
     else
     {
-        logger->error( _dbg + "Parse Error in variable declaration: " + token_str,
+        LogMsg.error( _dbg + "Parse Error in variable declaration: " + token_str,
                        __FILE__, __LINE__);
         set_subset_domain ();
     }
@@ -79,7 +79,7 @@ TokenVar::get_range ( std::string token_str ) const {
     }
     else
     {
-        logger->error( _dbg + "Domain range not valid", __FILE__, __LINE__ );
+        LogMsg.error( _dbg + "Domain range not valid", __FILE__, __LINE__ );
     }
     return range;
 }//get_range
@@ -191,7 +191,7 @@ TokenVar::set_range_domain ( int lw_b, int up_b ) {
   // Check consistency of bounds
   bool valid = true;
   if ( up_b < lw_b ) {
-    logger->error( _dbg + "Domain bounds not valid", __FILE__, __LINE__ );
+    LogMsg.error( _dbg + "Domain bounds not valid", __FILE__, __LINE__ );
     valid = false;
   }
   _lw_bound = lw_b;

@@ -108,8 +108,8 @@ Parser::open () {
            * The client wants to preserve the part of the file
            * already read.
            */
-          logger->error ( _dbg + "Can't open file: " + _input_path,
-                          __FILE__, __LINE__  );
+          LogMsg.error ( _dbg + "Can't open file: " + _input_path,
+                         __FILE__, __LINE__  );
           _more_tokens = false;
           return;
       }
@@ -121,7 +121,7 @@ Parser::open () {
       }
       _open_file = true;
     
-      logger->message( _dbg + "Open file: " + _input_path );
+      LogMsg << _dbg + "Open file: " + _input_path << endl;
   }
 }//open
 
@@ -130,6 +130,6 @@ Parser::close () {
   _if_stream->close();
   _open_file = false;
   
-  logger->message( _dbg + "Close file: " + _input_path );
+  LogMsg << _dbg + "Close file: " + _input_path << endl;
 }//close
 

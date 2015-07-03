@@ -124,8 +124,7 @@ CPSolver::run_model ( CPModel * model ) {
   else {
     ostringstream s;
     s << model->get_id();
-    
-    logger->message ( _dbg + "No Search Engine for model_" + s.str() );
+    LogMsg << _dbg << "No Search Engine for model_" << s.str() << endl;
   }
   
   // Increase the number of solved models

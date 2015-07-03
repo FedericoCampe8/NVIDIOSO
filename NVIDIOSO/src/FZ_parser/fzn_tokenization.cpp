@@ -152,8 +152,8 @@ FZNTokenization::analyze_token () {
     }
     else
     {
-        logger->error ( _dbg + "Not able to parse FlatZinc keyword: " + token_str,
-                        __FILE__, __LINE__ );
+        LogMsg.error ( _dbg + "Not able to parse FlatZinc keyword: " + token_str,
+                       __FILE__, __LINE__ );
     }
     return move ( current_token );
 }//analyze_token
@@ -255,8 +255,8 @@ FZNTokenization::analyze_token_arr () {
     }
     else
     {
-        logger->error( _dbg + "Parse Error in variable declaration: " + token_str,
-                       __FILE__, __LINE__);
+        LogMsg.error( _dbg + "Parse Error in variable declaration: " + token_str,
+                      __FILE__, __LINE__);
         return move ( t_ptr );
     }
 
@@ -347,7 +347,7 @@ FZNTokenization::analyze_token_con () {
        	 (ptr_aux == std::string::npos) ||
        	 (ptr_aux < ptr_idx) ) 
     {
-    	logger->error( _dbg + "Constraint not valid" + _c_token,
+    	LogMsg.error( _dbg + "Constraint not valid" + _c_token,
          	          __FILE__, __LINE__ );
     	return std::move ( t_ptr );
   	}
@@ -483,8 +483,8 @@ FZNTokenization::analyze_token_sol () {
          	 (found     == std::string::npos) ||
          	 (found_aux == std::string::npos) ) 
         {
-      		logger->error( _dbg + "Parse Error in solve statement: " + token_str,
-                    	   __FILE__, __LINE__);
+      		LogMsg.error( _dbg + "Parse Error in solve statement: " + token_str,
+                    	  __FILE__, __LINE__);
       		return std::move ( t_ptr );
     	}
     	string strategy = "";
@@ -649,7 +649,7 @@ FZNTokenization::analyze_token_var () {
   	}
   	else 
   	{
-    	logger->error( _dbg + "Parse Error in variable declaration: " + token_str,
+    	LogMsg.error( _dbg + "Parse Error in variable declaration: " + token_str,
         	          __FILE__, __LINE__);
     	return std::move ( t_ptr );
   	}
@@ -690,8 +690,8 @@ FZNTokenization::analyze_token_var () {
 
 UTokenPtr
 FZNTokenization::analyze_token_lns () {
-  	logger->error( _dbg + "LNS not yet implemented" + _c_token,
-    	            __FILE__, __LINE__ );
+  	LogMsg.error( _dbg + "LNS not yet implemented" + _c_token,
+    	          __FILE__, __LINE__ );
     	            
   	UTokenPtr t_ptr ( nullptr );
     std::unique_ptr < TokenVar > ptr ( new TokenVar () );

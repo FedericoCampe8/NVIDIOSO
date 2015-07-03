@@ -28,7 +28,7 @@
 # either expressed or implied, of the FreeBSD Project.                                  #
 #########################################################################################
 
-source iNVIDIOSO.envs
+source config/iNVIDIOSO.envs
 
 clear
 cat <<EOF

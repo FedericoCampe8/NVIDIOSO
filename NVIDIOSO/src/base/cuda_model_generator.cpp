@@ -20,7 +20,7 @@ using namespace std;
 CudaGenerator::CudaGenerator () :
     _dbg( "CudaGenerator - " )
 {
-    logger->message ( _dbg + "Instantiate a model generator." );
+	LogMsg << _dbg + "Instantiate a model generator" << endl;
 }//CudaGenerator
 
 CudaGenerator::~CudaGenerator () {
@@ -144,8 +144,8 @@ CudaGenerator::get_constraint ( UTokenPtr tkn_ptr )
 	  
     if ( tkn_ptr->get_type() != TokenType::FD_CONSTRAINT ) 
     {
-	   	logger->error( _dbg + "Error while instantiating a Constraint",
-        	           __FILE__, __LINE__);
+	   	LogMsg.error( _dbg + "Error while instantiating a Constraint",
+        	          __FILE__, __LINE__);
     	return nullptr;
     }
 
@@ -204,8 +204,8 @@ CudaGenerator::get_search_engine ( UTokenPtr tkn_ptr )
   
     if ( tkn_ptr->get_type() != TokenType::FD_SOLVE )
     {
-        logger->error( _dbg + "Error while instantiating a Search Engine",
-                       __FILE__, __LINE__);
+        LogMsg.error( _dbg + "Error while instantiating a Search Engine",
+                      __FILE__, __LINE__);
         return nullptr;
     }
     

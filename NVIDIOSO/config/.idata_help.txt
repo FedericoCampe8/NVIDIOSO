@@ -1,0 +1,20 @@
+Usage: ./nvidioso -i <infile> [options]
+	  Options           |          Description  
+=========================== | ===========================
+ -v|--verbose               | - Printf verbose info
+                            |   during computation.
+ -h|--help                  | - Print this help message.
+ -d|--device                | - Print device info message.
+ -w|--watcher               | - Turns on the time-watcher.
+ -i|--input      (string)   | - Input file.
+ -o|--output     (string)   | - Output file.
+ -n|--solutions  (int)      | - Set number of solutions:
+                            |   -1 for all solutions,
+                            |   (default: 1).
+ -t|--timeout    (double)   | - Set a timeout limit for
+                            |   solving each given model
+                            |   (default: inf).
+=========================== | ===========================
+You may want to try:
+	./invidioso -i test/nqueens.fzn
+For any questions, feel free to write at: campe8@nmsu.edu.
