@@ -116,7 +116,8 @@ FZNTokenization::get_token ()
 }//get_token
 
 UTokenPtr
-FZNTokenization::analyze_token () {
+FZNTokenization::analyze_token () 
+{
 
     // Analyze _c_token
     string token_str;
@@ -136,7 +137,7 @@ FZNTokenization::analyze_token () {
     }
     else if ( found_con != std::string::npos )
     {
-        current_token =  analyze_token_con ();
+        current_token = analyze_token_con ();
     }
     else if ( found_sol != std::string::npos )
     {
@@ -159,8 +160,9 @@ FZNTokenization::analyze_token () {
 }//analyze_token
 
 UTokenPtr
-FZNTokenization::analyze_token_arr () {
-  
+FZNTokenization::analyze_token_arr () 
+{
+
     // Token (pointer) to return
     UTokenPtr t_ptr ( nullptr );
     std::unique_ptr < TokenArr > ptr ( new TokenArr () );
@@ -173,156 +175,32 @@ FZNTokenization::analyze_token_arr () {
     clear_line();
   
     // Use string methods
-    string token_str;
-    token_str.assign( _c_token );
-  
-    // Check for support variable
-    if ( token_str.find( _fzn_keywords[ "VII_TOKEN" ], 0 ) != std::string::npos )
-    {
-        ptr->set_support_var ();
-    }
-  
-    // Check for output array
-    if ( token_str.find( _fzn_keywords[ "OAR_TOKEN" ], 0 ) != std::string::npos )
-    {
-        ptr->set_output_arr ();
-    }
+    std::string token_str ( _c_token );
 
     /*
      * Read var_type: distinguish between
      * Parameter type and Variable type.
+     * par_type: array [index_set] of int, ...
+     * var_type: array [index_set] of var int, ...
      */
-    size_t ptr_idx, ptr_aux;
-    ptr_idx = token_str.find ( "var" );
-    if ( ptr_idx != std::string::npos )
-    {
-        // Variable type
-        ptr_aux = ptr_idx + 3;
-        ptr_idx = token_str.find_first_of( ":", 0 );
-        ptr_aux = token_str.find_first_not_of ( " ", ptr_aux );
-        while ( (ptr_idx > 0) && (token_str.at(ptr_idx - 1 ) == ' ') ) ptr_idx--;
-    
-        // Get substring "variable_type" from var "variable_type"
-        token_str = token_str.substr ( ptr_aux, ptr_idx - ptr_aux );
-    }
-    else
-    {
-        // Parameter type
-        ptr_idx = token_str.find ( "of" );
-        ptr_aux = ptr_idx + 2;
-        ptr_idx     = token_str.find_first_of( ":", 0 );
-        ptr_aux = token_str.find_first_not_of ( " ", ptr_aux );
-        while ( (ptr_idx > 0) && (token_str.at(ptr_idx - 1 ) == ' ') ) ptr_idx--;
-
-        // Get substring
-        token_str = token_str.substr ( ptr_aux, ptr_idx - ptr_aux );
-    }
-  
-    // Find the type
-    ptr_aux = token_str.find_first_of ( " " );
-    string tkn_type = token_str.substr ( 0, ptr_aux );
-  
-    /*
-     * According to the FlatZinc spec., tkn_type is one of the following:
-     * bool, float, int, set, x1..x2.
-     */
-    if ( tkn_type.compare ( _fzn_keywords[ "BOO_TOKEN" ] ) == 0 )
-    {
-        ptr->set_boolean_domain ();
-    }
-    else if ( tkn_type.compare ( _fzn_keywords[ "FLO_TOKEN" ] ) == 0 )
-    {
-        ptr->set_float_domain ();
-    }
-    else if ( tkn_type.compare ( _fzn_keywords[ "INT_TOKEN" ] ) == 0 )
-    {
-        ptr->set_int_domain ();
-    }
-    else if ( tkn_type.compare ( _fzn_keywords[ "SET_TOKEN" ] ) == 0 )
-    {
-        /*
-         * According to FlatZinc, set could be on of the following:
-         * int, x1..x2, {x1, x2, ..., xk}
-         */
-        ptr->set_subset_domain ( token_str );
-    }
-    else if ( token_str.find ( _fzn_keywords[ "RAN_TOKEN" ] ) != std::string::npos )
-    {
-        ptr->set_range_domain ( token_str );
-    }
-    else if ( token_str.at ( 0 ) == '{' ) {
-        ptr->set_subset_domain ( token_str );
-    }
-    else
-    {
-        LogMsg.error( _dbg + "Parse Error in variable declaration: " + token_str,
-                      __FILE__, __LINE__);
-        return move ( t_ptr );
-    }
-
-    // Read identifier
-    token_str.assign( _c_token );
-    ptr_idx = token_str.find_first_of( ":", 0 );
-    token_str = token_str.substr ( ptr_idx + 1 );
-    string var_id = "";
-    for ( int i = 0; i < token_str.size(); i++ )
-    {
-        char x = token_str[i];
-        if ( var_id.size() && x == ' ' ) break;
-        if ( x == ' ') continue;
-        if ( (x == ';') || (x == ':') )  break;
-        var_id += x;
-    }
-  	
-  	// Sanity check
-  	assert ( var_id != "" );
-  	
-    // Set array id
-    ptr->set_var_id ( var_id );
-
-    // Read bounds
-    ptr_idx = token_str.find_first_of( "[", 0 );
-  
-    if ( ptr_idx != string::npos )
-    {
-        ptr_aux = token_str.find_first_of( "]" );
-    
-        // Set support array and string representing elements
-        string support_element = token_str.substr( ptr_idx, ptr_aux - ptr_idx + 1 );
-        ptr->set_support_elements ( support_element );
-    }
-    
-    // Set range array
-    token_str.assign( _c_token );
-    ptr_idx   = token_str.find_first_of( "[", 0 );
-    ptr_aux   = token_str.find_first_of( "]", 0 );
-    token_str = token_str.substr ( 1, ptr_aux - ptr_idx - 1 );
-  
-    int lower_bound, upper_bound;
-    ptr_aux = token_str.find_first_of( ".", 0 );
-    lower_bound = atoi( token_str.substr( 0, ptr_aux ).c_str() );
-    ptr_aux = token_str.find_first_of( ":", ptr_aux + 2 );
-  
-    //Check ' ' before ':'
-    token_str = token_str.substr( token_str.find_first_of( ".", 0 ) + 2, ptr_aux );
-    ptr_aux = token_str.find_first_of( " ", 0 );
-  
-    if ( ptr_aux == std::string::npos )
-    {
-        upper_bound = atoi ( token_str.c_str() );
-    }
-    else
-    {
-        upper_bound = atoi ( token_str.substr( 0, ptr_aux ).c_str() );
-    }
-    ptr->set_array_bounds ( lower_bound, upper_bound );
-  
-    t_ptr = std::move ( ptr );
-    return std::move ( t_ptr );
+     bool succeed = ptr->set_token ( token_str );
+     if ( !succeed )
+     {
+     	if ( ptr->is_valid_array () )
+     	{// Not valid array declaration
+     		LogMsg.error( _dbg + "Parse Error in variable declaration: " + token_str,
+     		              __FILE__, __LINE__);
+     	}  
+     	return move ( t_ptr );
+     }
+     
+     t_ptr = std::move ( ptr );
+     return std::move ( t_ptr );
 }//analyze_token_arr
 
 UTokenPtr
-FZNTokenization::analyze_token_con () {
+FZNTokenization::analyze_token_con () 
+{
 	
   	// Token (pointer) to return
     UTokenPtr t_ptr ( nullptr );
@@ -338,258 +216,61 @@ FZNTokenization::analyze_token_con () {
   	// Use string methods
   	string token_str;
   	token_str.assign( _c_token );
-  
-  	// Read constraint identifier
-  	size_t ptr_idx, ptr_aux;
-  	ptr_idx     = token_str.find_first_of( "(" );
-  	ptr_aux = token_str.find_first_of( ")" );
-  	if ( (ptr_idx == std::string::npos) ||
-       	 (ptr_aux == std::string::npos) ||
-       	 (ptr_aux < ptr_idx) ) 
-    {
-    	LogMsg.error( _dbg + "Constraint not valid" + _c_token,
-         	          __FILE__, __LINE__ );
-    	return std::move ( t_ptr );
-  	}
-  
-  	ptr->set_con_id( token_str.substr( 0, ptr_idx ) );
-
-  	// Get the expressions that identify the constraint
-  	token_str = token_str.substr ( ptr_idx + 1, ptr_aux - ptr_idx - 1 );
-  
-  	int brk_counter = 0;
-  	string expression = "";
-  	for ( int i = 0; i < token_str.size(); i++ ) 
-  	{
-  		char x = token_str[i];	
-    	if ( x == '[' ) brk_counter++;
-    	if ( x == ']' ) 
-    	{
-      		expression += x;
-      		if ( brk_counter ) 
-      		{
-        		brk_counter--;
-        		if ( brk_counter == 0 ) 
-        		{
-        			ptr->add_expr ( expression );
-		          	expression.assign("");
-        		}
-      		}
-    	}//']'
-    	else if ( x == ',' ) 
-    	{
-      		if ( brk_counter > 0 ) 
-      		{
-        		expression += x;
-      		}
-      		else if ( expression.length() ) 
-      		{
-      			ptr->add_expr ( expression );
-	        	expression.assign("");
-      		}
-    	}
-    	else if ( x == ' ' ) 
-    	{
-      		if ( brk_counter > 0 ) {
-        		expression += x;
-      		}
-      		else 
-      		{
-        		expression.assign("");
-      		}
-    	}
-    	else 
-    	{
-      	expression += x;
-    	}
-  	}//x
-  	if ( expression.length() ) 
-  	{
-  		ptr->add_expr ( expression );
-  	}
-  
-  	t_ptr = std::move ( ptr );
-    return std::move ( t_ptr );
+  	
+  	bool succeed = ptr->set_token ( token_str );
+     if ( !succeed )
+     {
+     	LogMsg.error( _dbg + "Parse Error in constraint declaration: " + token_str,
+     	              __FILE__, __LINE__);
+     	return move ( t_ptr );
+     }
+     
+     t_ptr = std::move ( ptr );
+     return std::move ( t_ptr );
 }//analyze_token_con
 
 UTokenPtr
-FZNTokenization::analyze_token_sol () {
-
-  	// Token (pointer) to return
+FZNTokenization::analyze_token_sol () 
+{
+	// Token (pointer) to return
     UTokenPtr t_ptr ( nullptr );
     std::unique_ptr < TokenSol > ptr ( new TokenSol () );
-  	
-  	// Skip pattern
-  	for ( int i = 0; i < _fzn_keywords[ "SOL_TOKEN" ].length(); i++ ) 
-  		_c_token++;
-  		
-  	// Filter line	
-  	clear_line();
   
-  	// Use string methods
-  	string token_str;
-  	token_str.assign( _c_token );
-  
-  	std::size_t found, found_aux;
-  	found = token_str.find( _fzn_keywords[ "SAT_TOKEN" ] );
-  	if ( found != std::string::npos ) 
-  	{
-  		ptr->set_solve_goal ( _fzn_keywords[ "SAT_TOKEN" ] );
-  	}
-  
-  	found = token_str.find( _fzn_keywords[ "MIN_TOKEN" ] );
-  	if ( found != std::string::npos ) 
-  	{
-  		ptr->set_solve_goal ( _fzn_keywords[ "MIN_TOKEN" ] );	
-    	string str_aux = token_str.substr ( found + _fzn_keywords[ "MIN_TOKEN" ].size() );
-    	string var_to_minimize = "";
-    	for ( int i = 0; i < str_aux.size(); i++ ) 
-    	{
-    		char x = str_aux[i];
-      		if ( x == ' ' ) continue;
-      		var_to_minimize += x;
-    	}
-    	
-    	// Sanity check 
-    	assert ( var_to_minimize != "" );
-    	ptr->set_var_goal ( var_to_minimize );
-  	}
-  
-  	found = token_str.find( _fzn_keywords[ "MAX_TOKEN" ] );
-  	if ( found != std::string::npos ) 
-  	{	
-  		ptr->set_solve_goal ( _fzn_keywords[ "MAX_TOKEN" ] );
- 	   	string str_aux = token_str.substr ( found + _fzn_keywords[ "MAX_TOKEN" ].size() );
-    	string var_to_maximize = "";
-    	for ( int i = 0; i < str_aux.size(); i++ ) 
-    	{
-    		char x = str_aux[i];
-      		if ( x == ' ' ) continue;
-      		var_to_maximize += x;
-    	}
-    	
-    	// Sanity check 
-    	assert ( var_to_maximize != "" );
-    	ptr->set_var_goal ( var_to_maximize );
-  	}
-  
-  	// Check annotations
-  	found = token_str.find( "::" );
-  	if ( found != std::string::npos ) 
-  	{
-    	found     = token_str.find_first_of ( "(" );
-    	found_aux = token_str.find_first_of ( ")" );
-    	if ( (found_aux < found) ||
-         	 (found     == std::string::npos) ||
-         	 (found_aux == std::string::npos) ) 
-        {
-      		LogMsg.error( _dbg + "Parse Error in solve statement: " + token_str,
-                    	  __FILE__, __LINE__);
-      		return std::move ( t_ptr );
-    	}
-    	string strategy = "";
-    	for ( int i = 0; i < token_str.size(); i++ ) 
-    	{
-    		char x = token_str[i];
-    		if ( x == '(' ) break;
-      		if ( (x == ' ') || (x == ':') ) continue;
-      		strategy += x;
-    	}	
-    	
-    	// Sanity check 
-    	assert ( strategy != "" );
-    	ptr->set_solve_params ( strategy );
+    // Skip ARR_TOKEN identifier
+    for ( int i = 0; i < _fzn_keywords[ "SOL_TOKEN" ].length(); i++ )
+        _c_token++;
     
-    	// Other params within "(" and ")"
-    	token_str = token_str.substr( found+1, found_aux - found - 1 );
-    
-    	// Check whether there is a set of variables to label
-    	if ( token_str.at ( 0 ) == '[' ) 
-    	{
-      		token_str = token_str.substr( 1 );
-      
-      		bool first_insertion = true;
-      		int next_position = 0;
-      		int brk_counter   = 1;
-      		string expression = "";
-      		for ( int i = 0; i < token_str.size(); i++ ) 
-    		{
-    			char x = token_str[i];
-        		next_position++;
-        		if ( x == '[' ) 
-        		{
-          			brk_counter++;
-          			if ( brk_counter > 1 && first_insertion ) 
-          			{
-          				ptr->set_solve_params ( expression );
-	  	            	first_insertion = false;
-          			}
-        		}
-        		if ( x == ']' ) 
-        		{
-          			expression += x;
-          			if ( brk_counter > 1 ) 
-          			{
-            			brk_counter--;
-            			if ( brk_counter == 1 ) 
-            			{
-            				ptr->set_solve_params ( expression );
-              				expression.assign("");
-            			}
-          			}
-          			else if ( brk_counter == 1 ) 
-          			{
-            			break;
-          			}
-        		}//']'
-        		else if ( (x == ',') || (x == ' ') ) 
-        		{
-          			continue;
-        		}
-        		else 
-        		{
-          			expression += x;
-        		}
-      		}//x
+    // Filter line
+    clear_line();
+  
+    // Use string methods
+    std::string token_str ( _c_token );
 
-      	token_str = token_str.substr( next_position );
-      	char * pch;
-      	char * c_str = new char[ token_str.length() + 1 ];
-      	strncpy ( c_str, token_str.c_str(), token_str.length() );
-      	pch = strtok ( c_str, " ," );
-      	while ( pch != NULL ) 
-      	{
-      		ptr->set_solve_params ( pch );
-        	pch = strtok ( NULL, " ," );
-      	}
-      	delete [] c_str;
-    	}
-    	else 
-    	{
-      		char * pch;
-      		char * c_str = new char[ token_str.length() + 1 ];
-      		strncpy ( c_str, token_str.c_str(), token_str.length() );
-      		pch = strtok ( c_str, " ," );
-      		while ( pch != NULL ) 
-      		{
-      			ptr->set_solve_params ( pch );
-        		pch = strtok ( NULL, " ," );
-      		}
-      		delete [] c_str;
-    	}
-  	}
-  
-  	t_ptr = std::move ( ptr );
-    return std::move ( t_ptr );
+    /*
+     * Read var_type: distinguish between
+     * Parameter type and Variable type.
+     * par_type: array [index_set] of int, ...
+     * var_type: array [index_set] of var int, ...
+     */
+     bool succeed = ptr->set_token ( token_str );
+     if ( !succeed )
+     {
+     	LogMsg.error( _dbg + "Parse Error in solution token: " + token_str,
+     	              __FILE__, __LINE__);  
+     	return move ( t_ptr );
+     }
+     
+     t_ptr = std::move ( ptr );
+     return std::move ( t_ptr );
 }//analyze_token_sol
 
 UTokenPtr
-FZNTokenization::analyze_token_var () {
+FZNTokenization::analyze_token_var () 
+{
 
   	// Token (pointer) to return
     UTokenPtr t_ptr ( nullptr );
     std::unique_ptr < TokenVar > ptr ( new TokenVar () );
-  	return std::move ( t_ptr );
   
   	// Skip VAR_TOKEN pattern
   	for ( int i = 0; i < _fzn_keywords[ "VAR_TOKEN" ].length(); i++ ) 
@@ -599,93 +280,24 @@ FZNTokenization::analyze_token_var () {
   	clear_line();
   
   	// Use string methods
-  	string token_str;
-  	token_str.assign( _c_token );
-  
-  	// Check whether the variable is a support variable
-  	if ( token_str.find ( _fzn_keywords[ "VII_TOKEN" ], 0 ) != string::npos ) 
-  	{
-  		ptr->set_support_var();
-  	}
-  
-  	// Read var_type
-  	size_t ptr_idx;
-  	ptr_idx = token_str.find_first_of( ":", 0 );
-  	while ( (ptr_idx > 0) && (token_str.at(ptr_idx - 1 ) == ' ') ) ptr_idx--;
-
-  	token_str = token_str.substr ( 0, ptr_idx );
-  
+  	std::string token_str ( _c_token );
+  	
   	/*
-     * According to FlatZinc, tkn_type is one of the following:
-     * bool, float, int, set, x1..x2.
-   	 */
-  	if      ( token_str.compare( _fzn_keywords[ "BOO_TOKEN" ] ) == 0 ) 
-  	{	
-  		ptr->set_boolean_domain ();
-  	}
-  	else if ( token_str.compare( _fzn_keywords[ "FLO_TOKEN" ] ) == 0 ) 
-  	{
-  		ptr->set_float_domain ();
-  	}
-  	else if ( token_str.compare( _fzn_keywords[ "INT_TOKEN" ] ) == 0 ) 
-  	{
-  		ptr->set_int_domain ();
-  	}
-  	else if ( token_str.compare( _fzn_keywords[ "SET_TOKEN" ] ) == 0 ) 
-  	{
-    	/*
-     	 * According to FlatZinc, set could be on of the following:
-     	 * int, x1..x2, {x1, x2, ..., xk}
-     	 */
-     	 ptr->set_subset_domain ( token_str );
-  	}
- 	else if ( token_str.find ( _fzn_keywords[ "RAN_TOKEN" ] ) != std::string::npos ) 
- 	{
- 		ptr->set_range_domain ( token_str );
-  	}
-  	else if ( token_str.at ( 0 ) == '{' ) 
-  	{
-  		ptr->set_subset_domain ( token_str );
-  	}
-  	else 
-  	{
-    	LogMsg.error( _dbg + "Parse Error in variable declaration: " + token_str,
-        	          __FILE__, __LINE__);
-    	return std::move ( t_ptr );
-  	}
-
-  	// Read identifier
-  	token_str.assign( _c_token );
-  	ptr_idx = token_str.find_first_of( ":", 0 );
-  	token_str = token_str.substr ( ptr_idx + 1 );
-  	string var_id = "";
-  	for ( int i = 0; i < token_str.size(); i++ ) 
-  	{
-  		char x = token_str[i];
-    	if ( var_id.size() && x == ' ' ) break;
-    	if ( x == ' ') continue;
-    	if ( (x == ';') ||
-         	 (x == ':') ) 
-        {
-      		break;
-    	}
-    	var_id += x;
-  	}
-  	
-  	// Sanity check
-  	assert ( var_id != "" );
-  	
-  	// Set objective var if found
-  	if ( var_id.compare( _fzn_keywords[ "OBJ_TOKEN" ] ) == 0 ) 
-  	{
-  		ptr->set_objective_var ();
-  	}
-  	
-  	// Set variable id
-  	ptr->set_var_id ( var_id );
-  
-	t_ptr = std::move ( ptr );
-    return std::move ( t_ptr );
+     * Read var_type:
+     * var float, var int, ...
+     * var int_const..int_const, ...
+     * var set of int_const..int_const, ...
+     */
+     bool succeed = ptr->set_token ( token_str );
+     if ( !succeed )
+     {
+     	LogMsg.error( _dbg + "Parse Error in variable declaration: " + token_str,
+     	              __FILE__, __LINE__);
+     	return move ( t_ptr );
+     }
+     
+     t_ptr = std::move ( ptr );
+     return std::move ( t_ptr );
 }//analyze_token_var
 
 UTokenPtr

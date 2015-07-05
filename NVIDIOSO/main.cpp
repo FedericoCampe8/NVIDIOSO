@@ -75,7 +75,7 @@ int main( int argc, char * argv[] )
   	cp_solver->run();
   	statistics.stopwatch ( Statistics::TIMING::SEARCH );
   	
-  	LogMsg << dbg + "Solver end computation" << std::endl;
+  	LogMsg << dbg + "Solver done" << std::endl;
   
   	// Print statistics
   	statistics.stopwatch ( Statistics::TIMING::ALL );

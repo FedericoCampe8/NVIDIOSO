@@ -34,13 +34,12 @@ CudaSimpleConstraintStore::finalize ( CudaCPModel* ptr ) {
 #if CUDAON
   size_t num_constraints = _cp_model_ptr->num_constraints ();
 
-  if (
-      logger->cuda_handle_error ( cudaMalloc ( (void**)&_d_constraint_queue,
-                                            	num_constraints * sizeof ( size_t )) )
-      ) {
-    string err = "Bad memory allocation on device.\n";
-    throw NvdException ( err.c_str(), __FILE__, __LINE__ );
-  }
+  	if ( logger.cuda_handle_error ( cudaMalloc ( (void**)&_d_constraint_queue, 
+  											     num_constraints * sizeof ( size_t )) ) ) 
+	{
+    	string err = "Bad memory allocation on device.\n";
+   	 	throw NvdException ( err.c_str(), __FILE__, __LINE__ );
+  	}
   _h_constraint_queue.insert ( _h_constraint_queue.end(), num_constraints, 0 );
 #endif
 }//finalize
@@ -97,7 +96,7 @@ CudaSimpleConstraintStore::consistency ()
   	// Propagate constraints in parallel
   	cuda_consistency<<< _constraint_queue.size(), 1 >>> ( _d_constraint_queue );
 	cudaDeviceSynchronize (); 
-	getchar();
+	
   	// Clear queue since propagation of constraints is all performed on device
   	clear_queue ();
 	if ( !move_states_from_device () ) 

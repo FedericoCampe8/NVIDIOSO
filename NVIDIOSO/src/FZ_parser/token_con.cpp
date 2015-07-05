@@ -16,6 +16,80 @@ _con_id       ( "" ) {
   _dbg = "TokenCon - ";
 }//TokenVar
 
+bool 
+TokenCon::set_token ( std::string& token_str ) 
+{
+	// Read constraint identifier
+  	size_t ptr_idx, ptr_aux;
+  	ptr_idx = token_str.find_first_of( "(" );
+  	ptr_aux = token_str.find_first_of( ")" );
+  	if ( (ptr_idx == std::string::npos) ||
+       	 (ptr_aux == std::string::npos) ||
+       	 (ptr_aux < ptr_idx) ) 
+    {
+    	LogMsg.error( _dbg + "Constraint not valid" + token_str,
+         	          __FILE__, __LINE__ );
+    	return false;
+  	}
+  
+  	set_con_id( token_str.substr( 0, ptr_idx ) );
+
+  	// Get the expressions that identify the constraint
+  	token_str = token_str.substr ( ptr_idx + 1, ptr_aux - ptr_idx - 1 );
+  
+  	int brk_counter = 0;
+  	string expression = "";
+  	for ( int i = 0; i < token_str.size(); i++ ) 
+  	{
+  		char x = token_str[i];	
+    	if ( x == '[' ) brk_counter++;
+    	if ( x == ']' ) 
+    	{
+      		expression += x;
+      		if ( brk_counter ) 
+      		{
+        		brk_counter--;
+        		if ( brk_counter == 0 ) 
+        		{
+        			add_expr ( expression );
+		          	expression.assign("");
+        		}
+      		}
+    	}//']'
+    	else if ( x == ',' ) 
+    	{
+      		if ( brk_counter > 0 ) 
+      		{
+        		expression += x;
+      		}
+      		else if ( expression.length() ) 
+      		{
+      			add_expr ( expression );
+	        	expression.assign("");
+      		}
+    	}
+    	else if ( x == ' ' ) 
+    	{
+      		if ( brk_counter > 0 ) {
+        		expression += x;
+      		}
+      		else 
+      		{
+        		expression.assign("");
+      		}
+    	}
+    	else 
+    	{
+      	expression += x;
+    	}
+  	}//x
+  	if ( expression.length() ) 
+  	{
+  		add_expr ( expression );
+  	}
+  	return true;
+}//set_token
+
 void
 TokenCon::set_con_id ( string con_id ) {
   if ( !_con_id.compare( "" ) ) {

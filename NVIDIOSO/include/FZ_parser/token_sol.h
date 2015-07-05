@@ -32,10 +32,19 @@ protected:
 public:
   TokenSol ();
   
-  //Get/Set methods
+  bool set_token ( std::string& token_string ) override;
+  
+  /**
+   * Given a FlatZinc solve statement,
+   * parses the statement and set strategy methods.
+   * @return True if parsing succeed , False otherwise.
+   * @note annotation ( annotationarg, ... )
+   */
+  bool set_solve_params ( std::string& annotation );
+  
+  // Set methods
   void set_var_goal          ( std::string );
   void set_solve_goal        ( std::string );
-  void set_solve_params      ( std::string );
   void set_label_choice      ( std::string );
   void set_search_choice     ( std::string );
   void set_variable_choice   ( std::string );
@@ -77,7 +86,7 @@ public:
    * @return a vector of string identifiers of the variable
    *         to label during the search phase.
    */
-  const std::vector< std::string > get_var_to_label () const;
+  std::vector< std::string > get_var_to_label () const;
   
   /**
    * Get the string corresponding to the ith variable to label.

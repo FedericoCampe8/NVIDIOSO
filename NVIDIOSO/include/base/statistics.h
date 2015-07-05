@@ -3,7 +3,7 @@
 //  NVIDIOSO
 //
 //  Created by Federico Campeotto on 17/07/14.
-//  Copyright (c) 2014-2015 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2015 ___UDNMSU___. All rights reserved.
 //
 //  Statistic class use to measure and produce statistics and
 //  other information about the (run-time) system.
@@ -36,13 +36,13 @@ public:
     enum class TIMING
     {
         GENERAL,
-            SEARCH,
-            FIRST_SOL,
-            PREPROCESS,
-            FILTERING,
-            BACKTRACK,
-            ALL,
-            Count
+        SEARCH,
+        FIRST_SOL,
+        PREPROCESS,
+        FILTERING,
+        BACKTRACK,
+        ALL,
+        Count
     };
     
     virtual ~Statistics ();

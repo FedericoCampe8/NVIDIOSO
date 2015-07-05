@@ -40,7 +40,8 @@ __device__ CudaIntLinNe::~CudaIntLinNe () {
 }
 
 __device__ void
-CudaIntLinNe::consistency () {
+CudaIntLinNe::consistency ()
+{
     /**
      * This function propagates only when there is just
      * variables that is not still assigned.
@@ -48,24 +49,45 @@ CudaIntLinNe::consistency () {
      */
     // Split consistency according to the number of available threads
     if ( all_ground() )           return;
-    //if ( !only_one_not_ground() ) return;
+    if ( !only_one_not_ground() ) return;
+	
+    // Only one var not ground
+    int product = 0;
+    int non_ground_idx = -1;
+    for ( int idx = 0; idx < _scope_size; idx++ )
+    {
+        if ( !is_singleton ( _domain_var[ idx ] ) )
+        {
+            non_ground_idx = idx;
+            continue;
+        }
+        product += _as[ idx ] * min( _domain_var[ idx ] );
+    }//var
+
+    // a + kx != c -> x != (c - a) / k
+    if ( non_ground_idx != -1 )
+    {
+    	int avoid = (_c - product) / _as[ non_ground_idx ];
+        subtract ( _domain_var[ non_ground_idx ], avoid );
+    }
 }//consistency
 
 //! It checks whether the constraint is satisfied
 __device__ bool
-CudaIntLinNe::satisfied () {
+CudaIntLinNe::satisfied () 
+{
     /*
      * If not variables are ground, then there
      * is not enough information to state whether the constraint
      * is satisfied or not.
      * Return true.
      */
-    if ( threadIdx.x != 0 ) return true;
     if ( !all_ground() ) return true;
     int product = 0;
+    
     // ToDo: test if this would be faster if implemented in parallel
     for ( int idx = 0; idx < _scope_size; idx++ )
-        product += _as[ idx ] * min ( _domain_var [ _bs[ idx ] ] );
+        product += _as[ idx ] * min ( _domain_var [ idx ] );
 
     return ( product != _c );
 }//satisfied

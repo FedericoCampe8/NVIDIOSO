@@ -270,64 +270,64 @@ FZNParser::store_token ( UTokenPtr token ) {
         TokenArr * arr_ptr = static_cast<TokenArr *> ( token.get() );
         int size = arr_ptr->get_size_arr ();
         
-        // Generate a "size" variable tokens
+        // Generate "size" tokens corresponding to the array's elements
         for ( int i = 1; i <= size; i++ )
         {
+        	// New variable to store (one for each array's element
             unique_ptr < TokenVar > ptr ( new TokenVar () );
-      
-            // Set domain
-            if ( arr_ptr->get_var_dom_type() == VarDomainType::RANGE )
-            {
-                ptr->set_range_domain (
-                    arr_ptr->get_lw_bound_domain(),
-                    arr_ptr->get_up_bound_domain()
-                    );
-            }
-            else if ( arr_ptr->get_var_dom_type() == VarDomainType::SET )
-            {
-                ptr->set_subset_domain ( arr_ptr->get_subset_domain() );
-        
-            }
-            else if ( arr_ptr->get_var_dom_type() == VarDomainType::SET_RANGE )
-            {
-                ptr->set_subset_domain (
-                    make_pair(
-                         arr_ptr->get_lw_bound_domain(),
-                         arr_ptr->get_up_bound_domain()
-                         )
-                     );
-            }
-
-            ptr->set_var_dom_type ( arr_ptr->get_var_dom_type () );
-            
-            // Set objective var
+      		
+      		// Set domain
+      		if ( arr_ptr->get_var_dom_type() == VarDomainType::RANGE )
+      		{
+      			ptr->set_range_domain ( arr_ptr->get_lw_bound_domain (), 
+      							  		arr_ptr->get_up_bound_domain () );
+      		}
+      		else if ( arr_ptr->get_var_dom_type() == VarDomainType::SET )
+      		{
+      			ptr->set_subset_domain ( arr_ptr->get_subset_domain() );
+      			ptr->set_var_dom_type ( arr_ptr->get_var_dom_type () );
+      		}
+      		else if ( arr_ptr->get_var_dom_type() == VarDomainType::SET_RANGE )
+      		{
+      			ptr->set_subset_domain ( make_pair( arr_ptr->get_lw_bound_domain(),
+                         	   						arr_ptr->get_up_bound_domain() ) );
+            	ptr->set_var_dom_type ( arr_ptr->get_var_dom_type () );
+      		}
+      		else 
+      		{
+      			LogMsg.error ( _dbg + "Domain not recognized while storing token",
+                           	   __FILE__, __LINE__ );
+                throw NvdException ( (_dbg + "Domain not recognized while storing token").c_str() );
+      		}
+      		
+      		// Set support var
             if ( arr_ptr->is_support_var () )
             {
                 ptr->set_support_var ();
             }
-      
-            // Set support var
+            
+            // Set objective var
             if ( arr_ptr->is_objective_var () )
             { 
                 ptr->set_objective_var ();
             }
-      
-            // Set variable id
-            string var_id = arr_ptr->get_var_id();
-            var_id += "[";
+            
+            // Set id
+            std::string var_id = arr_ptr->get_var_id();
+      		var_id += "[";
             ostringstream stream;
             stream << i;
             var_id += stream.str();
             var_id += "]";
             ptr->set_var_id ( var_id );
-            
+
             // Store the index of the current token in the look_up table
             _lookup_token_table [ arr_ptr->get_type() ].push_back ( _num_tokens );
             
       		// Insert (pointer to) token into map
       		UTokenPtr t_ptr = std::move ( ptr );
       		_map_tokens[ _num_tokens++ ] = std::move ( t_ptr );
-    	}
+      	}
   	}//FD_VAR_ARRAY
   	else 
   	{

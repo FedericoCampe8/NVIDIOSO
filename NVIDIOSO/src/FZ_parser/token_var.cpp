@@ -11,21 +11,144 @@
 using namespace std;
 
 TokenVar::TokenVar () :
-    Token         ( TokenType::FD_VARIABLE ),
-    _var_id       ( "" ),
-    _support_var  ( false ),
-    _lw_bound     ( 0  ),
-    _up_bound     ( -1 ),
-    _var_dom_type ( VarDomainType::OTHER ) {
+    Token          ( TokenType::FD_VARIABLE ),
+    _var_id        ( "" ),
+    _objective_var ( false ),
+    _support_var   ( false ),
+    _lw_bound      ( 0  ),
+    _up_bound      ( -1 ),
+    _var_dom_type  ( VarDomainType::OTHER ) {
     _dbg = "TokenVar - ";
 }//TokenVar
 
 TokenVar::~TokenVar () {
 }//~TokenVar
 
+bool 
+TokenVar::set_token ( std::string& token_str )
+{
+	// Check whether the variable is a support variable
+  	if ( token_str.find ( ":: var_is_introduced") != string::npos ) 
+  	{
+  		set_support_var();
+  	}
+  	
+  	// Set variable type
+  	set_type_var ( token_str );
+  	
+  	// Set variable id
+  	set_id ( token_str );
+  	
+  	// Set objective var
+  	if ( _var_id == "fobj" ) 
+  	{
+  		set_objective_var ();
+  	}
+  	
+  	return true;
+}//set_token
+
+bool
+TokenVar::set_type_var ( std::string& type_str )
+{
+	// var_type
+	vector < string > type =
+	{
+		"bool",
+		"float",
+		"int",
+		"..",	// Range domain type
+		"{"		// Set domain type
+	};
+	
+	bool set_type = false;
+	for ( auto& x : type )
+	{
+		std::size_t found = type_str.find ( x );
+		if ( found != std::string::npos && x == "bool" )
+		{// [1..20] of var bool: q;
+			set_boolean_domain ();
+			set_type = true;
+			break;
+		}
+		if ( found != std::string::npos && x == "float" )
+		{// [1..20] of var float: q;
+			set_float_domain ();
+			set_type = true;
+			break;
+		}
+		if ( found != std::string::npos && x == "int" )
+		{// [1..20] of var int: q; or [1..20] of var set of int
+			std::size_t found_set = type_str.find ( "set" );
+			if ( found_set != std::string::npos )
+			{
+				set_subset_domain ( type_str );
+			}
+			else
+			{
+				set_int_domain ();
+			}
+			set_type = true;
+			break;
+		}
+		if ( found != std::string::npos && x == ".." )
+		{// [1..20] of var 1..20: q; or [1..20] of set of 1..20: q;
+			std::size_t found_set = type_str.find ( "set" );
+			if ( found_set != std::string::npos )
+			{
+				set_subset_domain ( type_str );
+			}
+			else
+			{
+				set_range_domain ( type_str );
+			}
+			set_type = true;
+			break;
+		}
+		if ( found != std::string::npos && x == "{" )
+		{// [1..20] of var {1,2,3}: q; or [1..20] of set of {1,2,3}: q;
+			set_subset_domain ( type_str );
+			set_type = true;
+			break;
+		}
+	}
+	
+	if ( !set_type ) 
+		return false;
+	
+	return true;
+}//set_type_var
+
+void 
+TokenVar::set_id ( std::string& id_str ) 
+{
+	// identifier
+	std::size_t idx = id_str.find_last_of ( ":" );
+	
+	// Sanity check
+	assert ( idx != std::string::npos );
+	
+	std::string id_ann_str = id_str.substr ( idx + 1 );
+	
+	istringstream iss ( id_ann_str );
+	vector<string> id_ann_tokens { istream_iterator<string>{iss},
+                      	    	   istream_iterator<string>{} };
+                      	    
+	// Sanity check
+	assert ( id_ann_tokens.size() > 0 );
+	
+	if ( id_ann_tokens [ 0 ][id_ann_tokens [ 0 ].size() - 1] == ';' )
+	{
+		id_ann_tokens [ 0 ] = id_ann_tokens [ 0 ].substr ( 0, id_ann_tokens [ 0 ].size() - 1);
+	}
+	
+	set_var_id ( id_ann_tokens [ 0 ] );
+}//set_id
+
 void
 TokenVar::set_subset_domain ( std::string token_str )
 {
+	// It can be [1..20] of set of 1..20: q; or [1..20] of var (set of) {1,2,3}: q;
     if ( token_str.find ( "int" ) != std::string::npos )
     {
         set_subset_domain ();
@@ -48,75 +171,90 @@ TokenVar::set_subset_domain ( std::string token_str )
 
 
 pair<int, int>
-TokenVar::get_range ( std::string token_str ) const {
-    size_t ptr, ptr_aux;
-    pair<int, int> range;
-    range.first  =  0;
-    range.second = -1;
-  
-    if ( token_str.find( ".." ) != std::string::npos ) {
-        ptr = token_str.find_first_of( ".", 0 );
-    
-        // Clear string
-        ptr_aux = ptr;
-        while ( (token_str[ ptr_aux ] != ' ') && (ptr_aux != 0) ) ptr_aux--;
-        if ( ptr_aux != 0 ) ptr_aux++;
-    
-        range.first = atoi( token_str.substr( ptr_aux, ptr ).c_str() );
-        ptr = token_str.find_first_of( ":", ptr+2 );
+TokenVar::get_range ( std::string token_str ) const 
+{
+	pair<int, int> range = { 0, -1 };
 
-        //Check ' ' before ':'
-        token_str = token_str.substr( token_str.find_first_of( ".", 0 ) + 2, ptr );
-        ptr = token_str.find_first_of( " ", 0 );
-        if ( ptr == std::string::npos )
-        {
-            range.second = atoi ( token_str.c_str() );
-        }
-        else
-        {
-            range.second = atoi ( token_str.substr( 0, ptr ).c_str() );
-        }
-    }
-    else
-    {
-        LogMsg.error( _dbg + "Domain range not valid", __FILE__, __LINE__ );
-    }
+	std::size_t found = token_str.find( ".." );
+	if ( found == std::string::npos )
+	{
+		 LogMsg.error( _dbg + "Range not found: " + token_str, __FILE__, __LINE__ );
+		 return range;
+	}
+	
+	std::size_t start = found - 1;
+	while ( start > 0 && (token_str [ start ] >= '0' && token_str [ start ] <= '9' ) )
+	{
+		start--;
+	}
+	// Start is either 0 or a non valid char
+	if ( !(token_str [ start ] >= '0' && token_str [ start ] <= '9') )
+	{
+		start++;
+	}
+	
+	std::size_t end = found + 2;
+	while ( end < token_str.size() -1 && (token_str [ end ] >= '0' && token_str [ end ] <= '9' ) )
+	{
+		end++;
+	}
+	// End is either the last digit or a non valid digit
+	if ( !(token_str [ end ] >= '0' && token_str [ end ] <= '9') )
+	{
+		end--;
+	}
+	
+	token_str.assign ( token_str.begin() + start,  token_str.begin() + end + 1 );
+	
+	bool lower_set = false;
+	int lower_bound = 0, upper_bound = 0;
+	for ( auto& x : token_str )
+	{
+		if ( x != '.' && !lower_set )
+		{
+			lower_bound = lower_bound * 10 + static_cast<int> ( x - '0' );
+		}
+		else if ( x == '.' )
+		{
+			lower_set = true;
+		}
+		else
+		{
+			upper_bound = upper_bound * 10 + static_cast<int> ( x - '0' );
+		}
+	}
+	
+	range.first  = lower_bound;
+	range.second = upper_bound;
     return range;
 }//get_range
 
 vector<int>
-TokenVar::get_subset ( std::string token_str ) const {
-  
-  char * pch;
-  char * c_str = new char[ token_str.length() + 1 ];
-  vector <int> domain_values;
-  
-  // Consistency check
-  size_t find = token_str.find ( "{" );
-  if ( find == string::npos ) { return domain_values; }
-  
-  token_str = token_str.substr ( find );
-  strncpy ( c_str, token_str.c_str(), token_str.length() );
-  
-  pch = strtok ( c_str, " {,:" );
-  while ( pch != NULL ) {
-    int pos = 0;
-    bool find_close_brk = false;
-    for ( ; pch[ pos ] != '\0'; pos++ ) {
-      if ( pch[ pos ] == '}' ) {
-        pch[ pos ] = '\0';
-        find_close_brk = true;
-        break;
-      }
-    }
-    domain_values.push_back( atoi( pch ) );
-    if ( find_close_brk ) break;
-    
-    pch = strtok ( NULL, " {,:" );
-  }
-  delete [] c_str;
-  
-  return domain_values;
+TokenVar::get_subset ( std::string token_str ) const 
+{
+	vector <int> domain_values;
+	std::size_t start = token_str.find_first_of ( "{" );
+	std::size_t end   = token_str.find_last_of  ( "}" );
+  	
+  	//Sanity check
+  	if ( start == std::string::npos || end == std::string::npos )
+  	{
+  		LogMsg << _dbg << "Subset for variable not valid: " << token_str << std::endl;
+  		return domain_values;
+  	}
+  	
+  	token_str.assign ( token_str.begin() + start, token_str.begin() + end + 1 );
+  	std::istringstream ss ( token_str );
+  	std::string token_val;
+
+	while ( std::getline (ss, token_val, ',') ) 
+	{
+		int num;
+		istringstream ( token_val ) >> num;
+		domain_values.push_back ( num );
+	}
+  	
+  	return domain_values;
 }//get_subset
 
 void
@@ -132,36 +270,42 @@ TokenVar::get_var_id () const {
 }//get_var_id
 
 void
-TokenVar::set_objective_var () {
+TokenVar::set_objective_var () 
+{
   _objective_var = true;
   set_support_var ();
   set_int_domain  ();
 }//set_objective_var
 
 bool
-TokenVar::is_objective_var () const {
+TokenVar::is_objective_var () const 
+{
   return _objective_var;
 }//is_objective_var
 
 void
-TokenVar::set_support_var () {
+TokenVar::set_support_var () 
+{
   _support_var = true;
 }//set_support_var
 
 bool
-TokenVar::is_support_var () const {
+TokenVar::is_support_var () const 
+{
   return _support_var;
 }//is_support_var
 
 void
 TokenVar::set_var_dom_type ( VarDomainType vdt ) {
-  if ( _var_dom_type == VarDomainType::OTHER ) {
+  if ( _var_dom_type == VarDomainType::OTHER ) 
+  {
     _var_dom_type = vdt;
   }
 }//set_var_dom_type
 
 VarDomainType
-TokenVar::get_var_dom_type () const {
+TokenVar::get_var_dom_type () const 
+{
   return _var_dom_type;
 }//get_var_dom_type
 
@@ -187,7 +331,8 @@ TokenVar::set_range_domain ( std::string str ) {
 }//set_range_domain
 
 void
-TokenVar::set_range_domain ( int lw_b, int up_b ) {
+TokenVar::set_range_domain ( int lw_b, int up_b ) 
+{
   // Check consistency of bounds
   bool valid = true;
   if ( up_b < lw_b ) {
@@ -203,12 +348,14 @@ TokenVar::set_range_domain ( int lw_b, int up_b ) {
 }//set_range_domain
 
 int
-TokenVar::get_lw_bound_domain () const {
+TokenVar::get_lw_bound_domain () const 
+{
   return _lw_bound;
 }//get_lw_bound_domain
 
 int
-TokenVar::get_up_bound_domain () const {
+TokenVar::get_up_bound_domain () const 
+{
   return _up_bound;
 }//get_up_bound_domain
 
@@ -226,7 +373,7 @@ TokenVar::set_subset_domain ( const vector <int>& dom_vec ) {
 }//set_set_domain
 
 void
-TokenVar::set_subset_domain ( const vector < vector <  int > >& elems ) {
+TokenVar::set_subset_domain ( const vector < vector < int > >& elems ) {
     // The following is not recognized by gcc < 47
     //for ( auto x : elems ) set_subset_domain ( x );
     for ( int i = 0; i < elems.size(); i++ )
@@ -234,12 +381,14 @@ TokenVar::set_subset_domain ( const vector < vector <  int > >& elems ) {
 }//set_subset_domain
 
 vector < vector< int> >
-TokenVar::get_subset_domain () {
+TokenVar::get_subset_domain () 
+{
   return _subset_domain;
 }//get_set_domain
 
 void
-TokenVar::set_subset_domain ( const std::pair <int, int>& range ) {
+TokenVar::set_subset_domain ( const std::pair <int, int>& range ) 
+{
   set_range_domain ( range.first, range.second );
   
   // Set domain type

@@ -47,12 +47,14 @@ protected:
     std::vector < std::vector <int> > _subset_domain;
   
     /**
-     * Get a pair <x1, x2> from a
-     * string of type "*x1..x2*".
+     * Get a pair of integers <x1, x2> from a
+     * string of type containing a range value *x1..x2*,
+     * where x1 is the lower bound and x2 the upper bound.
      * @param str string to parse
-     * @return a pair representing the range expressed with str
+     * @return a pair representing the range 
+     * @note if more than one range is present, return the first one
      */
-    std::pair<int, int> get_range ( std::string str ) const;
+    virtual std::pair<int, int> get_range ( std::string str ) const;
   
     /**
      * Get a vector of elements from a
@@ -60,11 +62,19 @@ protected:
      * @param str string to parse
      * @return a pair representing the range expressed with str
      */
-    std::vector<int> get_subset ( std::string str ) const;
+    virtual std::vector<int> get_subset ( std::string str ) const;
   
+  	//! Set var type from token string
+  	virtual bool set_type_var ( std::string& type );
+  	
+  	//! Set var id from token string
+  	virtual void set_id ( std::string& id );
+  	
 public:
     TokenVar  ();
-    ~TokenVar ();
+    virtual ~TokenVar ();
+    
+    bool set_token ( std::string& token_string ) override;
     
     /**
      * Set the (string) identifier of the

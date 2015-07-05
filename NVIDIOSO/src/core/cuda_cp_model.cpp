@@ -75,9 +75,9 @@ _domain_state_size ( 0 )  {
 CudaCPModel::~CudaCPModel () {
   free ( _h_domain_states );
 #if CUDAON
-  logger->cuda_handle_error ( cudaFree( _d_domain_states ) );
-  logger->cuda_handle_error ( cudaFree( _d_domain_index ) );
-  logger->cuda_handle_error ( cudaFree( d_constraint_description ) );
+  logger.cuda_handle_error ( cudaFree( _d_domain_states ) );
+  logger.cuda_handle_error ( cudaFree( _d_domain_index ) );
+  logger.cuda_handle_error ( cudaFree( d_constraint_description ) );
 #endif
 }//~CudaCPModel 
  
@@ -135,7 +135,7 @@ CudaCPModel::alloc_variables () {
 
   // Allocate space on host and device
   _h_domain_states = (uint*) malloc ( _domain_state_size );
-  if ( logger->cuda_handle_error ( cudaMalloc( (void**)&_d_domain_states, _domain_state_size ) ) ) {
+  if ( logger.cuda_handle_error ( cudaMalloc( (void**)&_d_domain_states, _domain_state_size ) ) ) {
     return false;
   }
   
@@ -151,15 +151,15 @@ CudaCPModel::alloc_variables () {
     idx += ( (var->domain_iterator)->get_domain_status() ).first / sizeof(int);
   }
   
-  if ( logger->cuda_handle_error ( cudaMemcpy (_d_domain_states, &_h_domain_states[ 0 ],
-                                               _domain_state_size, cudaMemcpyHostToDevice ) ) ) {
+  if ( logger.cuda_handle_error ( cudaMemcpy (_d_domain_states, &_h_domain_states[ 0 ],
+                                              _domain_state_size, cudaMemcpyHostToDevice ) ) ) {
     return false;
   }
   
-  if ( logger->cuda_handle_error ( cudaMalloc( (void**)&_d_domain_index, _variables.size() * sizeof ( int ) ) ) ) {
+  if ( logger.cuda_handle_error ( cudaMalloc( (void**)&_d_domain_index, _variables.size() * sizeof ( int ) ) ) ) {
     return false;
   }
-  if ( logger->cuda_handle_error ( cudaMemcpy (_d_domain_index, &map_vars_to_doms[ 0 ],
+  if ( logger.cuda_handle_error ( cudaMemcpy (_d_domain_index, &map_vars_to_doms[ 0 ],
                                                _variables.size() * sizeof ( int ), cudaMemcpyHostToDevice ) ) ) {
     return false;
   }
@@ -177,7 +177,8 @@ CudaCPModel::alloc_constraints () {
   int con_id = 0;
   vector<int> con_info;
 
-  for ( auto con : _constraints ) {
+  for ( auto con : _constraints ) 
+  {
     // Constraint type
     con_info.push_back ( con->get_number_id () );
     
@@ -191,7 +192,8 @@ CudaCPModel::alloc_constraints () {
     con_info.push_back ( con->get_arguments_size () );
     
     // List of variables involved in this constraint
-    for ( auto var : con->scope () ) {
+    for ( auto var : con->scope () ) 
+    {
       // Note: id w.r.t. vars ids on device
       con_info.push_back ( _cuda_var_lookup [ var->get_id () ] );
     }
@@ -204,12 +206,12 @@ CudaCPModel::alloc_constraints () {
   }//con
 
   // Copy above info on device
-  if ( logger->cuda_handle_error ( cudaMalloc ((void**)&d_constraint_description,
+  if ( logger.cuda_handle_error ( cudaMalloc ((void**)&d_constraint_description,
                                                con_info.size() * sizeof (int) ) ) ) {
     return false;
   }
   cudaDeviceSynchronize();
-  if ( logger->cuda_handle_error ( cudaMemcpy (d_constraint_description, &con_info[ 0 ],
+  if ( logger.cuda_handle_error ( cudaMemcpy (d_constraint_description, &con_info[ 0 ],
                                                con_info.size() * sizeof (int),
                                                cudaMemcpyHostToDevice ) ) ) {
     return false;
@@ -240,7 +242,7 @@ CudaCPModel::upload_device_state () {
             
     idx += ( (var->domain_iterator)->get_domain_status() ).first / sizeof(int); 
   }
-  if ( logger->cuda_handle_error ( cudaMemcpy (_d_domain_states, &_h_domain_states[ 0 ],
+  if ( logger.cuda_handle_error ( cudaMemcpy (_d_domain_states, &_h_domain_states[ 0 ],
                                                _domain_state_size, cudaMemcpyHostToDevice ) ) ) {
     string err = "Error updating device from host.\n";
     throw NvdException ( err.c_str(), __FILE__, __LINE__ );
@@ -255,7 +257,7 @@ CudaCPModel::download_device_state ()
 {
 #if CUDAON
 
-	if ( logger->cuda_handle_error ( cudaMemcpy (&_h_domain_states[ 0 ], _d_domain_states, 
+	if ( logger.cuda_handle_error ( cudaMemcpy (&_h_domain_states[ 0 ], _d_domain_states, 
                                             	_domain_state_size, cudaMemcpyDeviceToHost ) ) ) {
     	string err = "Error updating host from device.\n";
     	throw NvdException ( err.c_str(), __FILE__, __LINE__ );

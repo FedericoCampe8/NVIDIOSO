@@ -33,12 +33,29 @@ CudaConstraint::~CudaConstraint () {
 
 
 __device__ bool 
-CudaConstraint::all_ground () const {
-	// ToDo: consider whether to implement it in parallel
-	for ( int i = 0; i < _scope_size; i++ )
-		if ( !is_singleton ( _status[ i ] ) ) return false;
-	return true;
+CudaConstraint::all_ground () const
+{
+    for ( int i = 0; i < _scope_size; i++ )
+        if ( !is_singleton ( _status[ i ] ) )
+            return false;
+    return true;
 }//all_ground
+
+__device__ bool
+CudaConstraint::only_one_not_ground () const
+{
+    int not_grd = 0;
+    for ( int i = 0; i < _scope_size; i++ )
+    {
+        if ( !is_singleton ( _status[ i ] ) )
+        {
+            not_grd++;
+            if ( not_grd > 1 ) 
+                return false;
+        }
+    }
+    return true;
+}//only_one_not_ground
 
 __device__ size_t
 CudaConstraint::get_unique_id () const {

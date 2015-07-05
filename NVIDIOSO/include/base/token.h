@@ -52,9 +52,17 @@ public:
   
     void      set_type ( TokenType );
     TokenType get_type () const;
-  
+  	
     //! Print info about the current token
     virtual void print () const;
+    
+    /**
+     * Set the token (initialization) given the string
+     * representing the token.
+     * @param token_string the string corresponding to the token
+     * @return True if token has been created, False otherwise
+     */
+    virtual bool set_token ( std::string& token_string) = 0;
 };
 
 #endif

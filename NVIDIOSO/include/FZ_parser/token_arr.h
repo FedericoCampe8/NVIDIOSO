@@ -37,6 +37,9 @@ private:
    */
   bool _support_array;
   
+  //! Array with no meaning (e.g., for pretty printers)
+  bool _valid_array; 
+  
   /**
    * String representing the elements of a support array.
    * @note The client is in charge of converting the string
@@ -48,9 +51,18 @@ private:
 public:
   TokenArr ();
   
+  /**
+   * Set internal parameters according to the string
+   * representing the array of variables
+   * @param string representing the array statement 
+   * @return True if params are set correctly, False otherwise
+   */
+   bool set_token ( std::string& token_string ) override;
+   
   // Get/set methods
   void set_size_arr ( int );
   int  get_size_arr () const;
+  bool is_valid_array () const;
   
   /**
    * Array set and info.

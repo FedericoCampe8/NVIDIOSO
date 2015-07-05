@@ -47,27 +47,7 @@ private:
     
     //! Add new keywork to lookup table
     void add_flatzinc_word ( std::string key, std::string value );
-    /*
-    const std::string ARR_TOKEN = "array";
-    const std::string BOO_TOKEN = "bool";
-    const std::string CON_TOKEN = "constraint";
-    const std::string FAL_TOKEN = "false";
-    const std::string FLO_TOKEN = "float";
-    const std::string INT_TOKEN = "int";
-    const std::string LNS_TOKEN = "lns";
-    const std::string MIN_TOKEN = "minimize";
-    const std::string MAX_TOKEN = "maximize";
-    const std::string OAR_TOKEN = "output_array";
-    const std::string OBJ_TOKEN = "obj_var";
-    const std::string OUT_TOKEN = "output";
-    const std::string RAN_TOKEN = "..";
-    const std::string SAT_TOKEN = "satisfy";
-    const std::string SET_TOKEN = "set";
-    const std::string SHO_TOKEN = "show";
-    const std::string SOL_TOKEN = "solve";
-    const std::string VAR_TOKEN = "var";
-    const std::string VII_TOKEN = ":: var_is_introduced";
-    */
+  
     //! Specialized method
     UTokenPtr analyze_token (); // override
     

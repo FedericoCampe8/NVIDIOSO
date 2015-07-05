@@ -18,22 +18,98 @@ _lw_var_glb_idx ( 0 ),
 _up_var_glb_idx ( 0 ),
 _output_arr     ( false ),
 _support_array  ( false ),
+_valid_array    ( true ),
 _support_elements ( "" ) {
   _dbg = "TokenArr - ";
   set_type ( TokenType::FD_VAR_ARRAY );
 }//TokenArr
 
+bool 
+TokenArr::set_token ( std::string& arr_str )
+{
+	/** @note var_decl ::= var_type: identifier annotations **/
+	
+	// Skip array bounds of find arrays not in the model (e.g., used for pretty printing)
+	std::size_t idx = arr_str.find_last_of ( "]" );
+	
+	// Sanity check
+	assert ( idx != std::string::npos );
+	
+	// Get substring excluding the range
+	std::string type_str = arr_str.substr ( idx + 1 ); 
+	
+	bool is_valid = false;
+	for ( auto& x : type_str )
+	{
+		if ( x != ' ' && x != ';' )
+		{
+			is_valid = true;
+			break;
+		}
+	}
+	if ( !is_valid )
+	{
+		_valid_array = false;
+		return true;
+	}
+	
+	// Support variable
+    if ( arr_str.find( ":: var_is_introduced" ) != std::string::npos )
+    {
+        set_support_var ();
+    }
+  
+    // Output array
+    if ( arr_str.find( "output_array" ) != std::string::npos )
+    {
+        set_output_arr ();
+    }
+	
+	// Range
+	pair<int, int> range = get_range ( arr_str );
+
+	// Sanity check
+	if ( range.first > range.second )
+	{
+		LogMsg << "Array bounds not valid: " << arr_str << std::endl;
+		return false;
+	}
+	
+	// Set array bounds
+	set_array_bounds ( range.first, range.second );
+	
+	// Set type
+	if ( !set_type_var ( type_str ) )
+	{
+		return false;
+	}
+
+	// Array id
+	set_id ( arr_str );
+	
+	return true;
+}//set_token
+
 void
-TokenArr::set_size_arr ( int size ) {
-  if ( _array_lwb > _array_upb ) {
+TokenArr::set_size_arr ( int size ) 
+{
+  if ( _array_lwb > _array_upb ) 
+  {
     _size = size;
   }
 }//set_size_arr
 
 int
-TokenArr::get_size_arr () const {
+TokenArr::get_size_arr () const 
+{
   return _size;
 }//get_size_arr
+
+bool
+TokenArr::is_valid_array () const 
+{
+	return _valid_array;
+}//is_valid_array
 
 void
 TokenArr::set_array_bounds ( int lwb, int upb ) {

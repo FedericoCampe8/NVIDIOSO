@@ -30,6 +30,8 @@ public:
   
   TokenCon ();
   
+  bool set_token ( std::string& token_string ) override;
+  
   //! Set method constraint id (i.e., constraint's name).
   void set_con_id ( std::string );
   

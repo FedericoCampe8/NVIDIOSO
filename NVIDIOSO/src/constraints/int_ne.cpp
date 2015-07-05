@@ -80,7 +80,7 @@ IntNe::setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) {
     
     // Consistency check on args
     if ( args.size() != 2 )
-      throw NvdException ( (_dbg + "wrong number of arguments (missing 2).").c_str() );
+      throw NvdException ( (_dbg + "wrong number of arguments (missing 2)").c_str() );
     
     // Set scope size (default: 0) ang arguments list
     _arguments.push_back( atoi ( args[ 0 ].c_str() ) );
@@ -97,7 +97,7 @@ IntNe::setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) {
     
     // Consistency check on args
     if ( args.size() != 1 )
-      throw NvdException ( (_dbg + "wrong number of arguments (missing 1).").c_str() );
+      throw NvdException ( (_dbg + "wrong number of arguments (missing 1)").c_str() );
     
     // Set scope size ang arguments list
     _scope_size = 1;

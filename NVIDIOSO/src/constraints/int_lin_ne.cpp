@@ -33,17 +33,22 @@ IntLinNe::setup ( std::vector<VariablePtr> vars, std::vector<std::string> args )
   // Consistency checking in order to avoid more than one setup
   if ( _as.size() ) return;
   
-  if ( vars.size () != (args.size() - 1) ) {
+  if ( vars.size () != (args.size() - 1) ) 
+  {
     throw NvdException ( "Bad parameters settings for int_lin_ne constraint." );
   }
   
   for ( int parameter = 0; parameter < args.size() -1; parameter++ )
+  {
     _as.push_back ( std::atoi( args[ parameter ].c_str() ) );
+    _arguments.push_back ( _as.back() );
+  }
   
   for ( auto var : vars )
     _bs.push_back ( std::static_pointer_cast<IntVariable>( var ) );
   
   _c = std::atoi( args[ args.size() -1 ].c_str() );
+  _arguments.push_back ( _c );
 }//setup
 
 const std::vector<VariablePtr>

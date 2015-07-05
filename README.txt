@@ -17,7 +17,7 @@
   Constraints in what follows. 
   
   To install iNVIDIOSO, check and set first the environment variables
-  in iNVIDIOSO.envs, then run install.csh.
+  in NVIDIOSO/config/iNVIDIOSO.envs, then run install.csh.
   
    
   Note that this is an ongoing project and we have some new ideas 

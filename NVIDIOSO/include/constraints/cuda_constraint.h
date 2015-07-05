@@ -76,7 +76,19 @@ protected:
                               int* vars, int* args,
                               int* domain_idx, uint* domain_states );
                               
-  __device__ bool all_ground() const;
+   /**
+     * Check whether all vars are ground.
+     * @return true if all variables are ground,
+     *         false otherwise.
+     */
+    __device__ bool all_ground () const;
+
+    /**
+     * Check whether all variables but one are ground.
+     * @return true if only one variable is not labeled,
+     *         false otherwise.
+     */
+    __device__ bool only_one_not_ground () const;
 #endif
   
 public:
