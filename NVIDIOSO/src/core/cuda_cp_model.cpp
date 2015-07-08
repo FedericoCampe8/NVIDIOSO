@@ -8,9 +8,8 @@
 
 #include "cuda_cp_model.h"
 #include "fzn_constraint.h"
-#include "cuda_int_ne.h"
-#include "cuda_int_lin_ne.h"
 #include "cuda_simple_constraint_store.h"
+#include "cuda_constraint_factory.h"
 
 #if CUDAON
 #include <cuda.h>
@@ -19,57 +18,10 @@
 
 using namespace std;
 
-#if CUDAON
-__device__ CudaConstraint** d_constraints_ptr;
-
-__global__ void
-cuda_print_constraints ( int n ) {
-	for ( int i = 0; i < n; i++ )
-  		d_constraints_ptr [ i ]->print();
-}//cuda_print_constraints
-
-__global__ void
-cuda_constraint_factory ( int* constraint_description, size_t size,
-                          int* domain_index, uint* domain_states ) {
-  // Allocate memory for pointers to constraint classes
-  d_constraints_ptr = (CudaConstraint**) malloc ( size * sizeof ( CudaConstraint* ) );
-  
-  // Create constriants on device
-  int index = 0; 
-  int c_id;
-  int n_vars;
-  int n_aux;
-  int * vars;
-  int * args;
-  for ( int c = 0; c < size; c++ ) {
-    c_id   = constraint_description  [ index + 1 ];
-    n_vars = constraint_description  [ index + 2 ];
-    n_aux  = constraint_description  [ index + 3 ];
-    vars   = (int*) &constraint_description [ index + 4 ];
-    args   = (int*) &constraint_description [ index + 4 + n_vars ];
-    
-    switch ( (FZNConstraintType) constraint_description[ index ] ) {
-      case FZNConstraintType::INT_NE:
-        d_constraints_ptr[ c ] = new CudaIntNe ( c_id, n_vars, n_aux, vars, args,
-                                                 domain_index, domain_states );
-        break;
-        case FZNConstraintType::INT_LIN_NE:
-        d_constraints_ptr[ c ] = new CudaIntLinNe ( c_id, n_vars, n_aux, vars, args,
-                                                 	domain_index, domain_states );
-        break;
-      default:
-        break;
-    }
-    
-    index += 4 + n_vars + n_aux;
-  }//c
-}//cuda_constraint_factory
-#endif
-
 CudaCPModel::CudaCPModel () :
-_h_domain_states   ( nullptr ),
-_d_domain_states   ( nullptr ),
-_domain_state_size ( 0 )  {
+	_h_domain_states   ( nullptr ),
+	_d_domain_states   ( nullptr ),
+	_domain_state_size ( 0 )  {
 }//CudaCPModel
 
 CudaCPModel::~CudaCPModel () {
@@ -219,13 +171,12 @@ CudaCPModel::alloc_constraints () {
   cudaDeviceSynchronize ();
   
   // Create constraints on device
-  cuda_constraint_factory<<<1, 1>>> ( d_constraint_description, _constraints.size(),
-                                      _d_domain_index, _d_domain_states );
-                                      
-#if CUDAVERBOSE
-  cuda_print_constraints<<<1, 1>>> ( _constraints.size() );
-#endif
-  	cudaDeviceSynchronize ();
+  CudaConstraintFactory::cuda_constrain_factory<<<1, 1>>> ( d_constraint_description, 
+  														    _constraints.size(),
+    														_d_domain_index, 
+    														_d_domain_states );
+  cudaDeviceSynchronize ();
+
 #endif
 
   return true;

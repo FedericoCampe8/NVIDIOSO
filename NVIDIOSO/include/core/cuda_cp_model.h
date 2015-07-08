@@ -21,28 +21,8 @@
 #define NVIDIOSO_cuda_cp_model_h
 
 #include "cp_model.h"
-#include "cuda_constraint.h"
 
 using uint = unsigned int;
-
-#if CUDAON
-class CudaConstraint;
-extern __device__ CudaConstraint** d_constraints_ptr;
-
-/**
- * List of pointers to _d_domain_states.
- * This list is used by each constraint w.r.t.
- * the variables in its scope.
- */
-extern __device__ uint ** _d_dom_con_states;
-
-__global__ void
-cuda_constraint_factory ( int* constraint_description, size_t size,
-                          int* domain_index, uint* domain_states  );
-
-__global__ void
-cuda_print_constraints ();
-#endif
   
 class CudaCPModel : public CPModel {
 private:
@@ -82,7 +62,7 @@ public:
   CudaCPModel ();
   ~CudaCPModel();
   
-  //! Mapping between constraint ids and d_constraints_ptr
+  //! Mapping between constraint ids and the constraints on device
   std::unordered_map< size_t, size_t >constraint_mapping_h_d;
   
   /**

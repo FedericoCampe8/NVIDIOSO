@@ -12,6 +12,7 @@ MAIN=main
 OBJECTS =  $(patsubst %.cpp,%.o, $(PRG_PATH)/$(MAIN).cpp)
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(BASE)/*.cpp))
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CONSTRAINTS)/*.cpp))
+OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CUDA_CONSTRAINTS)/*.cpp))
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CORE)/*.cpp))
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(PARSER)/*.cpp))
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(SEARCH)/*.cpp))
@@ -19,6 +20,7 @@ OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(EXCEPTI
 
 HEADERS = $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(BASE)/*.cpp))
 HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CONSTRAINTS)/*.cpp))
+HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CUDA_CONSTRAINTS)/*.cpp))
 HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CORE)/*.cpp))
 HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(PARSER)/*.cpp))
 HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(SEARCH)/*.cpp))
@@ -38,6 +40,7 @@ INCLDIRS += -I/usr/include/
 INCLDIRS += -I$(PRG_PATH)/$(NVIDIOSO_INC) 
 INCLDIRS += -I$(PRG_PATH)/$(NVIDIOSO_INC)/$(BASE)
 INCLDIRS += -I$(PRG_PATH)/$(NVIDIOSO_INC)/$(CONSTRAINTS)
+INCLDIRS += -I$(PRG_PATH)/$(NVIDIOSO_INC)/$(CUDA_CONSTRAINTS)
 INCLDIRS += -I$(PRG_PATH)/$(NVIDIOSO_INC)/$(CORE)
 INCLDIRS += -I$(PRG_PATH)/$(NVIDIOSO_INC)/$(PARSER)
 INCLDIRS += -I$(PRG_PATH)/$(NVIDIOSO_INC)/$(SEARCH)
@@ -56,8 +59,14 @@ DEPS = $(HEADERS)
 all : 	nvidioso
 	$(PRINT_DONE)
 
+# Default
 nvidioso :	$(OBJECTS) 
 	$(CC) $(CUDAOPT) $(CCLNDIRS) $(CFLAGS) -o $(TARGET) \
+	$(OBJECTS:%=$(PRG_PATH)/obj/%)
+
+# Library
+lib : $(OBJECTS)
+	$(AR) $(ARFLAGS) lib/$(TARGET).a \
 	$(OBJECTS:%=$(PRG_PATH)/obj/%)
 
 # $<: the first prerequisite filename.

@@ -1,0 +1,11 @@
+array [1..12] of var 0..310: x;
+var int: fobj :: is_defined_var :: var_is_introduced;
+constraint int_lin_eq([1, 1, 1], [x[1], x[5], x[9]], 200);
+constraint int_lin_eq([1, 1, 1], [x[2], x[6], x[10]], 400);
+constraint int_lin_eq([1, 1, 1], [x[3], x[7], x[11]], 300);
+constraint int_lin_eq([1, 1, 1], [x[4], x[8], x[12]], 100);
+constraint int_lin_eq([-1, 10, 8, 5, 9, 7, 5, 5, 3, 11, 10, 8, 7], [fobj, x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9], x[10], x[11], x[12]], 0) :: defines_var(fobj);
+constraint int_lin_le([1, 1, 1, 1], [x[1], x[2], x[3], x[4]], 500);
+constraint int_lin_le([1, 1, 1, 1], [x[5], x[6], x[7], x[8]], 300);
+constraint int_lin_le([1, 1, 1, 1], [x[9], x[10], x[11], x[12]], 400);
+solve satisfy;

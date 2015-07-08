@@ -21,24 +21,10 @@ FZNTokenization::FZNTokenization () {
     unordered_map<string, string> fzn_mapping =
     {
         {"ARR_TOKEN", "array"},
-        {"BOO_TOKEN", "bool"},
         {"CON_TOKEN", "constraint"},
-        {"FAL_TOKEN", "false"},
-        {"FLO_TOKEN", "float"},
-        {"INT_TOKEN", "int"},
-        {"LNS_TOKEN", "lns"},
-        {"MIN_TOKEN", "minimize"},
-        {"MAX_TOKEN", "maximize"},
-        {"OAR_TOKEN", "output_array"},
-        {"OBJ_TOKEN", "var"},
-        {"OUT_TOKEN", "output"},
-        {"RAN_TOKEN", ".."},
-        {"SAT_TOKEN", "satisfy"},
-        {"SET_TOKEN", "set"},
-        {"SHO_TOKEN", "show"},
         {"SOL_TOKEN", "solve"},
         {"VAR_TOKEN",  "var"},
-        {"VII_TOKEN",  ":: var_is_introduced"}
+        {"LNS_TOKEN", "lns"}
     };
     set_flatzinc_map ( fzn_mapping );
 }//FZNTokenization
@@ -123,7 +109,10 @@ FZNTokenization::analyze_token ()
     string token_str;
     token_str.assign( _c_token );
     
-    // Check if a keyword has been found
+    /*
+     * Check if a keyword has been found.
+     * @note valid tokens may contain more than one keyword
+     */
     size_t found_arr = token_str.find ( _fzn_keywords[ "ARR_TOKEN" ] );
     size_t found_con = token_str.find ( _fzn_keywords[ "CON_TOKEN" ] );
     size_t found_sol = token_str.find ( _fzn_keywords[ "SOL_TOKEN" ] );
@@ -131,7 +120,8 @@ FZNTokenization::analyze_token ()
     size_t found_lns = token_str.find ( _fzn_keywords[ "LNS_TOKEN" ] );
     
     UTokenPtr current_token ( nullptr );
-    if ( found_arr != std::string::npos )
+    if ( (found_arr != std::string::npos) && 
+    	 (found_con == std::string::npos) )
     {
         current_token = analyze_token_arr ();
     }
@@ -143,7 +133,9 @@ FZNTokenization::analyze_token ()
     {
         current_token = analyze_token_sol ();
     }
-    else if ( found_var != std::string::npos )
+    else if ( (found_var != std::string::npos) && 
+    		  (found_con == std::string::npos) &&
+    		  (found_arr == std::string::npos) )
     {
         current_token = analyze_token_var ();
     }

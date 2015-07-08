@@ -9,21 +9,25 @@
 //
 
 #include "cuda_propagation_utilities.h"
-#include "cuda_cp_model.h"
+#include "cuda_constraint.h"
 
 using uint = unsigned int;
 
 #if CUDAON
+// Array of global constraint 
+__device__ CudaConstraint** g_dev_constraints;
 
 __global__ void
 cuda_consistency ( size_t * constraint_queue )
 {
 	// Now everything is sequential here
-	if (blockIdx.x == 0) {
-		for (int i = 0; i < gridDim.x; i++) {
-			d_constraints_ptr [ constraint_queue [ i ] ]->consistency(); 
-			d_constraints_ptr [ constraint_queue [ i ] ]->satisfied();
-			//d_constraints_ptr [ constraint_queue [ i ] ]->print();
+	if (blockIdx.x == 0) 
+	{ 
+		for (int i = 0; i < gridDim.x; i++) 
+		{
+			g_dev_constraints [ constraint_queue [ i ] ]->consistency(); 
+			g_dev_constraints [ constraint_queue [ i ] ]->satisfied();
+			//g_dev_constraints [ constraint_queue [ i ] ]->print();
 		}
 	}
 }//cuda_consistency

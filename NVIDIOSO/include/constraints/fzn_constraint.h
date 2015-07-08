@@ -34,7 +34,8 @@
 
 #include "constraint.h"
 
-enum class FZNConstraintType {
+enum class FZNConstraintType
+{
   ARRAY_BOOL_AND          = 0,
   ARRAY_BOOL_ELEMENT      = 1,
   ARRAY_BOOL_OR           = 2,

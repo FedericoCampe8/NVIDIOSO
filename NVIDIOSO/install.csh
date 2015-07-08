@@ -126,8 +126,9 @@ echo ""
 echo "Installing iNVIDIOSO (`date`)"
 
 set OBJ = obj
+set LIB = lib
 set SRC = src
-set OBJ_FOLDER = (base constraints core FZ_parser search exception)
+set OBJ_FOLDER = (base constraints cuda_constraints core FZ_parser search exception)
 
 # Create obj (main) folder
 if ( -d $OBJ ) then
@@ -135,6 +136,11 @@ if ( -d $OBJ ) then
 endif
 mkdir ${OBJ}
 mkdir ${OBJ}/${SRC}
+
+# Create lib folder for library
+if ( ! -d $LIB ) then
+    mkdir ${LIB}
+endif
 
 # Create obj folders
 foreach dir ($OBJ_FOLDER)
@@ -202,6 +208,8 @@ cat  <<EOF > $MAKE_INC
 
 CC = $CC
 TARGET = $iNVIDIOSO
+AR = ar
+ARFLAGS = rcs
 COMPILE = -c
 DEBUGFLAG = -W -Wall
 CCOPT = $MACHINE_VAL -DIL_STD
@@ -237,6 +245,7 @@ CORE=core
 SEARCH=search
 PARSER=FZ_parser
 CONSTRAINTS=constraints
+CUDA_CONSTRAINTS=cuda_constraints
 EXCEPTION=exception
 EOF
 

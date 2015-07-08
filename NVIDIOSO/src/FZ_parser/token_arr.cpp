@@ -53,6 +53,14 @@ TokenArr::set_token ( std::string& arr_str )
 		return true;
 	}
 	
+	/*
+     * Set substring for type according to the first pair of brakets in the string.
+     * @note There can be multiple pairs of brakets [] and still be a valid array.
+     */
+  	idx = arr_str.find_first_of ( "]" );
+  	std::size_t idx2 = arr_str.find_first_of ( ":" );
+ 	type_str = arr_str.substr ( idx+1, idx2 - idx - 1 );
+  
 	// Support variable
     if ( arr_str.find( ":: var_is_introduced" ) != std::string::npos )
     {
@@ -81,6 +89,7 @@ TokenArr::set_token ( std::string& arr_str )
 	// Set type
 	if ( !set_type_var ( type_str ) )
 	{
+		LogMsg << "Array type not valid: " << type_str << std::endl;
 		return false;
 	}
 

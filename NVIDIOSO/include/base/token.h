@@ -53,7 +53,7 @@ public:
     void      set_type ( TokenType );
     TokenType get_type () const;
   	
-    //! Print info about the current token
+    //! Print info about the token
     virtual void print () const;
     
     /**

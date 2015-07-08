@@ -16,6 +16,15 @@ using uint = unsigned int;
 #if CUDAON
 
 /**
+ * Array used to store all the constraints on the device.
+ * @note This is available (on device) to any class including this header file.
+ * @note This array is supposed to be filled with the constraints in the model.
+ *       For example, see "cuda_constraint_factory.h"
+ */
+class CudaConstraint;
+extern __device__ CudaConstraint** g_dev_constraints;
+
+/**
  * Propagates the constraints in constraint_queue in parallel on device.
  * @param constraint_queue the queue of constraints to propagate.
  */

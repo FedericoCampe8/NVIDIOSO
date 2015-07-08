@@ -86,7 +86,7 @@ CPStore::init_model ()
      */
     ModelGenerator * generator =
         FactoryModelGenerator::get_generator( GeneratorType::CUDA );
-  
+  	
     /*
      * This works as follows:
      * while the parser has some more tokens (of a specific token type),
