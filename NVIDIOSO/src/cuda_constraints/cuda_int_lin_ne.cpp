@@ -23,7 +23,7 @@ __device__ CudaIntLinNe::~CudaIntLinNe ()
 
 __device__ void
 CudaIntLinNe::consistency ()
-{return;
+{
     /**
      * This function propagates only when there is just
      * variables that is not still assigned.
