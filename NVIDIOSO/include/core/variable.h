@@ -82,6 +82,20 @@ protected:
   virtual bool is_attached ( size_t c_id );
   
   /**
+   * It notifies all the constraints attached to this variables
+   * that a change has been done on this very variable.
+   */
+  virtual void notify_constraint ();
+  
+  /**
+   * It notifies the current store attached to this variable
+   * that a change has been done on this very variable.
+   * It actually checks which constraint should be reevaluated
+   * according to the event happened on the domain.
+   */
+  virtual void notify_store ();
+  
+  /**
    * Base constructor.
    * @note a global unique id is assigned to this variable.
    */
@@ -205,18 +219,10 @@ public:
   virtual void detach_constraint ( size_t c_id );
   
   /**
-   * It notifies all the constraints attached to this variables
+   * It notifies the current observers attached to this variable
    * that a change has been done on this very variable.
    */
-  virtual void notify_constraint ();
-  
-  /**
-   * It notifies the current store attached to this variable
-   * that a change has been done on this very variable.
-   * It actually checks which constraint should be reevaluated
-   * according to the event happened on the domain.
-   */
-  virtual void notify_store ();
+  virtual void notify_observers ();
   
   /**
    * It returns the current number of constraints attached to

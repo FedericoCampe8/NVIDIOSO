@@ -47,6 +47,9 @@
 #include <utility>
 #include <memory>
 
+/* Environment variable */
+#include "envs.h"
+
 /* Global classes */
 #include "logger.h"
 #include "statistics.h"
@@ -63,9 +66,5 @@
 #define nullptr NULL
 #define noexcept throw()
 #endif
-
-/* Environment variable */
-constexpr int VECTOR_MAX = 256;
-constexpr int CUDA_STACK_MAX = 1073741824;
 
 #endif

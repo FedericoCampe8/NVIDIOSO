@@ -48,14 +48,6 @@ protected:
    */
   virtual void notify_backtrack_manager ();
   
-  /**
-   * Notifies every listener which is observing any change
-   * on this variable.
-   * @note usually the store and the backtrack manager will be
-   *       notified on changes on this variable.
-   */
-  virtual void notify_observers ();
-  
 public:
   
   virtual ~IntVariable() {};
@@ -176,6 +168,14 @@ public:
    * @param max domain value.
    */
   virtual void in_max ( int max );
+  
+  /**
+   * Notifies every listener which is observing any change
+   * on this variable.
+   * @note usually the store and the backtrack manager will be
+   *       notified on changes on this variable.
+   */
+  virtual void notify_observers ();
   
   /**
    * Set unique id for this backtrackable object.

@@ -14,20 +14,7 @@
 
 #include "cuda_constraint.h"
 
-class CudaIntLinNe : public CudaConstraint {
-private:
-    //! Array [int] of int (coefficients)
-    int * _as;
-
-    //! Array [int] of var int
-    int * _bs;
-
-    //! int
-    int _c;
-
-    //! Pointer to the domains of the variables involved in this constraint
-    uint** _domain_var;
-    
+class CudaIntLinNe : public CudaConstraint {    
 public:
 #if CUDAON
 

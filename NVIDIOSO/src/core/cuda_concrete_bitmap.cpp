@@ -82,7 +82,8 @@ CudaConcreteDomainBitmap::size () const {
 }//size
 
 void
-CudaConcreteDomainBitmap::shrink ( int min, int max ) {
+CudaConcreteDomainBitmap::shrink ( int min, int max ) 
+{
 
   // Empty domain if not consistent
   if ( max < min ) {

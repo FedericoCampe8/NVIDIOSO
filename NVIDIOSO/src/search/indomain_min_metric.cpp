@@ -1,9 +1,9 @@
 //
 //  indomain_min_metric.cpp
-//  NVIDIOSO
+//  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 07/08/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 ___UDNMSU___. All rights reserved.
 //
 
 #include "indomain_min_metric.h"

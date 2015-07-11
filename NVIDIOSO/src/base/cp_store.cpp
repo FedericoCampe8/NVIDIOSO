@@ -11,6 +11,7 @@
 #include "model_generator.h"
 #include "factory_generator.h"
 #include "cuda_cp_model.h"
+#include "cuda_cp_model_simple.h"
 
 using namespace std;
 
@@ -49,7 +50,7 @@ CPStore::load_model ( string ifile ) {
     // Check whether the parser has failed
     if ( _parser->is_failed() || !success )
     {
-    	LogMsg << _dbg + "Error while loading the model" << endl;
+    	LogMsg << _dbg + "Error while loading the model" << std::endl;
         return false;
     }
 
@@ -62,8 +63,11 @@ CPStore::init_model ()
     string cp_mdl;
   
     // Create a new CPModel
+    LogMsg << _dbg + "Instantiating a (CUDA) CP model" << std::endl;
 #if CUDAON
-    _cp_model = new CudaCPModel ();
+	//! @todo Use a factory here
+    /* _cp_model = new CudaCPModel (); */
+    _cp_model = new CudaCPModelSimple ();
     cp_mdl    = "CP_Model (CUDA version)";
 #else
     _cp_model = new CPModel ();
@@ -72,11 +76,11 @@ CPStore::init_model ()
 
     if ( _cp_model )
     {
-    	LogMsg << _dbg + cp_mdl + " created." << endl;
+    	LogMsg << _dbg + cp_mdl + " created" << std::endl;
     }
     else
     {
-    	LogMsg << _dbg + cp_mdl + " failed." << endl;
+    	LogMsg << _dbg + cp_mdl + " failed" << std::endl;
         throw;
     }
   
@@ -86,7 +90,7 @@ CPStore::init_model ()
      */
     ModelGenerator * generator =
         FactoryModelGenerator::get_generator( GeneratorType::CUDA );
-  	
+        
     /*
      * This works as follows:
      * while the parser has some more tokens (of a specific token type),
@@ -97,6 +101,7 @@ CPStore::init_model ()
      */
   
     // Variables
+    LogMsg << _dbg + "add variables to the model" << std::endl;
     while ( _parser->more_variables () ) 
     {
     	try
@@ -114,6 +119,7 @@ CPStore::init_model ()
     }
   
     // Constraints
+    LogMsg << _dbg + "add constraints to the model" << std::endl;
     while ( _parser->more_constraints () )
     {
         try
@@ -131,6 +137,7 @@ CPStore::init_model ()
     }
   
     // Constraint store
+    LogMsg << _dbg + "add a constraint store to the model" << std::endl;
     try
     {
         _cp_model->add_constraint_store( generator->get_store () );
@@ -149,6 +156,7 @@ CPStore::init_model ()
      * Search engine.
      * @note search engine needs a constraint store.
      */
+    LogMsg << _dbg + "add a search engine to the model" << std::endl;
     while ( _parser->more_search_engines () )
     {
         try
@@ -166,6 +174,7 @@ CPStore::init_model ()
     }
   
     // Finalize the model according to different architectures
+    LogMsg << _dbg + "finalize the model" << std::endl;
     try
     {
         _cp_model->finalize ();

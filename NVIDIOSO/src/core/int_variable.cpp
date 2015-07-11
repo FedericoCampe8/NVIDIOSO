@@ -82,7 +82,8 @@ IntVariable::max () const {
 }//max
 
 void
-IntVariable::shrink ( int min, int max ) {
+IntVariable::shrink ( int min, int max ) 
+{
   _domain_ptr->shrink ( min, max );
   notify_observers ();
 }//shrink

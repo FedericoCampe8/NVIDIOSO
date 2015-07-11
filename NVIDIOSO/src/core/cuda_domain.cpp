@@ -277,8 +277,9 @@ CudaDomain::shrink ( int min, int max ) {
     _domain [ EVT_IDX() ] = static_cast<int>( EventType::FAIL_EVT );
     return;
   }
-  
-  if ( _concrete_domain->is_singleton () ) {
+
+  if ( _concrete_domain->is_singleton () ) 
+  {
     _domain [ DSZ_IDX() ] = 1;
     _domain [ EVT_IDX() ] = static_cast<int>( EventType::SINGLETON_EVT );
     return;
@@ -287,7 +288,7 @@ CudaDomain::shrink ( int min, int max ) {
   // Shrink modifies the current bounds: bound event
   if ( new_size < _domain [ DSZ_IDX() ] ) {
     _domain [ DSZ_IDX() ] = new_size;
-    _domain [ EVT_IDX() ] = static_cast<int>( EventType::BOUNDS_EVT );
+    _domain [ EVT_IDX() ] = static_cast<int>( EventType::BOUNDS_EVT ); 
   }
   
   /*

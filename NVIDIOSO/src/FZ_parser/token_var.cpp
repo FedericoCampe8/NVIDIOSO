@@ -33,11 +33,22 @@ TokenVar::set_token ( std::string& token_str )
   		set_support_var();
   	}
   	
+  	std::string var_str = token_str;
+  	std::size_t idx = var_str.find ( "::" ); 
+	if ( idx != std::string::npos )
+	{
+		var_str = var_str.substr ( 0, idx - 1 );
+		int idx_last = var_str.size() - 1;
+		while ( var_str[ idx_last ] == ' ' ) idx_last--;
+		var_str [ idx_last + 1 ] = ';';
+	}
+	
+  	
   	// Set variable type
-  	set_type_var ( token_str );
+  	set_type_var ( var_str ); //token_str
   	
   	// Set variable id
-  	set_id ( token_str );
+  	set_id ( var_str ); //token_str
   	
   	// Set objective var
   	if ( _var_id == "fobj" ) 

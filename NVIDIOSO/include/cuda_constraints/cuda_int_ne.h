@@ -15,19 +15,6 @@
 #include "cuda_constraint.h"
 
 class CudaIntNe : public CudaConstraint {
-private:
-	/**
-	 * Two variables for IntNe constraint.
-	 * @note For more variables store the pointer to the beginning of
-	 * 		 of the array storing the variables.
-	 */
-	int _var_x;
-	int _var_y;
-	int _n_arg;
-	
-	// Pointers to the domains of the variables involved in this constraint.
-	uint* _domain_x;
-	uint* _domain_y;
 public:
 
 #if CUDAON

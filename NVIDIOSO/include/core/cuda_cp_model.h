@@ -5,7 +5,7 @@
 //  Created by Federico Campeotto on 30/11/14.
 //  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
 //
-//  This class represents a genral Constraint Programming model on CUDA.
+//  This class represents a base CP model on CUDA.
 //  It holds the state concerning all the information needed to
 //  explore the search space in order to find solutions.
 //  It holds the following finite sets:
@@ -25,7 +25,9 @@
 using uint = unsigned int;
   
 class CudaCPModel : public CPModel {
-private:
+protected:
+  
+  std::string _dbg;
   
   //! Domain state on host
   uint * _h_domain_states;
@@ -53,10 +55,10 @@ private:
   std::map<int, int> _cuda_var_lookup;
   
   //! Allocate domains on device
-  bool alloc_variables ();
+  virtual bool alloc_variables ();
   
   //! Allocate constraints on device
-  bool alloc_constraints ();
+  virtual bool alloc_constraints ();
   
 public:
   CudaCPModel ();
@@ -78,7 +80,7 @@ public:
    * @return true if the upload has been completed successfully. False otherwise.
    * @note update all variables into device.
    */
-  bool upload_device_state ();
+  virtual bool upload_device_state ();
   
   /**
    * Move the current state (set of domains)
@@ -87,7 +89,7 @@ public:
    *         AND no empty domains are present. False otherwise.
    * @note update all variables into host.
    */
-  bool download_device_state ();
+  virtual bool download_device_state ();
   
 };
 

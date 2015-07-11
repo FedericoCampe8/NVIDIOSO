@@ -5,7 +5,7 @@
 //  Created by Federico Campeotto on 11/08/14.
 //  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
 //
-//  This class implements the "input_order" variable choice metric.
+//  This class implements the "first_fail" variable choice metric.
 //
 
 #ifndef __NVIDIOSO__first_fail_metric__

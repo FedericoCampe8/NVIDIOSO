@@ -28,8 +28,9 @@ bool
 IntDomain::is_singleton () const {
   
   // Consistency check
-  if ( lower_bound () == upper_bound () ) {
-    assert( get_size() == 1 );
+  if ( lower_bound () == upper_bound () ) 
+  {
+  	assert( get_size() == 1 );
   }
   
   return ( lower_bound() == upper_bound() );

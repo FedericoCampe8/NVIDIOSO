@@ -20,8 +20,8 @@ using uint = unsigned int;
 constexpr int VECTOR_MAX_CUDA = 256;
 
 constexpr int BIT_IDX = 5;
-constexpr int NUM_CHUNKS    = VECTOR_MAX_CUDA / 32;
-constexpr int BITS_IN_CHUNK = 32;
+constexpr int BITS_IN_CHUNK = sizeof(int) * 8;
+constexpr int NUM_CHUNKS    = VECTOR_MAX_CUDA / BITS_IN_CHUNK;
 
 /**
  * Macro for the size of a chunk in terms of bits.

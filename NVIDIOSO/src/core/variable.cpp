@@ -120,7 +120,8 @@ Variable::attach_constraint ( ConstraintPtr c ) {
 }//attach_constraint
 
 void
-Variable::notify_constraint () {
+Variable::notify_constraint () 
+{
   EventType event = get_event();
   bool find;
   for ( auto c : _attached_constraints[ event ] ) {
@@ -138,7 +139,8 @@ Variable::notify_constraint () {
 }//notify_constraint
 
 void
-Variable::notify_store () {
+Variable::notify_store () 
+{
 
   if ( _constraint_store == nullptr ) {
     throw NvdException ( (_dbg + "No store attached to this constraint").c_str() );
@@ -171,6 +173,12 @@ Variable::notify_store () {
   reset_event();
   constraints_to_reevaluate.clear ();
 }//notify_store
+
+void
+Variable::notify_observers () 
+{
+	notify_store ();
+}//notify_observers
 
 void
 Variable::detach_constraint ( ConstraintPtr c ) {

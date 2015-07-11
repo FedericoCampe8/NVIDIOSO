@@ -191,8 +191,8 @@ DepthFirstSearch::search_out () {
     s << _depth;
     
     LogMsg << _dbg +
-                     "Terminated: limit on the number of backtracks reached." +
-                     "Depth: " + s.str() << endl;
+              "Terminated: limit on the number of backtracks reached." +
+              "Depth: " + s.str() << endl;
                      
     _search_out = true;
     return true;
@@ -289,14 +289,15 @@ DepthFirstSearch::label( int var_idx ) {
     return false;
   }
   else {
+  
     // Consistent
-    
     _backtrack_manager->set_level ( ++_depth );
     if ( _depth > _peak_depth ) _peak_depth = _depth;
     
-    if ( _trail_debug ) {
-      cout<<"TrailStack after consistency at level " << _depth << ":\n";
-      _backtrack_manager->print();
+    if ( _trail_debug ) 
+    {
+    	cout<<"TrailStack after consistency at level " << _depth << ":\n";
+      	_backtrack_manager->print();
     }
     
     var = _heuristic->get_choice_variable ( var_idx );
@@ -305,7 +306,7 @@ DepthFirstSearch::label( int var_idx ) {
       if ( _debug )
         cout << _dbg << "Label V_" << var->get_id() <<
         " (" << var->get_str_id() << ")" << " at level " << _depth << endl;
-      
+        
       try {
         value = _heuristic->get_choice_value ();
       } catch ( NvdException& e ) {
@@ -321,7 +322,8 @@ DepthFirstSearch::label( int var_idx ) {
        * @note it automatically notifies the attached store.
        */
       if ( var->domain_iterator->is_numeric () )
-        (static_cast<IntVariable*>(var))->shrink ( value, value );
+        (static_cast<IntVariable*>(var))->shrink ( value, value );   
+        
     }
     else {
       

@@ -11,7 +11,7 @@
 #ifndef __NVIDIOSO__cuda_propagation_utilities__
 #define __NVIDIOSO__cuda_propagation_utilities__
 
-using uint = unsigned int;
+#include "cuda_constraint_macro.h"
 
 #if CUDAON
 
@@ -28,7 +28,7 @@ extern __device__ CudaConstraint** g_dev_constraints;
  * Propagates the constraints in constraint_queue in parallel on device.
  * @param constraint_queue the queue of constraints to propagate.
  */
-__global__ void cuda_consistency ( size_t * constraint_queue );
+__global__ void cuda_consistency ( size_t * constraint_queue, int domain_type = STANDARD_DOM );
 
 #endif
 

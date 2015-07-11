@@ -2,8 +2,8 @@
 //  first_fail_metric.cpp
 //  NVIDIOSO
 //
-//  Created by Federico Campeotto on 11/08/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Created by Federico Campeotto on 08/11/14.
+//  Copyright (c) 2014-2015 ___UDNMSU___. All rights reserved.
 //
 
 #include "first_fail_metric.h"
@@ -29,7 +29,7 @@ FirstFail::compare ( double metric, Variable * var ) {
 
 int
 FirstFail::compare ( Variable * var_a , Variable * var_b ) {
-  return compare( var_a->get_id(), var_b );
+    return compare( (var_a->domain_iterator)->domain_size (), var_b );
 }//compare
 
 double

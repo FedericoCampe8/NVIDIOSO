@@ -73,6 +73,15 @@ TokenArr::set_token ( std::string& arr_str )
         set_output_arr ();
     }
 	
+	idx = arr_str.find ( "::" ); 
+	if ( idx != std::string::npos )
+	{
+		arr_str = arr_str.substr ( 0, idx - 1 );
+		int idx_last = arr_str.size() - 1;
+		while ( arr_str[ idx_last ] == ' ' ) idx_last--;
+		arr_str [ idx_last + 1 ] = ';';
+	}
+	
 	// Range
 	pair<int, int> range = get_range ( arr_str );
 

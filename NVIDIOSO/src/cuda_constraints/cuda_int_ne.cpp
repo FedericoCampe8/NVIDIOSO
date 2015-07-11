@@ -15,126 +15,137 @@ __device__ CudaIntNe::CudaIntNe ( int n_id, int n_vars, int n_args,
                                   int* vars, int* args,
                                   int* domain_idx, uint* domain_states ) :
 CudaConstraint ( n_id, n_vars, n_args, vars, args, domain_idx, domain_states ) {
-	/*
-	 * Note: the ids of the variables do not correspond to the ids of the variables
-	 * 		 on the host. 
-	 *       These index, are used on the device with a different mapping and they
-	 *       are consistent with the domain_idx, meaning that domain_idx[ _var_x ]
-	 *       contains the index of the domain for the variable represented by 
-	 *       the id stored in _var_x, and so it is for _var_y.
-	 * Note: to save space on device we store both vars idx and arguments in the same
-	 *       variables (i.e., _var_x, _var_y).
-	 *       If n_args == 1, _var_y will always contain the int value.
-	 */
-	_n_arg = n_args;
-	if ( _n_arg == 0 ) 
-	{
-		_var_x = vars[ 0 ];
-		_var_y = vars[ 1 ];
-		
-		_domain_x = &domain_states[ domain_idx[ _var_x ] ];
-		_domain_y = &domain_states[ domain_idx[ _var_y ] ];
-	}
-	else if ( _n_arg == 1 ) 
-	{
-		_var_x = vars[ 0 ];
-		_var_y = args[ 0 ];
-		
-		_domain_x = &domain_states[ domain_idx[ _var_x ] ];
-	}
-	else {
-		_var_x = args[ 0 ];
-		_var_y = args[ 1 ];
-	}
 }//CudaIntNe
 
 __device__ CudaIntNe::~CudaIntNe () {
 }
 
 __device__ void
-CudaIntNe::consistency () { 
- 
-  /*
-   * Propagate constraint iff there are two
-   * FD variables and one is ground OR
-   * there is one FD variable which is not ground.
-   * @note (2 - _scope_size) can be used instead of
-   *       get_arguments_size function since
-   *       (2 - _scope_size) = get_arguments_size ().
-   */
-  if ( _n_arg == 2 ) return;
-  
-  // 1 FD variable: if not singleton, propagate.
-  if ( _n_arg == 1 )
-	{
-    	if ( !is_singleton ( 0 ) ) //_domain_x
-      		subtract( 0, _var_y ); // _domain_x, _var_y
-    	return;
-	}
-   
-  /* 
-   * 2 FD variables: if one is singleton,
-   * propagate on the other.
-   */
-  if ( _n_arg == 0 ) {
-    if ( is_singleton ( 0 ) && !is_singleton ( 1 ) ) 
+CudaIntNe::consistency ()
+{ 
+    /*
+     * Propagate constraint iff there are two
+     * FD variables and one is ground OR
+     * there is one FD variable which is not ground.
+     * @note (2 - _scope_size) can be used instead of
+     *       get_arguments_size function since
+     *       (2 - _scope_size) = get_arguments_size ().
+     */
+    if ( NUM_ARGS == 2 ) return;
+
+    if ( all_ground () ) return;
+    
+    // 1 FD variable: if not singleton, propagate.
+    if ( NUM_ARGS == 1 )
     {
-    	subtract ( 1, _domain_x[ 2 ] );
+    	if ( !is_singleton ( X_VAR ) )
+        {
+            // 1 Auxiliary argument here
+            subtract( X_VAR, ARGS [ 0 ] );
+        }
+    	return;
     }
-    else if ( !is_singleton ( 0 ) && is_singleton ( 1 ) ) 
-	{
-		subtract ( 0, _domain_y[ 2 ] );
+   
+    /* 
+     * 2 FD variables: if one is singleton,
+     * propagate on the other.
+     */
+    if ( NUM_VARS == 2 )
+    {
+    	bool singleton_x = is_singleton ( X_VAR );
+    	bool singleton_y = is_singleton ( Y_VAR );
+        if ( singleton_x && !singleton_y ) 
+        {
+            subtract ( Y_VAR, get_min ( X_VAR ) );
+        }
+        else if ( !singleton_x && singleton_y ) 
+		{
+            subtract ( X_VAR, get_min ( Y_VAR ) );
+        }
+        return;
     }
-    return;
-  }
 }//consistency
 
 //! It checks if x != y
 __device__ bool
-CudaIntNe::satisfied ()  {
-
-  // No FD variables, just check the integers values
-  if ( _n_arg == 2 ) 
-    return _var_x != _var_y;
+CudaIntNe::satisfied ()
+{
+    // No FD variables, just check the integers values
+    if ( NUM_ARGS == 2 ) 
+    {
+        return ARGS[ X_VAR ] != ARGS[ Y_VAR ];
+    }
   
-  // 1 FD variable, if singleton check
-  if ( (_n_arg == 1) &&
-  		is_singleton ( 0 ) ) //_domain_x
-  {
-  	  return _var_y != get_min ( 0 );
-  }
+    // 1 FD variable, if singleton check
+    if ( (NUM_ARGS == 1) && is_singleton ( X_VAR ) )
+    {
+        if ( ARGS [ 0 ] != get_min ( X_VAR ) )
+        {
+        	return true;
+        }
+        GET_VAR_EVT(X_VAR) = FAL_EVT;
+        return false;
+    }
   
-  // 2 FD variables, if singleton check
-  if (	is_singleton ( 0 ) &&
-		is_singleton ( 1 ) ) //_domain_x && _domain_y
-	{
-    return get_min ( 0 ) != get_min ( 1 ); // min ( _domain_x ) != min ( _domain_y )
-  	}
+    // 2 FD variables, if singleton check
+    if ( is_singleton ( X_VAR ) && is_singleton ( Y_VAR ) ) 
+    {
+        if ( get_min ( X_VAR ) != get_min ( Y_VAR ) )
+        {
+        	return true;
+        }
+        GET_VAR_EVT(X_VAR) = FAL_EVT;
+        GET_VAR_EVT(Y_VAR) = FAL_EVT;
+        return false;
+    }
   
-  /*
-   * Check if a domain is empty.
-   * If it is the case: failed propagation.
-   */
-   if ( _domain_x[ 0 ] == 6 || _domain_y[ 0 ] == 6 ) return false;
-   
-  /*
-   * Other cases: there is not enough information
-   * to state whether the constraint is satisfied or not.
-   * Return true.
-   */
-  return true;
+    /*
+     * Check if a domain is empty.
+     * If it is the case: failed propagation.
+     */
+    if ( is_empty ( X_VAR ) || is_empty ( Y_VAR ) )
+    {
+    	GET_VAR_EVT(X_VAR) = FAL_EVT;
+        GET_VAR_EVT(Y_VAR) = FAL_EVT;
+        return false;
+    }
+    
+    /*
+     * Other cases: there is not enough information
+     * to state whether the constraint is satisfied or not.
+     * Return true.
+     */
+    return true;
 }//satisfied
 
 //! Prints the semantic of this constraint
 __device__ void
-CudaIntNe::print() const {
-  //printf ( "c_%d: int_ne(var int: %d, var int: %d)\n",  (int)_unique_id, _var_x, _var_y );
-  printf ("c_%d: int_ne(var %d: evt %d, lb %d, ub %d, dsz %d, %u,  var %d: evt %d, lb %d, ub %d, dsz %d, %u)\n",
-  	(int)_unique_id, 
-  	_var_x, 
-	(int)_domain_x[0], min (_domain_x), max (_domain_x), (int)_domain_x[4], (uint)_domain_x[5],
-	_var_y,
-	(int)_domain_y[0], min (_domain_y), max (_domain_y), (int)_domain_y[4], (uint)_domain_y[5]);
+CudaIntNe::print() const
+{
+    if ( threadIdx.x != 0 )
+        return;
+    
+    if ( NUM_ARGS == 2 )
+    {
+        printf ( "c_%d: int_ne(int: %d, int: %d)\n",
+                 (int)_unique_id,
+                 ARGS [ X_VAR ],
+                 ARGS [ Y_VAR ] );
+    }
+    else if ( NUM_ARGS == 1 )
+    {
+        printf ( "c_%d: int_ne(var int: %d, int: %d)\n",
+                 (int)_unique_id,
+                 VARS [ X_VAR ],
+                 C_ARG );
+    }
+    else
+    {
+        printf ( "c_%d: int_ne(var int: %d [%d, %d](%d), var int: %d [%d, %d](%d))\n",
+                 (int)_unique_id,
+                 VARS [ X_VAR ], GET_VAR_LB(X_VAR), GET_VAR_UB(X_VAR), GET_VAR_DSZ(X_VAR),
+                 VARS [ Y_VAR ], GET_VAR_LB(Y_VAR), GET_VAR_UB(Y_VAR), GET_VAR_DSZ(Y_VAR) );
+    }
 }//print_semantic
  
 #endif
