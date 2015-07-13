@@ -137,7 +137,11 @@ public:
   	// Flush the stream
   	log<std::string> ( "", true );
   	
-    F ( _out );
+  	if ( _verbose )
+  	{
+  		F ( _out );
+  	}
+    
     return *this;
   }//<<
   

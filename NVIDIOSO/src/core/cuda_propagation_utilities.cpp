@@ -18,24 +18,26 @@ using uint = unsigned int;
 __device__ CudaConstraint** g_dev_constraints;
 
 __global__ void
-cuda_consistency ( size_t * constraint_queue, int domain_type  )
+cuda_consistency_sequential ( size_t * constraint_queue, int queue_size, int domain_type  )
 {
     //extern __shared__ uint shared_status[];
-    
-    //move_status_to_shared ( shared_status, domain_type );
-    
+     
     // Now everything is sequential here
     if (blockIdx.x == 0) 
     { 
-        for (int i = 0; i < gridDim.x; i++) 
+        for (int i = 0; i < queue_size; i++) 
         {
+        	//g_dev_constraints [ constraint_queue [ i ] ]->move_status_to_shared ( shared_status, domain_type );
+        	
             g_dev_constraints [ constraint_queue [ i ] ]->consistency(); 
+            
+            //g_dev_constraints [ constraint_queue [ i ] ]->move_status_from_shared ( shared_status, domain_type );
+            
             if ( !g_dev_constraints [ constraint_queue [ i ] ]->satisfied() ) break;
-            //g_dev_constraints [ constraint_queue [ i ] ]->print();
         }
     }
     
-    //move_status_from_shared ( shared_status, domain_type );    
+        
 }//cuda_consistency
 
 

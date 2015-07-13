@@ -24,10 +24,10 @@ int main( int argc, char * argv[] )
    	 *  LOAD MODEL & INIT DATA STRUCURES   *
    	 ***************************************/
 	LogMsg << dbg << "Load Store" << std::endl;
-  
+
   	statistics.set_timer ( Statistics::TIMING::ALL );
   	statistics.set_timer ( Statistics::TIMING::PREPROCESS );
-
+	
   	// Load model
   	DataStore& d_store = CPStore::get_store ( i_data.get_in_file() );
   	if ( !d_store.load_model() )

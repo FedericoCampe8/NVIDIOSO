@@ -100,7 +100,7 @@ protected:
     //! Subtract {val} from the domain of var
     __device__ void subtract ( int var, int val );
 	
-	//! Returns True if val belongs to the domain of var, False othwerwise
+	//! Returns True if val belongs to the domain of var, False otherwise
 	__device__ bool contains ( int var, int val );
 	
     //! Get lower bound of the domain of var

@@ -28,7 +28,7 @@ extern __device__ CudaConstraint** g_dev_constraints;
  * Propagates the constraints in constraint_queue in parallel on device.
  * @param constraint_queue the queue of constraints to propagate.
  */
-__global__ void cuda_consistency ( size_t * constraint_queue, int domain_type = STANDARD_DOM );
+__global__ void cuda_consistency_sequential ( size_t * constraint_queue, int queue_size, int domain_type = STANDARD_DOM );
 
 #endif
 
