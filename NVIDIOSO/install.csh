@@ -128,7 +128,9 @@ echo "Installing iNVIDIOSO (`date`)"
 set OBJ = obj
 set LIB = lib
 set SRC = src
-set OBJ_FOLDER = (base constraints cuda_constraints core FZ_parser search exception)
+set OBJ_FOLDER = (base constraints cuda_constraints constraint_store \
+cuda_constraint_store parser FZ_parser core search exception \
+cuda_utilities variable cuda_variable )
 
 # Create obj (main) folder
 if ( -d $OBJ ) then
@@ -243,9 +245,15 @@ LIBNVIDIOSO = \$(NVIDIOSO_LIB)/libnvidioso.a
 BASE=base
 CORE=core
 SEARCH=search
-PARSER=FZ_parser
+PARSER=parser
+FZN_PARSER=FZ_parser
+VARIABLE=variable
 CONSTRAINTS=constraints
+CONSTRAINT_STORE=constraint_store
+CUDA_VARIABLE=cuda_variable
 CUDA_CONSTRAINTS=cuda_constraints
+CUDA_CONSTRAINT_STORE=cuda_constraint_store
+CUDA_UTILITIES=cuda_utilities
 EXCEPTION=exception
 EOF
 

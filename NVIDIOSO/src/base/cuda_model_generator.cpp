@@ -13,7 +13,8 @@
 #include "token_sol.h"
 #include "fzn_constraint_generator.h"
 #include "fzn_search_generator.h"
-#include "cuda_simple_constraint_store.h"
+//#include "cuda_simple_constraint_store.h"
+#include "factory_cstore.h"
 
 using namespace std;
 
@@ -252,9 +253,11 @@ CudaGenerator::get_store ()
     ConstraintStorePtr store;
   
 #if CUDAON
-    store = make_shared<CudaSimpleConstraintStore> ();
+	store = FactoryCStore::get_cstore ( true, 
+	 					 				solver_params->cstore_type_to_int (
+						 				solver_params->cstore_get_dev_propagation () ) );
 #else
-    store = make_shared<SimpleConstraintStore> ();
+	store = FactoryCStore::get_cstore ();
 #endif
 
     // Set solver parameters
@@ -262,6 +265,14 @@ CudaGenerator::get_store ()
     {
         store->sat_check ( solver_params->cstore_get_satisfiability () );
         store->con_check ( solver_params->cstore_get_consistency () );
+        
+#if CUDAON
+
+		(std::static_pointer_cast <CudaSimpleConstraintStore> ( store ))->
+		set_prop_loop_out ( solver_params->cstore_get_dev_loop_out () );
+		
+#endif
+
     }
     
     return store;

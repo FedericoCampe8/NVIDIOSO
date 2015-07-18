@@ -36,12 +36,13 @@ using namespace std;
      constexpr std::string ParamData::CSTORE_CONSISTENCY_KWD    = "CONSISTENCY";
      constexpr std::string ParamData::CSTORE_SATISFIABILITY_KWD = "SATISFIABILITY";
 
-    // ======== CONSTRAINT STORE CUDA ========
+    // 					======== CONSTRAINT STORE CUDA ========
     
-     constexpr std::string ParamData::CSTORE_CUDA_PROP_KWD = "CUDA_PROP";
-     constexpr std::string ParamData::CSTORE_CUDA_SEQ_KWD  = "sequential";
-     constexpr std::string ParamData::CSTORE_CUDA_BPC_KWD  = "block_per_constraint";
-     constexpr std::string ParamData::CSTORE_CUDA_BPV_KWD  = "block_per_variable";
+     constexpr std::string ParamData::CSTORE_CUDA_PROP_KWD 			= "CUDA_PROP";
+     constexpr std::string ParamData::CSTORE_CUDA_PROP_LOOP_OUT_KWD = "CUDA_PROP_LOOP_OUT";
+     constexpr std::string ParamData::CSTORE_CUDA_SEQ_KWD  			= "sequential";
+     constexpr std::string ParamData::CSTORE_CUDA_BPC_KWD  			= "block_per_constraint";
+     constexpr std::string ParamData::CSTORE_CUDA_BPV_KWD  			= "block_per_variable";
     // ===========================================================================
     
 
@@ -72,6 +73,38 @@ ParamData::get_param_path () const
     return _in_file;
 }//get_param_path
 
+int  
+ParamData::cstore_type_to_int ( CudaPropParam ctype ) const
+{
+	switch ( ctype )
+    {
+    	case CudaPropParam::SEQUENTIAL:
+    		return 0;
+    	case CudaPropParam::BLOCK_PER_CON:
+    		return 1;
+    	case CudaPropParam::BLOCK_PER_VAR:
+    		return 2;
+    	default:
+    		return 0;
+    }
+}//cstore_type_to_int
+
+CudaPropParam 
+ParamData::cstore_int_to_type ( int ctype ) const
+{
+	switch ( ctype )
+    {
+    	case 0:
+    		return CudaPropParam::SEQUENTIAL;
+    	case 1:
+    		return CudaPropParam::BLOCK_PER_CON;
+    	case 2:
+    		return CudaPropParam::BLOCK_PER_VAR;
+    	default:
+    		return CudaPropParam::SEQUENTIAL;
+    }
+}//cstore_int_to_type
+
 void
 ParamData::set_default_parameters ()
 {
@@ -88,6 +121,7 @@ ParamData::set_default_parameters ()
     // --- Constraint Store ---
     _cstore_consistency    = true;
     _cstore_satisfiability = true;
+    _cstore_cuda_prop_loop_out = 1;
     _cstore_cuda_propagation_function = CudaPropParam::SEQUENTIAL;
 }//set_default_parameters
 
@@ -318,6 +352,13 @@ ParamData::set_constraint_engine_parameters ( std::string& line )
         }
         return;
     }
+    
+    pos = line_aux.find ( CSTORE_CUDA_PROP_LOOP_OUT_KWD );
+    if ( pos != string::npos )
+    {
+        _cstore_cuda_prop_loop_out = atoi ( param.c_str() );
+        return;
+    }
 
     pos = line_aux.find ( CSTORE_CUDA_PROP_KWD );
     if ( pos != string::npos )
@@ -398,6 +439,12 @@ ParamData::cstore_get_satisfiability () const
     return _cstore_satisfiability;
 }//cstore_get_satisfiability
 
+int
+ParamData::cstore_get_dev_loop_out () const
+{
+	return _cstore_cuda_prop_loop_out;
+}//cstore_get_dev_loop_out
+
 CudaPropParam
 ParamData::cstore_get_dev_propagation () const
 {
@@ -434,6 +481,27 @@ ParamData::print_option ( string s, bool new_line ) const
 }//print_option
 
 void
+ParamData::print_option ( CudaPropParam p, bool new_line ) const
+{
+    switch ( p )
+    {
+    	case CudaPropParam::SEQUENTIAL:
+    		cout << CSTORE_CUDA_SEQ_KWD;
+    		break;
+    	case CudaPropParam::BLOCK_PER_CON:
+    		cout << CSTORE_CUDA_BPC_KWD;
+    		break;
+    	case CudaPropParam::BLOCK_PER_VAR:
+    		cout << CSTORE_CUDA_BPV_KWD;
+    		break;
+    	default:
+    		cout << CSTORE_CUDA_SEQ_KWD;
+    		break;
+    }
+    if ( new_line ) cout << endl;
+}//print_option
+
+void
 ParamData::print () const
 {
     cout << "=========== Solver Parameters ===========\n";
@@ -461,6 +529,12 @@ ParamData::print () const
     print_option ( _cstore_consistency );
     cout << "\t+ Satisfiability active: ";
     print_option ( _cstore_satisfiability );
+    
+    cout << "- Device Constraint Store:\n";
+    cout << "\t+ Device propagation loop Limit: ";
+    print_option ( _cstore_cuda_prop_loop_out );
+    cout << "\t+ Device Propagation type: ";
+    print_option ( _cstore_cuda_propagation_function );
 
     cout << "=========================================\n";
 }//print

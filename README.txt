@@ -1,8 +1,6 @@
 
                                       	iNVIDIOSO
                           NVIDIa-based cOnstraint SOlver v. 1.0
- 
-                                __CSP/COP REPRESENTATION__
   
     
   iNVIDIOSO is a constraint solver for 
@@ -30,9 +28,12 @@
      searching for sub-optimal solutions for optimization problems.
 
   Please, refer to Manual.pdf to get more information about the solver.  
-  The folder html contains the descriptions of the classes created
-  using Doxygen. You can use you browser to navigate through the classes.
+  The folder Doxygen contains the descriptions of all the classes.
+  This folder has been created using Doxygen. 
+  You can either use you browser to navigate through the classes (html/index.html),
+  or open the iNVIDIOSO_refman.pdf. 
 
+  ___General Structure of the solver___
 
   VARIABLES:
  

@@ -21,8 +21,8 @@ extern ParamData* solver_params;
 enum class CudaPropParam
 {
     SEQUENTIAL,
-        BLOCK_PER_CON,
-        BLOCK_PER_VAR
+    BLOCK_PER_CON,
+    BLOCK_PER_VAR
 };
 
 class ParamData {
@@ -69,23 +69,26 @@ private:
     // ======================= CONSTRAINT STORE PARAMETERS =======================
     bool _cstore_consistency;
     bool _cstore_satisfiability;
-    CudaPropParam _cstore_cuda_propagation_function;
     static constexpr std::string CSTORE_CONSISTENCY_KWD;
     static constexpr std::string CSTORE_SATISFIABILITY_KWD;
 
-    // ======== CONSTRAINT STORE CUDA ========
+    // 					 ======== CONSTRAINT STORE CUDA ========
     
+    int  _cstore_cuda_prop_loop_out;
+    CudaPropParam _cstore_cuda_propagation_function;
     static constexpr std::string CSTORE_CUDA_PROP_KWD;
     static constexpr std::string CSTORE_CUDA_SEQ_KWD;
     static constexpr std::string CSTORE_CUDA_BPC_KWD;
     static constexpr std::string CSTORE_CUDA_BPV_KWD;
+    static constexpr std::string CSTORE_CUDA_PROP_LOOP_OUT_KWD;
     // ===========================================================================
 
     //Print utilities
-    void print_option ( bool        b, bool new_line=true ) const;
-    void print_option ( int         n, bool new_line=true ) const;
-    void print_option ( double      d, bool new_line=true ) const;
-    void print_option ( std::string s, bool new_line=true ) const;
+    void print_option ( bool         b,  bool new_line=true ) const;
+    void print_option ( int          n,  bool new_line=true ) const;
+    void print_option ( double       d,  bool new_line=true ) const;
+    void print_option ( std::string  s,  bool new_line=true ) const;
+    void print_option ( CudaPropParam p, bool new_line=true ) const;
     
 protected:
     //! Open parameters file
@@ -143,6 +146,9 @@ public:
     // ========= CSTORE PARAMETERS =========
     bool cstore_get_consistency () const;
     bool cstore_get_satisfiability () const;
+    int	 cstore_get_dev_loop_out () const;
+    int  cstore_type_to_int ( CudaPropParam ctype ) const;
+    CudaPropParam cstore_int_to_type ( int ctype ) const;
     CudaPropParam cstore_get_dev_propagation () const;
     // =====================================
     

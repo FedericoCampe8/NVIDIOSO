@@ -1,9 +1,9 @@
 //
 //  factory_generator.h
-//  NVIDIOSO
+//  iNVIDIOSO
 //
-//  Created by Federico Campeotto on 09/07/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Created by Federico Campeotto on 07/09/14.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 //  Factory method for model generators.
 //  This class allows the client to select the kinds of
@@ -30,7 +30,7 @@ public:
   
         return nullptr;
     }
-  }//get_parser
+  }//get_generator
 };
 
 #endif

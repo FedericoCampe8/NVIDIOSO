@@ -26,7 +26,7 @@ _strategy_choice {} {
 bool 
 TokenSol::set_token ( std::string& token_str )
 {
-	std::size_t found, found_aux;
+	std::size_t found;
   	found = token_str.find( "satisfy" );
   	if ( found != std::string::npos ) 
   	{
