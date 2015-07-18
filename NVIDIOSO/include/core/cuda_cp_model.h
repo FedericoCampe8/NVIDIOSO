@@ -67,6 +67,12 @@ public:
   //! Mapping between constraint ids and the constraints on device
   std::unordered_map< size_t, size_t >constraint_mapping_h_d;
   
+  //! Get function for domain states
+  uint * const get_dev_domain_states_ptr () const;
+  
+  //! Get function for domain states indeces
+  int * const get_dev_domain_index_ptr () const;
+  
   /**
    * Finalizes the model.
    * This method actually allocates the structures on 

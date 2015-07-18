@@ -25,15 +25,14 @@ IntDomain::is_empty () const {
 }//is_empty
 
 bool
-IntDomain::is_singleton () const {
-  
-  // Consistency check
-  if ( lower_bound () == upper_bound () ) 
-  {
-  	assert( get_size() == 1 );
-  }
-  
-  return ( lower_bound() == upper_bound() );
+IntDomain::is_singleton () const 
+{ 
+  	// Sanity Check
+  	if ( lower_bound () == upper_bound () ) 
+  	{
+  			assert( get_size() == 1 );
+  	}
+  	return ( lower_bound() == upper_bound() );
 }//is_singleton
 
 //! Returns true if this is a numeric finite domain

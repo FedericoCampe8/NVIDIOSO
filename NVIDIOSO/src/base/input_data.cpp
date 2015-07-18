@@ -1,9 +1,9 @@
 /*
  *  input_data.cc
- *  NVIDIOSO
+ *  iNVIDIOSO
  *
  *  Created by Federico Campeotto on 26/06/14.
- *  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+ *  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
  */
 
 #include <getopt.h>
@@ -21,6 +21,13 @@ InputData::init () {
   _in_file   = "";
   _out_file  = "";
   _help_file = "config/.idata_help.txt";
+
+  // Parameters for solver
+  solver_params = new ParamData ();
+  if ( solver_params != nullptr )
+  {
+      solver_params->set_parameters ();
+  }
 }//init
 
 InputData::InputData ( int argc, char* argv[] ) {
@@ -130,10 +137,12 @@ InputData::InputData ( int argc, char* argv[] ) {
       printf ("%s ", argv[ optind++ ]);
     putchar ('\n');
   }
-  
 }//-
 
-InputData::~InputData () {}
+InputData::~InputData () {
+    // Delete (pointer to) parameters class
+    delete solver_params;
+}
 
 bool
 InputData::verbose () const {

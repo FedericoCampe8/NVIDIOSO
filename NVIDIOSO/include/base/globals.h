@@ -55,6 +55,7 @@
 #include "statistics.h"
 #include "id_generator.h"
 #include "nvd_exception.h"
+#include "param_data.h"
 
 /* Cuda */
 #if CUDAON

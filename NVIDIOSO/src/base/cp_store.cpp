@@ -1,17 +1,16 @@
 //
 //  csp_store.cpp
-//  NVIDIOSO
+//  iNVIDIOSO
 //
-//  Created by Federico Campeotto on 27/06/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Created by Federico Campeotto on 06/27/14.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 #include "cp_store.h"
 #include "factory_parser.h"
 #include "model_generator.h"
 #include "factory_generator.h"
-#include "cuda_cp_model.h"
-#include "cuda_cp_model_simple.h"
+#include "factory_cp_model.h"
 
 using namespace std;
 
@@ -19,22 +18,22 @@ using namespace std;
 CPStore* CPStore::_cp_ds_instance = nullptr;
 
 CPStore::CPStore ( std::string in_file ) :
-DataStore ( in_file ),
-_parser   ( nullptr ) {
-  DataStore::_dbg = "CPStore - ";
+    DataStore ( in_file ),
+    _parser   ( nullptr ) {
+    DataStore::_dbg = "CPStore - ";
 }//CSPStore
 
 CPStore::~CPStore () {
-  delete _parser;
+    delete _parser;
 #if CUDAON
-  cudaDeviceReset();
+    cudaDeviceReset();
 #endif
 }//~CSPStore
 
 bool
-CPStore::load_model ( string ifile ) {
-  
-    // Delete previous instances of parsers (i.e., internal state)
+CPStore::load_model ( string ifile )
+{ 
+    // Delete possible previous instances of parser (i.e., internal state)
     delete _parser;
   
     // Create a new parser
@@ -64,14 +63,13 @@ CPStore::init_model ()
   
     // Create a new CPModel
     LogMsg << _dbg + "Instantiating a (CUDA) CP model" << std::endl;
+    cp_mdl = "CP_Model";
+    
 #if CUDAON
-	//! @todo Use a factory here
-    /* _cp_model = new CudaCPModel (); */
-    _cp_model = new CudaCPModelSimple ();
-    cp_mdl    = "CP_Model (CUDA version)";
+    _cp_model = FactoryCPModel::get_cp_model ( CPModelType::CUDA_CP_MODEL_SIMPLE );
+    cp_mdl += " (CUDA Version)";
 #else
-    _cp_model = new CPModel ();
-    cp_mdl    = "CP_Model";
+    _cp_model = FactoryCPModel::get_cp_model ( CPModelType::CP_MODEL );
 #endif
 
     if ( _cp_model )
@@ -190,22 +188,31 @@ CPStore::init_model ()
 
 // Print info about the model
 void
-CPStore::print_model_info () {
-  
+CPStore::print_model_info ()
+{
+    cout << "======== MODEL ========\n";
+    print_model_variable_info   ();
+    print_model_domain_info     ();
+    print_model_constraint_info ();
+    cout << "=======================\n";
+    _cp_model->print ();
+    cout << "=======================\n";
 }//print_model_info
 
 void
-CPStore::print_model_variable_info () {
-  
+CPStore::print_model_variable_info ()
+{
+    cout << "Variables: " << _cp_model->num_variables () << endl;
 }//print_model_variable_info
 
 void
-CPStore::print_model_domain_info () {
-  
+CPStore::print_model_domain_info ()
+{
 }//print_model_domain_info
 
 void
-CPStore::print_model_constraint_info () {
-  
+CPStore::print_model_constraint_info ()
+{
+    cout << "Constraints: " << _cp_model->num_constraints () << endl;
 }//print_model_constraint_info
 

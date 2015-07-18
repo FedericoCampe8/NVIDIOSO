@@ -180,7 +180,7 @@ Statistics::print () const
         cout << "\t\tFiltering time:      " << _time[ timing_to_int ( TIMING::FILTERING ) ]  << " sec.\n";
     if ( _time[ timing_to_int ( TIMING::BACKTRACK ) ] )
         cout << "\t\tBacktrack time:      " << _time[ timing_to_int ( TIMING::BACKTRACK ) ]  << " sec.\n";
-    cout << "\t\tTotal time:          " << _time[ timing_to_int ( TIMING::ALL ) ]        << " sec.\n";
-    cout << "\t---------------------------------------------\n";
+    cout << "\t\tTotal time:          "     << _time[ timing_to_int ( TIMING::ALL ) ]        << " sec.\n";
+    cout << "\t=============================================\n";
 }//print
 

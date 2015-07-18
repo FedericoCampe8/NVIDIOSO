@@ -100,8 +100,8 @@ protected:
     //! Subtract {val} from the domain of var
     __device__ void subtract ( int var, int val );
 	
-	//! Returns True if val belongs to the domain of var, False otherwise
-	__device__ bool contains ( int var, int val );
+    //! Returns True if val belongs to the domain of var, False otherwise
+    __device__ bool contains ( int var, int val );
 	
     //! Get lower bound of the domain of var
     __device__ int get_min ( int var ) const;
@@ -158,18 +158,32 @@ public:
      * @param shared_ptr pointer to the region of shared memory
      *        where status in global memory will be copied to.
      * @param size of domains: standard (n ints), Boolean (2 ints), mixed.
+     * @note No synchronization or atomic operatations are used here
      */
     __device__ void move_status_to_shared ( uint * shared_ptr = nullptr, int d_size = MIXED_DOM );
-
+    
     /**
      * Copy status from shared memory to global memory.
      * @param shared_ptr pointer to the region of shared memory
      *        where status will be copied from.
      * @param size of domains: standard (n ints), Boolean (2 ints), mixed.
-     * @note  This function does not perform any check to ensure
-     *        that shared memory contains valid status.
+     * @note This function uses atomic operations to synchronize writes on gloabl memory
      */
     __device__ void move_status_from_shared ( uint * shared_ptr = nullptr, int d_size = MIXED_DOM );
+
+    /**
+     * Copy the domains from shared to global memory.
+     * It copies only the bitmap status (or the bounds) without
+     * updating the EVT, LB, UP, DSZ, etc. fields.
+     * @param shared_ptr pointer to the region of shared memory
+     *        where status will be copied from.
+     * @param size of domains: standard (n ints), Boolean (2 ints), mixed.
+     * @note Updates on the bitmap field is performed with atomic operations.
+     * @note This functions uses less atomics than move_status_from_shared and therefore
+     *       if faster on moving from shared to global.
+     *       However, the non-bit fields should be updated somewhere else.
+     */
+    __device__ void move_bit_status_from_shared ( uint * shared_ptr = nullptr, int d_size = MIXED_DOM );
     
     /**
      * It is a (most probably incomplete) consistency function which

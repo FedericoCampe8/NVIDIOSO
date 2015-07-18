@@ -52,7 +52,7 @@
 // VARIABLES (DOMAINS) TYPE
 #define MIXED_DOM    1
 #define BOOLEAN_DOM  2
-#define STANDARD_DOM VECTOR_MAX/(8*sizeof(int))
+#define STANDARD_DOM (5 + (VECTOR_MAX/(8*sizeof(int))))
 
 // STATUS
 #define STATUS(x, y) (_status[(x)][(y)])

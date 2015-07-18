@@ -1,9 +1,9 @@
 //
 //  depth_first_search.cpp
-//  NVIDIOSO
+//  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 08/08/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 #include "depth_first_search.h"
@@ -71,8 +71,8 @@ DepthFirstSearch::set_heuristic ( HeuristicPtr heuristic ) {
 
 void
 DepthFirstSearch::set_solution_manager ( SolutionManager* sol_manager ) {
-  if ( sol_manager == nullptr ) return;
-  _solution_manager = sol_manager;
+    if ( sol_manager == nullptr ) return;
+    _solution_manager = sol_manager;
 }//set_solution_manager
 
 void
@@ -98,24 +98,28 @@ DepthFirstSearch::get_wrong_decisions () const {
 }//get_wrong_decisions
 
 void
-DepthFirstSearch::set_timeout_limit ( double timeout ) {
-  if ( timeout >= 0 ) {
-    _timeout_out_on = true;
+DepthFirstSearch::set_timeout_limit ( double timeout )
+{
+    if ( timeout >= 0 )
+    {
+        _timeout_out_on = true;
     
-    timeval time_stats;
-    gettimeofday( &time_stats, NULL );
-    _timeout_out = time_stats.tv_sec + (time_stats.tv_usec/1000000.0) + timeout;
-  }
+        timeval time_stats;
+        gettimeofday( &time_stats, NULL );
+        _timeout_out = time_stats.tv_sec + (time_stats.tv_usec/1000000.0) + timeout;
+    }
 }//set_timeout_limit
 
 void
-DepthFirstSearch::set_time_watcher ( bool watcher_on ) {
-  _time_watcher = watcher_on;
+DepthFirstSearch::set_time_watcher ( bool watcher_on )
+{
+    _time_watcher = watcher_on;
 }//set_time_watcher
 
 void
-DepthFirstSearch::set_solution_limit ( size_t num_sol ) {
-  _solution_manager->set_solution_limit( (int) num_sol );
+DepthFirstSearch::set_solution_limit ( size_t num_sol )
+{
+	_solution_manager->set_solution_limit( (int) num_sol );
 }//set_solution_limit
 
 std::vector<DomainPtr>
@@ -129,40 +133,53 @@ DepthFirstSearch::get_solution ( int n_sol ) const {
 }//get_solution
 
 void
-DepthFirstSearch::set_backtrack_out ( size_t out_b ) {
-  _backtracks_out   = out_b;
-  _backtrack_out_on = true;
+DepthFirstSearch::set_backtrack_out ( size_t out_b )
+{
+    if ( out_b > 0 )
+    {
+        _backtracks_out   = out_b;
+        _backtrack_out_on = true;
+    }
 }//set_backtrack_out
 
 void
-DepthFirstSearch::set_nodes_out( size_t out_n ) {
-  _nodes_out    = out_n;
-  _nodes_out_on = true;
+DepthFirstSearch::set_nodes_out( size_t out_n )
+{
+    if ( out_n > 0 )
+    {
+        _nodes_out    = out_n;
+        _nodes_out_on = true;
+    }
 }//set_nodes_out
 
 void
-DepthFirstSearch::set_wrong_decisions_out ( size_t out_w ) {
-  _wrong_out    = out_w;
-  _wrong_out_on = true;
+DepthFirstSearch::set_wrong_decisions_out ( size_t out_w )
+{
+    if ( out_w > 0 )
+    {
+        _wrong_out    = out_w;
+        _wrong_out_on = true;
+    }
 }//set_wrong_decisions_out
 
 bool
-DepthFirstSearch::search_out () {
-  if ( _search_out ) return true;
+DepthFirstSearch::search_out ()
+{
+    if ( _search_out ) return true;
   
-  if ( _timeout_out_on ) {
-    timeval time_stats;
-    gettimeofday( &time_stats, NULL );
-    double current_time = time_stats.tv_sec + (time_stats.tv_usec/1000000.0);
-    if ( current_time >= _timeout_out ) 
-    {
-    	LogMsg << _dbg + "Terminated: timeout reached" << endl;
-      	_timeout_out = 0;
-      	_search_out  = true;
+    if ( _timeout_out_on ) {
+        timeval time_stats;
+        gettimeofday( &time_stats, NULL );
+        double current_time = time_stats.tv_sec + (time_stats.tv_usec/1000000.0);
+        if ( current_time >= _timeout_out ) 
+        {
+            LogMsg << _dbg + "Terminated: timeout reached" << endl;
+            _timeout_out = 0;
+            _search_out  = true;
+        }
     }
-  }
-  if ( _nodes_out_on && _num_nodes > _nodes_out ) 
-  {
+    if ( _nodes_out_on && _num_nodes > _nodes_out ) 
+    {
     	ostringstream s;
     	s << _depth;
     	
@@ -170,40 +187,40 @@ DepthFirstSearch::search_out () {
                   "Terminated: limit on the number of nodes reached - " +
                   "Depth: " + s.str() << endl;
                   
-    _search_out = true;
-    return true;
-  }
-  if ( _wrong_out_on && _num_wrong_decisions > _wrong_out ) 
-  {
+        _search_out = true;
+        return true;
+    }
+    if ( _wrong_out_on && _num_wrong_decisions > _wrong_out ) 
+    {
 	ostringstream s;
-    s << _depth;
+        s << _depth;
     
-    LogMsg << _dbg +
-              "Terminated: limit on the number of wrong decisions reached." +
-              "Depth: " + s.str() << endl;
+        LogMsg << _dbg +
+            "Terminated: limit on the number of wrong decisions reached." +
+            "Depth: " + s.str() << endl;
               
-    _search_out = true;
-    return true;
-  }
-  if ( _backtrack_out_on && _num_backtracks > _backtracks_out ) 
-  {
-	ostringstream s;
-    s << _depth;
+        _search_out = true;
+        return true;
+    }
+    if ( _backtrack_out_on && _num_backtracks > _backtracks_out ) 
+    {
+      ostringstream s;
+      s << _depth;
     
-    LogMsg << _dbg +
-              "Terminated: limit on the number of backtracks reached." +
-              "Depth: " + s.str() << endl;
-                     
-    _search_out = true;
-    return true;
-  }
-  
-  return false;
+      LogMsg << _dbg +
+          "Terminated: limit on the number of backtracks reached." +
+          "Depth: " + s.str() << endl;
+      
+      _search_out = true;
+      return true;
+    }
+    
+    return false;
 }//search_out
 
 bool
-DepthFirstSearch::labeling () {
-  
+DepthFirstSearch::labeling ()
+{  
   // Base case: no store implies that the model is trivially satisfied.
   if ( _store == nullptr ) return true;
   

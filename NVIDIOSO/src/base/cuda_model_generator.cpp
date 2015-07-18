@@ -1,9 +1,9 @@
 //
 //  cuda_model_generator.cpp
-//  NVIDIOSO
+//  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 09/07/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 #include "cuda_model_generator.h"
@@ -229,6 +229,20 @@ CudaGenerator::get_search_engine ( UTokenPtr tkn_ptr )
         FZNSearchFactory::get_fzn_search_shr_ptr ( variables,
                                                    static_cast<TokenSol * >(tkn_ptr.get()) );
     variables.clear ();
+
+    // Set solver parameters
+    if ( solver_params != nullptr )
+    {
+        engine->set_debug          ( solver_params->search_get_debug() );
+        engine->set_trail_debug    ( solver_params->search_get_trail_debug () );
+        engine->set_time_watcher   ( solver_params->search_get_time_watcher () );
+        engine->set_timeout_limit  ( solver_params->search_get_timeout () );
+        engine->set_solution_limit ( solver_params->search_get_solution_limit () );
+        engine->set_backtrack_out  ( solver_params->search_get_backtrack_limit () );
+        engine->set_nodes_out      ( solver_params->search_get_nodes_limit () );
+        engine->set_wrong_decisions_out ( solver_params->search_get_wrong_decision_limit () );
+    }
+    
     return engine;
 }//get_search_engine
 
@@ -242,8 +256,15 @@ CudaGenerator::get_store ()
 #else
     store = make_shared<SimpleConstraintStore> ();
 #endif
-  
-  return store;
+
+    // Set solver parameters
+    if ( solver_params != nullptr )
+    {
+        store->sat_check ( solver_params->cstore_get_satisfiability () );
+        store->con_check ( solver_params->cstore_get_consistency () );
+    }
+    
+    return store;
 }//get_store
 
 

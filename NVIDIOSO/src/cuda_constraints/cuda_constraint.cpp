@@ -2,7 +2,8 @@
 //  cuda_constraint.cpp
 //  iNVIDIOSO
 //
-//  Created by Federico Campeotto on 02/12/14.
+//  Created by Federico Campeotto on 12/02/14.
+//  Modified on 07/14/15.
 //  Copyright (c) 2014-2015 ___UDNMSU___. All rights reserved.
 //
 
@@ -38,8 +39,8 @@ __device__ void
 CudaConstraint::move_status_to_shared (  uint * shared_ptr, int dom_size )
 {
     if ( shared_ptr == nullptr ) return;
-    
-    if ( blockDim.x + blockDim.y == 1 || dom_size == MIXED_DOM )
+
+    if ( blockDim.x * blockDim.y == 1 || dom_size == MIXED_DOM )
     {// One thread per block
         if ( threadIdx.x == 0 )
         {
@@ -51,18 +52,18 @@ CudaConstraint::move_status_to_shared (  uint * shared_ptr, int dom_size )
                 
                 if ( _status [ i ][ EVT ] == BOL_EVT )
                 {
-                	d_size = 2;
+                    d_size = 2;
                 }
                 else
                 {
-                	d_size = STANDARD_DOM;
+                    d_size = STANDARD_DOM;
                 } 
                 for ( int j = 0; j < d_size; j++ )
                     shared_ptr [ idx++ ] = _temp_status [ i ][ j ];
             }//i
         }
     }
-    else if ( blockDim.x + blockDim.y >= _scope_size )
+    else if ( blockDim.x * blockDim.y >= _scope_size )
     {// One thread per variable
         int tid = threadIdx.x + (((gridDim.x * blockIdx.y) + blockIdx.x) * blockDim.x);
         if ( tid < _scope_size )
@@ -88,7 +89,7 @@ CudaConstraint::move_status_to_shared (  uint * shared_ptr, int dom_size )
                 shared_ptr[tid * dom_size + i] = _temp_status [ tid ][ i ];
         }
 
-        tid += (blockDim.x + blockDim.y) + (((gridDim.x * blockIdx.y) + blockIdx.x) * blockDim.x); 
+        tid += (blockDim.x * blockDim.y) + (((gridDim.x * blockIdx.y) + blockIdx.x) * blockDim.x); 
         if ( tid < _scope_size )
         {
             _temp_status [ tid ] = _status [ tid ];
@@ -108,8 +109,9 @@ CudaConstraint::move_status_from_shared ( uint * shared_ptr, int dom_size )
 {
     if ( shared_ptr == nullptr ) return;
 
-    if ( blockDim.x + blockDim.y == 1 || dom_size == MIXED_DOM )
+    if ( blockDim.x * blockDim.y == 1 || dom_size == MIXED_DOM )
     {// One thread per block
+        
         if ( threadIdx.x == 0 )
         {
             int d_size, idx = 0;
@@ -117,56 +119,211 @@ CudaConstraint::move_status_from_shared ( uint * shared_ptr, int dom_size )
             {
                 if ( _status [ i ][ EVT ] == BOL_EVT )
                 {
-                	d_size = 2;
+                    d_size = 2;
                 }
                 else
                 {
-                	d_size = STANDARD_DOM;
+                    d_size = STANDARD_DOM;
                 }
-                for ( int j = 0; j < d_size; j++ )
-                    _temp_status [ i ][ j ] = shared_ptr [ idx++ ];
+                
+                // EVT
+                if ( shared_ptr [ idx ] == FAL_EVT )
+                {
+                    _temp_status [ i ][ EVT ] = FAL_EVT;
+                }
+                else if ( shared_ptr [ idx ] == SNG_EVT )
+                {
+                    // (old == NOP_EVT ? SNG_EVT : old)
+                    /*
+                     * int old = atomicCAS ( &_temp_status [ i ][ EVT ], NOP_EVT, SNG_EVT );
+                     * if ( old != FAL_EVT ) _temp_status [ i ][ EVT ] = SNG_EVT;
+                     */
+                    atomicCAS ( &_temp_status [ i ][ EVT ], NOP_EVT, SNG_EVT );
+                    atomicCAS ( &_temp_status [ i ][ EVT ], BND_EVT, SNG_EVT );
+                    atomicCAS ( &_temp_status [ i ][ EVT ], MIN_EVT, SNG_EVT );
+                    atomicCAS ( &_temp_status [ i ][ EVT ], MAX_EVT, SNG_EVT );
+                    atomicCAS ( &_temp_status [ i ][ EVT ], CHG_EVT, SNG_EVT );
+                }
+                else if ( d_size != BOOLEAN_DOM )
+                {
+                    atomicCAS ( &_temp_status [ i ][ EVT ], NOP_EVT, shared_ptr [ idx ] );
+                }
+                else
+                {// Bool representation
+                    atomicMin ( &_temp_status [ i ][ ST ], shared_ptr [ idx + ST ] );
+                    idx += BOOLEAN_DOM;
+                    continue;
+                }
+                
+                // REP
+                _temp_status [ i ][ REP ] = shared_ptr [ idx + REP ];
 
+                // LB
+                atomicMax ( &_temp_status [ i ][ LB ], shared_ptr [ idx + LB ] );
+
+                // UB
+                atomicMin ( &_temp_status [ i ][ UB ], shared_ptr [ idx + UB ] );
+
+                // DSZ
+                atomicMin ( &_temp_status [ i ][ DSZ ], shared_ptr [ idx + DSZ ] );
+
+                // BIT
+                idx += BIT;
+                int dom_empty = 0;
+                for ( int j = BIT; j < d_size; j++ )
+                {
+                    dom_empty += (
+                        (atomicAnd ( &_temp_status [ i ][ j ], shared_ptr [ idx++ ] )) &
+                        shared_ptr [ idx-1 ] );
+                }
+				
+				// Sanity check for race conditions
+                if ( dom_empty == 0 )
+                {
+                    _temp_status [ i ][ EVT ] = FAL_EVT;
+                }
+                
                 _status [ i ] = _temp_status[ i ];
             }//i
         }
     }
-    else if ( blockDim.x + blockDim.y >= _scope_size )
+    else if ( blockDim.x * blockDim.y >= _scope_size )
     {// One thread per variable
-        int tid = threadIdx.x + (((gridDim.x * blockIdx.y) + blockIdx.x) * blockDim.x);
-        if ( tid < _scope_size )
+        
+        int tid, loop = 1;
+        int num_threads = blockDim.x + blockDim.y;
+        while ( (num_threads * loop) < _scope_size )
         {
-            if ( dom_size == STANDARD_DOM || dom_size == BOOLEAN_DOM )
-            { 
-                for ( int i = 0; i < dom_size; i++ )
-                    _temp_status [ tid ][ i ] = shared_ptr[tid * dom_size + i];
-
-                _status [ tid ] = _temp_status [ tid ];
+            tid = threadIdx.x + (((gridDim.x * blockIdx.y) + blockIdx.x) * blockDim.x) + ((blockDim.x * blockDim.y) * (loop - 1));
+            loop++;
+            
+            if ( tid < _scope_size )
+            {
+                if ( dom_size == STANDARD_DOM || dom_size == BOOLEAN_DOM )
+                {
+                    // EVT
+                    if ( shared_ptr [ tid * dom_size ] == FAL_EVT )
+                    {
+                        _temp_status [ tid ][ EVT ] = FAL_EVT;
+                    }
+                    else if ( shared_ptr [ tid * dom_size ] == SNG_EVT )
+                    {
+                        // (old == NOP_EVT ? SNG_EVT : old)
+                        int old = atomicCAS ( &_temp_status [ tid ][ EVT ], NOP_EVT, SNG_EVT );
+                        if ( old != FAL_EVT )
+                        {
+                            _temp_status [ tid ][ EVT ] = SNG_EVT;
+                        }
+                    }
+                    else if ( dom_size != BOOLEAN_DOM )
+                    {
+                        int tid_idx = tid * dom_size;
+                        atomicMin ( &_temp_status [ tid ][ EVT ], shared_ptr [ tid_idx ] );
+                        
+                        // REP
+                        _temp_status [ tid ][ REP ] = shared_ptr [ tid_idx + REP ];
+                        
+                        // LB
+                        atomicMax ( &_temp_status [ tid ][ LB ], shared_ptr [ tid_idx + LB ] );
+                        
+                        // UB
+                        atomicMin ( &_temp_status [ tid ][ UB ], shared_ptr [ tid_idx + UB ] );
+                        
+                        // DSZ
+                        atomicMin ( &_temp_status [ tid ][ DSZ ], shared_ptr [ tid_idx + DSZ ] );
+                        
+                        // BIT
+                        tid_idx += BIT;
+                        for ( int j = BIT; j < dom_size; j++ )
+                        {
+                            atomicAnd ( &_temp_status [ tid ][ j ], shared_ptr [ tid_idx++ ] );
+                        }
+                    }
+                    else
+                    {// Bool representation
+                        atomicMin ( &_temp_status [ tid ][ ST ], shared_ptr [ tid * dom_size + ST ] );
+                    }
+                    _status [ tid ] = _temp_status [ tid ];
+                }
+                else
+                {
+                    printf ("cuda_constraint: Error on copying stated from shared to global\n");
+                }
             }
         }
     }
-    else
-    {// Less than one thread per variable
-        int tid = threadIdx.x + (((gridDim.x * blockIdx.y) + blockIdx.x) * blockDim.x);
-        if ( dom_size == STANDARD_DOM || dom_size == BOOLEAN_DOM )
-        {
-            for ( int i = 0; i < dom_size; i++ )
-                _temp_status [ tid ][ i ] = shared_ptr[tid * dom_size + i];
-
-            _status [ tid ] = _temp_status [ tid ];
-        }
-
-        tid += (blockDim.x + blockDim.y) + (((gridDim.x * blockIdx.y) + blockIdx.x) * blockDim.x);
-        if ( tid < _scope_size )
-        {
-            for ( int i = 0; i < dom_size; i++ )
-                _temp_status [ tid ][ i ] = shared_ptr[tid * dom_size + i];
-
-            _status [ tid ] = _temp_status [ tid ];
-        }
-    }
-    
     __syncthreads();
 }//move_status_from_shared
+
+__device__ void
+CudaConstraint::move_bit_status_from_shared ( uint * shared_ptr, int d_size )
+{
+    if ( shared_ptr == nullptr ) return;
+    if ( blockDim.x * blockDim.y == 1 || d_size == MIXED_DOM )
+    {// One thread per block
+        if ( threadIdx.x == 0 )
+        {
+            int idx = 0;
+            for ( int i = 0; i < _scope_size; i++ )
+            {
+                // EVT
+                if ( shared_ptr [ idx ] == FAL_EVT )
+                {
+                    _temp_status [ i ][ EVT ] = FAL_EVT;
+                }
+                else if ( d_size == BOOLEAN_DOM )
+                {// Bool representation
+                    atomicMin ( &_temp_status [ i ][ ST ], shared_ptr [ idx + ST ] );
+                    idx += BOOLEAN_DOM;
+                    continue;
+                }
+                
+                idx += BIT;
+                for ( int j = BIT; j < d_size; j++ )
+                {
+                    atomicAnd ( &_temp_status [ i ][ j ], shared_ptr [ idx++ ] );
+                }
+                
+                // Copy back the original pointers
+                _status [ i ] = _temp_status[ i ];
+            }
+        }
+    }
+    else if ( blockDim.x * blockDim.y >= _scope_size )
+    {// One thread per variable
+        int tid, loop = 1;
+        int num_threads = blockDim.x + blockDim.y;
+        while ( (num_threads * loop) < _scope_size )
+        {
+            tid = threadIdx.x + (((gridDim.x * blockIdx.y) + blockIdx.x) * blockDim.x) + ((blockDim.x * blockDim.y) * (loop - 1));
+            ++loop;
+            if ( tid < _scope_size )
+            {
+                if ( d_size == STANDARD_DOM || d_size == BOOLEAN_DOM )
+                {
+                    // EVT
+                    if ( shared_ptr [ tid * d_size ] == FAL_EVT )
+                    {
+                        _temp_status [ tid ][ EVT ] = FAL_EVT;
+                    }
+                    else if ( d_size == BOOLEAN_DOM )
+                    {//Bool representation
+                        atomicMin ( &_temp_status [ tid ][ ST ], shared_ptr [ tid * d_size + ST ] );
+                    }
+                    else
+                    {
+                        int tid_idx = tid * d_size;
+                        tid_idx += BIT;
+                        for ( int j = BIT; j < d_size; j++ )
+                        {
+                        	atomicAnd ( &_temp_status [ tid ][ j ], shared_ptr [ tid_idx++ ] );
+                        }
+                    }
+                }
+            }
+        }
+    }
+}//move_bit_status_from_shared
 
 __device__ bool 
 CudaConstraint::all_ground () const

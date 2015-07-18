@@ -39,6 +39,18 @@ CudaCPModel::~CudaCPModel ()
 
 }//~CudaCPModel 
  
+uint * const 
+CudaCPModel::get_dev_domain_states_ptr () const
+{	
+	return _d_domain_states;
+}//get_dev_domain_states_ptr
+  
+int * const 
+CudaCPModel::get_dev_domain_index_ptr () const
+{
+	return _d_domain_index;
+}//get_dev_domain_index_ptr
+ 
 void
 CudaCPModel::finalize () 
 {	

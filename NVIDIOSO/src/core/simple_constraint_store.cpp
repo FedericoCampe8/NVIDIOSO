@@ -1,9 +1,9 @@
 //
 //  simple_constraint_store.cpp
-//  NVIDIOSO
+//  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 08/08/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 
@@ -18,6 +18,7 @@ _constraint_queue_size    ( 0 ),
 _number_of_constraints    ( 0 ),
 _number_of_propagations   ( 0 ),
 _satisfiability_check     ( true ),
+_consistecy_propagation   ( true ),
 _failure                  ( false ) {
 }//SimpleConstraintStore
 
@@ -42,6 +43,12 @@ void
 SimpleConstraintStore::sat_check ( bool sat_check ) {
   _satisfiability_check = sat_check;
 }//sat_check
+
+void
+SimpleConstraintStore::con_check ( bool con_check )
+{
+    _consistecy_propagation = con_check;
+}//con_check
 
 size_t
 SimpleConstraintStore::num_constraints () const {
@@ -118,17 +125,21 @@ SimpleConstraintStore::consistency () {
    * until the fix-point is reached.
    */
   bool succeed = true;
-  while ( !_constraint_queue.empty() ) {
+  while ( !_constraint_queue.empty() )
+  {    
+      _constraint_to_reevaluate = getConstraint ();
+      if ( _consistecy_propagation )
+      {
+          _constraint_to_reevaluate->consistency ();
+      }
     
-    _constraint_to_reevaluate = getConstraint ();
-    _constraint_to_reevaluate->consistency ();
+      _number_of_propagations++;
     
-    _number_of_propagations++;
-    
-    if ( _satisfiability_check ) {
-      succeed = _constraint_to_reevaluate->satisfied ();
-      if ( !succeed ) break;
-    }
+      if ( _satisfiability_check )
+      {
+          succeed = _constraint_to_reevaluate->satisfied ();
+          if ( !succeed ) break;
+      }
   }//while
 
   /*
@@ -137,9 +148,10 @@ SimpleConstraintStore::consistency () {
    */
   _constraint_to_reevaluate = nullptr;
   
-  if ( !succeed ) {
-    clear_queue ();
-    return false;
+  if ( !succeed )
+  {
+      clear_queue ();
+      return false;
   }
   
   return true;

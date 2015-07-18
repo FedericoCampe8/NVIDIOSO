@@ -196,7 +196,6 @@ CudaCPModelSimple::download_device_state ()
             idx += ( (var->domain_iterator)->get_domain_status() ).first / sizeof(int);
         }
     }
-    
   	delete [] var_domain;
 #endif
 
