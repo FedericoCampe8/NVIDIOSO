@@ -170,11 +170,11 @@ make >>& $FILELOG &
 set MAKEBG = `echo $!`
 
 set CNT     = 1
-set VARMAKE = `ps -eO pid -u ${USER} | grep -v grep | grep -c $MAKEBG`
+set VARMAKE = `ps -efu ${USER} | grep -v grep | grep -c $MAKEBG`
 echo -n "Installing..."
 echo ""
 while ( $VARMAKE > 0 )
-	set VARMAKE = `ps -eO pid -u ${USER} | grep -v grep | grep -c $MAKEBG`
+	set VARMAKE = `ps -efu ${USER} | grep -v grep | grep -c $MAKEBG`
 	echo -n "."
 	if ( $CNT % 31 == 0 ) then
 		echo ""
