@@ -3,6 +3,7 @@
 //  NVIDIOSO
 //
 //  Created by Federico Campeotto on 27/06/14.
+//  Modified by Luca Da Rin Fioretto on 24/07/15.
 //  Copyright (c) 2014-2015 ___UDNMSU___. All rights reserved.
 //
 //  Logger class used for log messages, prints and errors.
@@ -21,6 +22,7 @@
 #include <fstream>
 #include <sstream>
 #include <typeinfo>
+#include <algorithm>
 
 #if CUDAON
 #include <cuda_runtime_api.h>
@@ -67,7 +69,7 @@ protected:
   {
   	_ss_log << v;
   	std::string str = _ss_log.str();
-  	if ( (find ( str.begin(), str.end(), '\n' ) != str.end()) || flush )
+  	if ( (std::find ( str.begin(), str.end(), '\n' ) != str.end()) || flush )
   	{
   		_ss_log.str("");
   		std::string to_file = "[" +  get_time_stamp() + "]: " + str;

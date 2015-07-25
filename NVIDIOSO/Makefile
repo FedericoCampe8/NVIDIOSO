@@ -8,7 +8,7 @@ include ./make_cuda.inc
 MAIN=domain_test
 MAIN=int_ne_test
 MAIN=main
- 
+
 OBJECTS =  $(patsubst %.cpp,%.o, $(PRG_PATH)/$(MAIN).cpp)
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(BASE)/*.cpp))
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CONSTRAINTS)/*.cpp))
@@ -79,7 +79,7 @@ all : 	nvidioso
 
 # Default
 nvidioso :	$(OBJECTS) 
-	$(CC) $(CUDAOPT) $(CCLNDIRS) $(CFLAGS) -o $(TARGET) \
+	$(CC) $(CUDAOPT) $(CCLNDIRS) $(CFLAGS) -o $(NVIDIOSO_INS)/$(TARGET) \
 	$(OBJECTS:%=$(PRG_PATH)/obj/%)
 
 # Library
@@ -97,5 +97,5 @@ $(OBJECTS) : 	%.o : %.cpp
 clean:
 	@rm -f obj/*.o 	
 	@rm -f obj/*/*/*.o	
-	@rm -f $(TARGET)	
+	@rm -f $(NVIDIOSO_INS)/$(TARGET)	
 	$(PRINT_CLEAN)	

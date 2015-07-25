@@ -3,6 +3,7 @@
 //  NVIDIOSO
 //
 //  Created by Federico Campeotto on 27/06/14.
+//  Modified by Luca Da Rin Fioretto on 25/07/15.
 //  Copyright (c) 2014-2015 ___UDNMSU___. All rights reserved.
 //
 
@@ -23,7 +24,7 @@ Logger::Logger ( ostream& out, std::string log_file ) :
   	{
     	_out_log_file = log_file;
   	}
-  	_of_stream = std::ofstream ( _out_log_file );
+  	_of_stream.open( _out_log_file );
   	_verbose   = false;
 }//Logger
 
@@ -41,7 +42,7 @@ Logger::set_out_file( string out_file ) {
   {
     _of_stream.close();
   }
-  _of_stream = std::ofstream ( _out_log_file );
+  _of_stream.open( _out_log_file );
 }//set_out_file
 
 void

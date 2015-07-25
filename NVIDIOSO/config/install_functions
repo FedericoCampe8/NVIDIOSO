@@ -1,0 +1,144 @@
+# -*-Shell-script-*-
+#
+# Copyright: 2014-2015, Federico Campeotto
+#
+# This file contains functions to be used by the
+# iNVIDIOSO installation script
+#
+
+# Make sure umask is sane
+umask 022
+
+# Set up a default search path.
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+export PATH
+
+# Get a sane screen width
+# [ -z "${COLUMNS:-}" ] && COLUMNS=80
+
+# [ -z "${CONSOLETYPE:-}" ] && CONSOLETYPE="`/sbin/consoletype`"
+
+# if [ -f /etc/sysconfig/i18n -a -z "${NOLOCALE:-}" ] ; then
+#   . /etc/profile.d/lang.sh
+# fi
+
+# print_fun()
+# {
+#     echo "ciao"
+# }
+
+CreateMakeInc()
+{
+touch $MAKE_INC
+cat  <<EOF > $MAKE_INC
+#------------------------------------------------------------
+# Compiler options and definition for GNU libraries
+#------------------------------------------------------------
+
+CC = $CC
+TARGET = $iNVIDIOSO
+AR = ar
+ARFLAGS = rcs
+COMPILE = -c
+DEBUGFLAG = -W -Wall
+CCOPT = $MACHINE_VAL -DIL_STD
+CCOPT += -O2 -std=$CPP
+CFLAGS = -DCUDAON=$CUDAON
+
+#------------------------------------------------------------
+# Variable definitions
+#------------------------------------------------------------
+
+OK_STRING=[OK]
+OK_DONE =iNVIDIOSO compilation succeeded
+CLEAN_DONE =iNVIDIOSO Cleaning succeeded
+PRINT_COMPILE = @echo compiling...\${OK_STRING}
+PRINT_CLEAN   = @echo \${CLEAN_DONE}
+
+#------------------------------------------------------------
+# Paths
+#------------------------------------------------------------
+
+PRG_PATH=.
+NVIDIOSO_INS = $INSTALL_PATH
+NVIDIOSO_INC = include
+NVIDIOSO_SRC = src
+NVIDIOSO_LIB = lib
+LIBNVIDIOSO = \$(NVIDIOSO_LIB)/libnvidioso.a
+
+#------------------------------------------------------------
+# SRC Folders name
+#------------------------------------------------------------
+
+BASE=base
+CORE=core
+SEARCH=search
+PARSER=parser
+FZN_PARSER=FZ_parser
+VARIABLE=variable
+CONSTRAINTS=constraints
+CONSTRAINT_STORE=constraint_store
+CUDA_VARIABLE=cuda_variable
+CUDA_CONSTRAINTS=cuda_constraints
+CUDA_CONSTRAINT_STORE=cuda_constraint_store
+CUDA_UTILITIES=cuda_utilities
+EXCEPTION=exception
+EOF
+
+touch $MAKE_INC_CUDA
+CUDA_ON_OSX="-ccbin $OSX_COMPILER"
+NVCC_VERSION=`$CC --version | grep -c 7`
+if [ $NVCC_VERSION -eq 1 ]; then
+    CUDA_ON_OSX=""
+fi
+
+if [ $CUDAON == "true" ]; then
+cat <<EOF >> $MAKE_INC_CUDA
+CUDAOPT += $CUDA_ON_OSX
+CCOPT += -arch=sm_$CUDA_CAPABILITY
+COMPILE = -x cu -dc
+EOF
+fi
+}
+
+#########################################################################################
+#########################################################################################
+
+OSXNote()
+{
+cat <<EOF
+On OSX system the nvcc compiler might cause some problems.
+Here are some useful tips:
+1 - Check if clang is installed in the system by writing clang++ in the terminal.
+2 - Xcode Command Line Tools should be installed.
+        To install Xcode Command Line Tools enter "xcode-select --install" in the terminal
+3 - g++ should be installed in order to work with nvcc.
+        If g++4.7 or higher is already installed in your system you can go directly
+        to step 4. Otherwise, install g++ as follows.
+        To install g++ we suggest to use Homebrew.
+        Type:
+        ruby -e "\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+        to install homebrew if not present in your system.
+        To install gcc and g++ type the following commands:
+                brew update
+                brew tap homebrew/versions
+                brew install [flags] gcc48
+        You can view available install flags by using
+                brew options gcc48
+        If you don't want to use Homebrew,
+        you may want to have a look at the gcc website
+                gcc.gnu.org
+        and, in particular, at the Installation section.
+        If you used Homebrew to install the compiler,
+        you should be able to locate it in the following directory:
+                /usr/local/Cellar/gcc47/
+        In any case, you need to change the global variable storing the path
+        where the compiler is located to be used together with nvcc.
+4 - THIS STEP IS NO LONGER NEEDED WITH CUDA7
+        If <path> is the path where the compiler is located, open "iNVIDIOSO.envs"
+        and set <path> as the env variable OSX_COMPILER.
+
+Press any key to continue or ctrl-c to exit.
+EOF
+read EXT
+}
