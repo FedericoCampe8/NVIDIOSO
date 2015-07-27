@@ -22,7 +22,7 @@ __device__ CudaIntEq::~CudaIntEq ()
 }
 
 __device__ void
-CudaIntEq::consistency ()
+CudaIntEq::consistency ( int ref )
 {
 }//consistency
 

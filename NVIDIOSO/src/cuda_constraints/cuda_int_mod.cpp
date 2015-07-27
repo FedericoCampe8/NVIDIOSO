@@ -22,7 +22,7 @@ __device__ CudaIntMod::~CudaIntMod ()
 }
 
 __device__ void
-CudaIntMod::consistency ()
+CudaIntMod::consistency ( int ref )
 {
 }//consistency
 

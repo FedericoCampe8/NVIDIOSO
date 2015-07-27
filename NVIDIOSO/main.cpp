@@ -40,7 +40,7 @@ int main( int argc, char * argv[] )
   	try 
   	{
   		LogMsg << dbg + "Model Initialization" << std::endl;
-    	d_store.init_model();
+  		d_store.init_model();
   	} 
   	catch ( std::exception& e ) 
   	{

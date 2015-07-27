@@ -16,14 +16,26 @@
 
 class CudaSimpleConstraintStore : public SimpleConstraintStore {
 protected:
+
+#if CUDAON
+    dim3 dev_grid_size;
+    dim3 dev_block_size;
+#endif
+
+    //! Max amount of shared memory available
+    std::size_t _shared_limit;
+    
     //! Constraint queue: constraints to be propagated on device
-    size_t * _d_constraint_queue;
+    std::size_t * _d_constraint_queue;
 
     //! Number of bytes needed to store the state of the variables in the scope of a constraint
-    size_t _scope_state_size;
+    std::size_t _scope_state_size;
 
-	//! Propagation loop out parameter
-	int _loop_out;
+	//! Flag forcing propagation
+	bool _force_propagation; 
+	
+    //! Propagation loop out parameter
+    int _loop_out;
 	
     //! Constraint queue on device
     std::vector<size_t> _h_constraint_queue;
@@ -33,7 +45,7 @@ protected:
      * @return true if the copy has been completed successfully. False otherwise.
      * @note copy is performed synchronously.
      */
-    bool move_states_to_device ();
+    virtual bool move_states_to_device ();
 
     /**
      * Copy the current states (domains) from device to host
@@ -41,10 +53,10 @@ protected:
      *         AND no domain is empty. False otherwise.
      * @note copy is performed synchronously.
      */
-    bool move_states_from_device ();
+    virtual bool move_states_from_device ();
 
     //! Copy the current queue of constraints on device
-    void move_queue_to_device ();
+    virtual void move_queue_to_device ();
 
     /**
      * Pointer to the current CP_model.
@@ -55,6 +67,27 @@ protected:
     //! Invoke the kernel which performs consistency on device
     virtual void dev_consistency ();
 
+    /**
+     * Init function that could be used by subclasses to initialize
+     * some internal state before the actual propagation.
+     */
+    virtual void init_store ();
+    
+    /**
+     * Set parameter forcing propagation on device due to some events
+     * @param event event that could potentially trigger another propagation loop.
+     */    
+    virtual void set_force_propagation ( EventType event );
+    
+    /**
+     * Force propagation on device due to some events
+     * @param event event that could potentially trigger another propagation loop.
+     */    
+    virtual bool force_propagation ();
+    
+    //! Add a single constraint for re-evaluation.
+    void add_changed ( size_t c_id, EventType event ) override;
+    
 public:
     /**
      * Default constructor. It initializes the
@@ -63,7 +96,9 @@ public:
     CudaSimpleConstraintStore ();
 
     ~CudaSimpleConstraintStore ();
-
+	
+	using SimpleConstraintStore::add_changed;
+	
 	/**
 	 * Sets the number of iterations to perform to
 	 * propagate constrains on device.
@@ -86,6 +121,9 @@ public:
      */
     bool consistency () override;
 
+	//! Clear and reset store
+	void clear_queue () override;
+	
     /**
      * Allocate memory on device.
      * @param num_cons total number of constraints.

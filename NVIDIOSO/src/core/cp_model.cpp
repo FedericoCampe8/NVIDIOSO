@@ -125,4 +125,12 @@ CPModel::print () const {
     cout << "Search engine:\n";
     _search_engine->print();
   }
+  for ( auto& v: _variables )
+  {
+  	v->print ();
+  }
+  for ( auto& c: _constraints )
+  {
+  	c->print ();
+  }
 }//print

@@ -49,13 +49,18 @@ DepthFirstSearch::init_search () {
 }//init_search
 
 void
-DepthFirstSearch::set_debug ( bool debug_on ) {
+DepthFirstSearch::set_debug ( bool debug_on ) 
+{
   _debug = debug_on;
 }//set_debug
 
 void
-DepthFirstSearch::set_trail_debug ( bool debug_on ) {
-  _debug       = debug_on;
+DepthFirstSearch::set_trail_debug ( bool debug_on ) 
+{
+	if ( debug_on )
+	{
+  		_debug = debug_on;
+  	}
   _trail_debug = debug_on;
 }//set_debug
 
@@ -232,35 +237,65 @@ DepthFirstSearch::labeling ()
     throw NvdException( (_dbg + "No Solution Listener").c_str() );
   }
   
-  // Initial consistency on the store
+  /*
+   * Initial consistency on the store.
+   * @note Exit asap if the problem is unsatisfiable and
+   * this can be found with a single propagation, e.g., checking domains.
+   */
   bool search_consistent  = _store->consistency();
   
-  // Store the state before any labeling on FD vars
+  /*
+   * Store the state before any labeling on FD vars.
+   * This is done to preserve the variables (status) for further operations
+   * on them after the labeling has been completed.
+   */
   _backtrack_manager->set_level( _backtrack_manager->get_level () + 1 );
   _depth = _backtrack_manager->get_level ();
   
-  if ( _trail_debug ) {
+  if ( _trail_debug ) 
+  {
     cout << "Trailstack before labeling:\n";
     _backtrack_manager->print();
   }
   
-  if ( search_consistent ) {
-    try {
-      search_consistent = label( 0 );
-    } catch ( NvdException& e ) {
+  if ( search_consistent ) 
+  {
+    try 
+    {
+    	/*
+    	 * Force storage for variables before any operation on them.
+    	 * @note if we don't force storage, it may be the case where the
+    	 *       following propagation does not modify any domain and, therefore,
+    	 *       no variable notifies backtrack manager.
+    	 *       The following labeling will notify the backtrack manager which 
+    	 *       will store a modified domain (i.e., the singleton) without storing
+    	 *       the actual domain of the labeled variable.
+    	 */
+    	_backtrack_manager->force_storage (); 
+    	
+    	// Start exploring the search tree from level 0
+		search_consistent = label( 0 );
+    }
+    catch ( NvdException& e ) 
+    {
       throw e;
     }
   }
    
+  // Reset all the status of the variables 
   _backtrack_manager->remove_level( _backtrack_manager->get_level() );
-  _backtrack_manager->set_level ( _backtrack_manager->get_level() - 1 );
-
+  
   // Print solutions and info about the search
-  if ( search_consistent || _solution_manager->number_of_solutions() ) {
-    if ( _solution_manager->number_of_solutions() == 1 )
-      cout << "----- Solution -----\n";
+  if ( search_consistent || _solution_manager->number_of_solutions() ) 
+  {
+	if ( _solution_manager->number_of_solutions() == 1 )
+	{
+    	cout << "----- Solution -----\n";
+    }
     else
-      cout << "----- Solutions -----\n";
+    {
+    	cout << "----- Solutions -----\n";
+    }
     print_all_solutions ();
     cout << "---------------------\n";
   }
@@ -274,8 +309,8 @@ DepthFirstSearch::labeling ()
 }//labeling
 
 bool
-DepthFirstSearch::label( int var_idx ) {
-  
+DepthFirstSearch::label( int var_idx ) 
+{
   if ( search_out() ) return false;
   
   Variable * var;
@@ -287,16 +322,23 @@ DepthFirstSearch::label( int var_idx ) {
   
   // Checks whether the current store is consistent
   if ( _time_watcher )
+  {
     statistics.set_timer( Statistics::TIMING::FILTERING );
+  }
   
   consistent = _store->consistency ();
   
   if ( _time_watcher )
+  {
     statistics.stopwatch_and_add ( Statistics::TIMING::FILTERING );
+  }
   
-  if ( !consistent ) {
+  if ( !consistent ) 
+  {
     if ( _debug )
-      cout << _dbg << "Store not consistent at depth " << _depth << endl;
+    {
+      LogMsg << _dbg << "Store not consistent at depth " << _depth << endl;
+    }
     
     /*
      * There is a leaf representing 
@@ -305,33 +347,44 @@ DepthFirstSearch::label( int var_idx ) {
     _num_wrong_decisions++;
     return false;
   }
-  else {
-  
+  else 
+  {
     // Consistent
+    _backtrack_manager->force_storage ();
     _backtrack_manager->set_level ( ++_depth );
     if ( _depth > _peak_depth ) _peak_depth = _depth;
     
     if ( _trail_debug ) 
     {
-    	cout<<"TrailStack after consistency at level " << _depth << ":\n";
+    	cout << "TrailStack after consistency at level " << _depth << ":\n";
       	_backtrack_manager->print();
     }
     
     var = _heuristic->get_choice_variable ( var_idx );
-    if ( var != nullptr ) {
+    if ( var != nullptr ) 
+    {
       
       if ( _debug )
-        cout << _dbg << "Label V_" << var->get_id() <<
-        " (" << var->get_str_id() << ")" << " at level " << _depth << endl;
+      {
+    	LogMsg 
+    	<< _dbg << "Label V_" << var->get_id() << " (" 
+    	<< var->get_str_id() << ")" << " at level " << _depth 
+    	<< endl;
+       }
         
-      try {
-        value = _heuristic->get_choice_value ();
-      } catch ( NvdException& e ) {
+      try 
+      {
+    	value = _heuristic->get_choice_value ();
+      } 
+      catch ( NvdException& e ) 
+      {
         throw e;
       }
       
       if ( _debug )
-        cout << _dbg << "-- Label = " << value << " -- " << endl;
+      {
+    	LogMsg << _dbg << "-- Label = " << value << " -- " << endl;
+	  }
 
       /*
        * Here it comes the actual labeling.
@@ -342,16 +395,22 @@ DepthFirstSearch::label( int var_idx ) {
         (static_cast<IntVariable*>(var))->shrink ( value, value );   
         
     }
-    else {
+    else 
+    {
       
       // Solution found, so this is not a search node
       if ( _debug )
-        cout << _dbg << "Solution found at level " << _depth << endl;
+      {
+        LogMsg << _dbg << "Solution found at level " << _depth << endl;
+      }
       
-      bool cut_search;
-      try {
+      bool cut_search; 
+      try 
+      {
         cut_search = _solution_manager->notify ();
-      } catch ( NvdException& e ) {
+      } 
+      catch ( NvdException& e ) 
+      {
         throw e;
       }
   
@@ -360,13 +419,16 @@ DepthFirstSearch::label( int var_idx ) {
       if ( _time_watcher )
         statistics.set_timer ( Statistics::TIMING::BACKTRACK );
       
-      _backtrack_manager->remove_level ( _depth );
+      _backtrack_manager->remove_level ( _depth   );
       _backtrack_manager->set_level    ( --_depth );
       
       if ( _time_watcher )
+      {
         statistics.stopwatch_and_add ( Statistics::TIMING::BACKTRACK );
+      }
       
-      if ( _trail_debug ) {
+      if ( _trail_debug ) 
+      {
         cout << "Trailstack after solution has been found at level " << _depth <<
         " (after pop):\n";
         
@@ -381,33 +443,46 @@ DepthFirstSearch::label( int var_idx ) {
     int next_index = _heuristic->get_index();
     
     if ( _debug )
-      cout << _dbg << "Recursive call from level " << _depth << endl;
+    {
+      LogMsg << _dbg << "Recursive call from level " << _depth << endl;
+    }
     
-    try {
+    try 
+    {
       consistent = label ( next_index );
-    } catch ( NvdException& e ) {
+    } 
+    catch ( NvdException& e ) 
+    {
       throw e;
     }
     
     if ( _debug )
-      cout << _dbg << "Return from recursive call at level " << _depth << endl;
+    {
+      LogMsg << _dbg << "Return from recursive call at level " << _depth << endl;
+    }
     
     // If children are consistent, done exit
-    if ( consistent ) {
+    if ( consistent ) 
+    {
       var = nullptr;
 
       if ( _time_watcher )
+      {
         statistics.set_timer ( Statistics::TIMING::BACKTRACK );
+      }
       
       _backtrack_manager->remove_level ( _depth   );
       _backtrack_manager->set_level    ( --_depth );
       
       if ( _time_watcher )
+      {
         statistics.stopwatch_and_add ( Statistics::TIMING::BACKTRACK );
+      }
       
-      return  true;
+      return true;
     }
-    else {
+    else 
+    {
       
       /*
        * The current assignment of value to var leads to 
@@ -417,16 +492,23 @@ DepthFirstSearch::label( int var_idx ) {
        */
       
       if ( _debug )
-        cout << _dbg << "Backtrack on V_" << var->get_id() << " from level " <<
-        _depth << endl;
-
+      {
+        LogMsg << _dbg << "Backtrack on V_" << var->get_id() 
+        << " from level " << _depth 
+        << endl;
+	  }
+	  
       if ( _time_watcher )
+      {
         statistics.set_timer ( Statistics::TIMING::BACKTRACK );
+      }
       
       _backtrack_manager->remove_level ( _depth );
       
       if ( _time_watcher )
+      {
         statistics.stopwatch_and_add ( Statistics::TIMING::BACKTRACK );
+      }
       
       if ( _trail_debug ) 
       {
@@ -435,65 +517,97 @@ DepthFirstSearch::label( int var_idx ) {
         _solution_manager->print_variables ();
       }
       
-      if ( !var->is_singleton() ) {
+      if ( !var->is_singleton() ) 
+      {
+    	if ( _debug )
+        {
+          cout << _dbg << "V_" << var->get_id() 
+          << " new labeling (rec. call) " << "D^V_" << var->get_id() 
+          << "\\{" << value << "}" 
+          << endl;
+        }
         
-        if ( _debug )
-          cout << _dbg << "V_" << var->get_id() <<
-          " new labeling (rec. call) " << "D^V_" << var->get_id() <<
-          "\\{" << value << "}" << endl;
-        
-         _backtrack_manager->set_level ( _backtrack_manager->get_level() );
+        _backtrack_manager->set_level ( _backtrack_manager->get_level() );
         
         /*
-         * Here it comes the actual labeling.
+         * Avoid considering the value that lead to a failure.
          * @note care must be taken for non int variables (e.g. set, float).
          * @note it automatically notifies the attached store.
          */
         if ( var->domain_iterator->is_numeric () )
+        {
           (static_cast<IntVariable*>(var))->subtract ( value );
+        }
         
         _backtrack_manager->force_storage ();
         
         if ( _debug )
+        {
           if ( var->is_singleton() )
-            cout << _dbg << "V_" << var->get_id() << " became assigned with value " <<
-            (static_cast<IntVariable*>(var))->min() << endl;
-
-        try {
+          {
+            cout << _dbg << "V_" << var->get_id() << " became assigned with value " 
+            << (static_cast<IntVariable*>(var))->min() 
+            << endl;
+          }
+		}
+		
+        try 
+        {
+          /*
+           * Try to label again here.
+           * @note the var_idx remains the same since the search
+           *       is still considering the same level of the tree.
+           * @note most probably the same variable will be considered in the next
+           *       iteration, but the value "value" that led to failure 
+           *       is not present anymore in its domain. 
+           */		
           consistent = label ( var_idx );
-        } catch ( NvdException& e ) {
+        } 
+        catch ( NvdException& e ) 
+        {
           throw e;
         }
         
         if ( _debug )
-          cout << _dbg << "Return from new labeling of V_" << var->get_id() <<
-          " (rec. call) at level " << _depth << endl;
+        {
+          cout << _dbg << "Return from new labeling of V_" << var->get_id() 
+          << " (rec. call) at level " << _depth 
+          << endl;
+        }
         
-        if ( !consistent ) {
+        if ( !consistent ) 
+        {
           _num_backtracks++;
           
           if ( _time_watcher )
+          {
             statistics.set_timer ( Statistics::TIMING::BACKTRACK );
+          }
           
           _backtrack_manager->remove_level ( _depth );
           
           if ( _time_watcher )
+          {
             statistics.stopwatch_and_add ( Statistics::TIMING::BACKTRACK );
+          }
           
-          if ( _trail_debug ) {
+          if ( _trail_debug ) 
+          {
             cout << "Trailstack after pop:\n";
             _backtrack_manager->print();
             _solution_manager->print_variables ();
           }
         }
-        
       }
-      else {
-        
+      else 
+      {
         // Var was singleton, can't label it anymore
         if ( _debug )
-          cout << _dbg << "V_" << var->get_id() << " is singleton - fail" << endl;
-
+        {
+          LogMsg << _dbg << "V_" << var->get_id() 
+          << " is singleton - fail" 
+          << endl;
+		}
         var = nullptr;
         consistent = false;
       }

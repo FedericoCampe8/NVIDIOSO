@@ -22,7 +22,7 @@ __device__ CudaBoolOr::~CudaBoolOr ()
 }
 
 __device__ void
-CudaBoolOr::consistency ()
+CudaBoolOr::consistency ( int ref )
 {
 }//consistency
 

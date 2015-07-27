@@ -22,7 +22,7 @@ __device__ CudaSetUnion::~CudaSetUnion ()
 }
 
 __device__ void
-CudaSetUnion::consistency ()
+CudaSetUnion::consistency ( int ref )
 {
 }//consistency
 

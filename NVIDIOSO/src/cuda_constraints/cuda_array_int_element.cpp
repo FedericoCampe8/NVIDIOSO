@@ -22,7 +22,7 @@ __device__ CudaArrayIntElement::~CudaArrayIntElement ()
 }
 
 __device__ void
-CudaArrayIntElement::consistency ()
+CudaArrayIntElement::consistency ( int ref )
 {
 }//consistency
 

@@ -22,7 +22,7 @@ __device__ CudaBoolLtReif::~CudaBoolLtReif ()
 }
 
 __device__ void
-CudaBoolLtReif::consistency ()
+CudaBoolLtReif::consistency ( int ref )
 {
 }//consistency
 

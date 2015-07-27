@@ -21,7 +21,7 @@ __device__ CudaIntNe::~CudaIntNe () {
 }
 
 __device__ void
-CudaIntNe::consistency ()
+CudaIntNe::consistency ( int ref )
 { 
     /*
      * Propagate constraint iff there are two
@@ -41,7 +41,7 @@ CudaIntNe::consistency ()
     	if ( !is_singleton ( X_VAR ) )
         {
             // 1 Auxiliary argument here
-            subtract( X_VAR, ARGS [ 0 ] );
+            subtract( X_VAR, ARGS [ 0 ], ref );
         }
     	return;
     }
@@ -56,11 +56,11 @@ CudaIntNe::consistency ()
     	bool singleton_y = is_singleton ( Y_VAR );
         if ( singleton_x && !singleton_y ) 
         {
-            subtract ( Y_VAR, get_min ( X_VAR ) );
+            subtract ( Y_VAR, get_min ( X_VAR ), ref );
         }
         else if ( !singleton_x && singleton_y ) 
 		{
-            subtract ( X_VAR, get_min ( Y_VAR ) );
+            subtract ( X_VAR, get_min ( Y_VAR ), ref );
         }
         return;
     }

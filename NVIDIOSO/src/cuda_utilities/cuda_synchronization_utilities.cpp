@@ -127,5 +127,28 @@ CudaSynchUtils::cuda_set_domains_from_bit_1b1v ( int* domain_idx, uint* domain_s
     }
 }//cuda_set_domains_from_bit_1b1v
 
+__global__  void 
+CudaSynchUtils::cuda_copy_state_1b1v  ( int* domain_idx, uint* source_states, uint* dest_states, int domain_type_size )
+{
+	if ( source_states == nullptr || dest_states == nullptr ) return;
+	
+	if ( threadIdx.x == 0 )
+    {
+    	int idx = domain_idx[ blockIdx.x ];
+        uint * addr = &source_states[ idx ];
+        for ( int i = 0; i < domain_type_size; i++ )
+        {
+            dest_states[ idx + i ] = addr[ i ];
+        }
+        /*
+        printf ( "V_%d (idx %d, len: %d): %d %d %d %d %d : %d\n", 
+        blockIdx.x, domain_idx[ blockIdx.x ], domain_type_size,
+        dest_states[ idx + 0 ], dest_states[ idx + 1 ], dest_states[ idx + 2 ], dest_states[ idx + 3 ],
+        dest_states[ idx + 4 ], dest_states[ idx + 12 ] );
+        */
+    }
+	
+}//cuda_copy_state_1b1v
+
 #endif
 

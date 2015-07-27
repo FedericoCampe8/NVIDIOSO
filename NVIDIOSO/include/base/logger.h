@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
+#include <algorithm>
 #include <unistd.h>
 #include <iomanip>
 #include <iostream>
@@ -67,7 +68,7 @@ protected:
   {
   	_ss_log << v;
   	std::string str = _ss_log.str();
-  	if ( (find ( str.begin(), str.end(), '\n' ) != str.end()) || flush )
+  	if ( (std::find ( str.begin(), str.end(), '\n' ) != str.end()) || flush )
   	{
   		_ss_log.str("");
   		std::string to_file = "[" +  get_time_stamp() + "]: " + str;

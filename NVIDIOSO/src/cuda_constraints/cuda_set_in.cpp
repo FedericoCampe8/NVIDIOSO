@@ -22,7 +22,7 @@ __device__ CudaSetIn::~CudaSetIn ()
 }
 
 __device__ void
-CudaSetIn::consistency ()
+CudaSetIn::consistency ( int ref )
 {
 }//consistency
 

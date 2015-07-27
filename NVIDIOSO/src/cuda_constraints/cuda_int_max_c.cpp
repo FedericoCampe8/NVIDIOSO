@@ -22,7 +22,7 @@ __device__ CudaIntMaxC::~CudaIntMaxC ()
 }
 
 __device__ void
-CudaIntMaxC::consistency ()
+CudaIntMaxC::consistency ( int ref )
 {
 }//consistency
 

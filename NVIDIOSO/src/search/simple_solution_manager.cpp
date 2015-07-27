@@ -84,7 +84,8 @@ SimpleSolutionManager::notify () {
   
   string solution_str = "";
   for ( auto var : _variables ) {
-    if ( !var.second->is_singleton() ) {
+    if ( !var.second->is_singleton() ) 
+    {
       throw
       NvdException ( string("Something went wrong: not all variables assigned for solution.").c_str() );
     }

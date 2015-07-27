@@ -43,9 +43,15 @@ private:
     static constexpr std::string PARAM_SEP_KWD;
     static constexpr std::string PARAM_YES_KWD;
     static constexpr std::string PARAM_NO_KWD;
+    static constexpr std::string CUDA_KWD;
     static constexpr std::string SEARCH_KWD;
     static constexpr std::string CSTORE_KWD;
     // =====================================================
+
+    // ======================= CUDA ======================
+    std::size_t _cuda_shared_available;
+    static constexpr std::string CUDA_SHARED_SIZE_KWD;
+    // ===================================================
     
     // ======================== SEARCH PARAMETERS ========================
     bool   _search_debug;
@@ -72,7 +78,7 @@ private:
     static constexpr std::string CSTORE_CONSISTENCY_KWD;
     static constexpr std::string CSTORE_SATISFIABILITY_KWD;
 
-    // 					 ======== CONSTRAINT STORE CUDA ========
+    // 	                  ======== CONSTRAINT STORE CUDA ========
     
     int  _cstore_cuda_prop_loop_out;
     CudaPropParam _cstore_cuda_propagation_function;
@@ -89,6 +95,7 @@ private:
     void print_option ( double       d,  bool new_line=true ) const;
     void print_option ( std::string  s,  bool new_line=true ) const;
     void print_option ( CudaPropParam p, bool new_line=true ) const;
+    void print_option ( std::size_t   s, bool new_line=true ) const;
     
 protected:
     //! Open parameters file
@@ -112,6 +119,9 @@ protected:
     //! Constraint store parameters
     virtual void set_constraint_engine_parameters ( std::string& line );
     
+    //! CUDA parameters
+    virtual void set_cuda_parameters ( std::string& line );
+    
 public:
     ParamData ();
     ParamData ( std::string in_file );
@@ -131,6 +141,10 @@ public:
     std::string get_param_path  () const;
 
     //======================================
+    
+    // ========= CUDA =========
+    std::size_t cuda_get_shared_mem_size () const;
+    // ========================
     
     // ========= SEARCH PARAMETERS =========
     bool   search_get_debug () const;

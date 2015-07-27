@@ -22,7 +22,7 @@ __device__ CudaIntTimes::~CudaIntTimes ()
 }
 
 __device__ void
-CudaIntTimes::consistency ()
+CudaIntTimes::consistency ( int ref )
 {
 }//consistency
 

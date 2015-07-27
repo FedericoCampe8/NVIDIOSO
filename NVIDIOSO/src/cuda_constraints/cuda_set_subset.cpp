@@ -22,7 +22,7 @@ __device__ CudaSetSubset::~CudaSetSubset ()
 }
 
 __device__ void
-CudaSetSubset::consistency ()
+CudaSetSubset::consistency ( int ref )
 {
 }//consistency
 

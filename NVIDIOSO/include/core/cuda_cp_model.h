@@ -35,11 +35,20 @@ protected:
   //! Domain state on device
   uint *  _d_domain_states;
   
+  /**
+   * Auxiliary array of domain states.
+   * @note by default this is not being allocated.
+   * @note used if some particular synchronization strategy on
+   *       the original array is required.
+   */
+   uint * _d_domain_states_aux;
+  
   //! Size of (num. of bytes) all domains
   size_t _domain_state_size;
   
-  //! Domain (begin) index
+  //! Domain (begin) index on device
   int  *  _d_domain_index;
+  
   /**
    * Information related to constraints:
    * 1 - Type of constraint
@@ -53,6 +62,9 @@ protected:
   
   //! Map from var id on host to var id on device
   std::map<int, int> _cuda_var_lookup;
+  
+  //! Map from var on device to index of corresponding domains on device
+  std::vector<int> _map_vars_to_doms;
   
   //! Allocate domains on device
   virtual bool alloc_variables ();
@@ -73,6 +85,18 @@ public:
   //! Get function for domain states indeces
   int * const get_dev_domain_index_ptr () const;
   
+  //! Get function for auxiliary states
+  uint * const get_dev_domain_states_aux_ptr () const;
+
+  /**
+   * Converts the ids of the variables on the host
+   * on the corresponding ids of the variables on device.
+   * @param var_ids a (unordered) set of host variables ids
+   * @return a vector of integers representing the indeces of the
+   *         variables on devices corresponding to the var ids in var_ids.
+   */
+  std::vector<int> dev_var_mapping ( std::unordered_set<int> var_ids );
+    
   /**
    * Finalizes the model.
    * This method actually allocates the structures on 
@@ -80,6 +104,27 @@ public:
    */
   void finalize ();
   
+  /**
+   * Allocate memory for the auxiliary array of states.
+   * @note if memory has been already allocated, it returns.
+   */
+   virtual void allocate_domain_states_aux ();
+   
+   //! Copy current states on the auxiliary array
+   virtual void device_state_to_aux ();
+   
+   //! Copy aux states on the array of states
+   virtual void device_aux_to_state ();
+   
+  /**
+   * Reset the current state of the events associated with 
+   * the variables.
+   * This is done to notify constraint store about events that are 
+   * actually changed by propagation.
+   * @note after notifying the store, events are automatically reset.
+   */
+  virtual void reset_device_state ();
+  	 
   /**
    * Move the current state (set of domains)
    * from host to device.

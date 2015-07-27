@@ -23,7 +23,7 @@ Logger::Logger ( ostream& out, std::string log_file ) :
   	{
     	_out_log_file = log_file;
   	}
-  	_of_stream = std::ofstream ( _out_log_file );
+  	_of_stream.open ( _out_log_file );
   	_verbose   = false;
 }//Logger
 
@@ -71,13 +71,20 @@ Logger::get_time_stamp ()
   	_time_info = std::localtime ( &_raw_time );
   	string yy  = to_string ( _time_info->tm_year + 1900 );
   	string mm  = to_string ( _time_info->tm_mon  + 1    );
+  	string dd  = to_string ( _time_info->tm_mday + 1    );
   	
-  	string
-  	yymmdd = __DATE__;
-  	yymmdd += "-";
-  	yymmdd += __TIME__;
+  	string hh  = to_string ( _time_info->tm_hour );
+  	string mn  = to_string ( _time_info->tm_min  );
+  	string ss  = to_string ( _time_info->tm_sec  );
   	
-  	return yymmdd;
+  	if ( mm.size() == 1 )
+  	{
+  		mm = "0" + mm;
+  	}
+  	string time_stamp =
+  	yy + mm + dd + "_" + hh + mn + ss;
+
+  	return time_stamp;
 }//get_time_stamp
 
 // Print error message on cerr

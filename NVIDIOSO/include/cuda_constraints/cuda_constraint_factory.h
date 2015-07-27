@@ -15,8 +15,6 @@
 #include "cuda_constraint_inc.h"
 #include "cuda_propagation_utilities.h"
 
-#define G_DEV_CONSTRAINTS_ARRAY g_dev_constraints
-
 #if CUDAON
 #include <cuda.h>
 #include <cuda_runtime_api.h>

@@ -37,7 +37,7 @@ public:
   __device__ ~CudaIntLt ();
   
   //! It performs domain consistency
-  __device__ void consistency ();
+  __device__ void consistency ( int ref = -1 );
   
   //! It checks if
   __device__ bool satisfied ();

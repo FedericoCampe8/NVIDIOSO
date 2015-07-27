@@ -103,7 +103,8 @@ SimpleConstraintStore::impose ( ConstraintPtr c ) {
 }//impose
 
 void
-SimpleConstraintStore::clear_queue () {
+SimpleConstraintStore::clear_queue () 
+{
   if ( !_constraint_queue.size () ) return;
   
   // Clear the constraint queue
