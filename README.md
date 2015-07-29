@@ -1,6 +1,6 @@
 **iNVIDIOSO**
 ===================
-NVIDIa-based cOnstraint SOlver v. 1.0 
+iNVIDIa-based cOnstraint SOlver v. 1.0 
 ===============================
 
 iNVIDIOSO1.0 is a constraint solver for constraint satisfaction and optimization problems.
