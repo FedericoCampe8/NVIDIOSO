@@ -53,7 +53,7 @@ int main( int argc, char * argv[] )
    	 ***************************************/
 	LogMsg << dbg + "Instantiate CP solver" << std::endl;
   
-  	CPSolver * cp_solver = new CPSolver( d_store.get_model() );
+	std::unique_ptr<CPSolver> cp_solver ( new CPSolver( d_store.get_model() ) );
   	if ( cp_solver == nullptr ) 
   	{
   		LogMsg << dbg << "Failed to create the constraint model" << std::endl;

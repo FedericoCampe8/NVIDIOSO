@@ -17,11 +17,11 @@ Logger::Logger ( ostream& out, std::string log_file ) :
 	_out ( out ) {
   	if ( log_file.compare( "" ) == 0 )
   	{
-    	_out_log_file = "invidioso_" + get_time_stamp () + ".log";
+	  _out_log_file = "invidioso_" + get_time_stamp () + ".log";
   	}
   	else
-  	{
-    	_out_log_file = log_file;
+      	{
+	  _out_log_file = log_file;
   	}
   	_of_stream.open ( _out_log_file );
   	_verbose   = false;
@@ -41,7 +41,7 @@ Logger::set_out_file( string out_file ) {
   {
     _of_stream.close();
   }
-  _of_stream = std::ofstream ( _out_log_file );
+  _of_stream.open ( _out_log_file );
 }//set_out_file
 
 void

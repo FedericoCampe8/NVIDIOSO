@@ -71,6 +71,9 @@ case "$OS" in
     [Bb]sd* )
     OS="BSD"
     ;;
+    CYGWIN* )
+    OS="CYGWIN"
+    ;;
     * )
         echo "Unknown OS: $OS"
         exit 1;;
@@ -204,6 +207,7 @@ echo ""
 # Check install errors
 VARERROR=`grep -c -i Error $FILELOG`
 VARSTOP=`grep -c -i Stop $FILELOG`
+PROG_COUNT=`ls | grep -c -x $iNVIDIOSO`
 if [ $VARERROR -gt 0 ] || [ $VARSTOP -gt 0 ] || [ $PROG_COUNT -eq 0 ]; then
     echo "Something went wrong during installation."
     echo "Check log file: $FILELOG"
