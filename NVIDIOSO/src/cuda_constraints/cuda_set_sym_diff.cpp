@@ -22,7 +22,7 @@ __device__ CudaSetSymDiff::~CudaSetSymDiff ()
 }
 
 __device__ void
-CudaSetSymDiff::consistency ()
+CudaSetSymDiff::consistency ( int ref )
 {
 }//consistency
 

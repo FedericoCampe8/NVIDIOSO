@@ -114,7 +114,7 @@ CPSolver::run_model ( CPModel * model ) {
     } catch ( NvdException& e ) {
       e.what();
       std::cerr << "Model_" << model->get_id() <<
-      " not terminated properly:\n";
+      " terminated improperly:\n";
       std::cerr << e.what() << std::endl;
     }
     

@@ -1,0 +1,22 @@
+DepthFirstSearch - Recursive call from level 6
+DepthFirstSearch - Label V_3 (q[3]) at level 7
+DepthFirstSearch - -- Label = 1 -- 
+V_1: || 1 | 0 | 2 | 2 | 1 || 00000000000000000000000000000100 ||
+V_2: || 1 | 0 | 6 | 6 | 1 || 00000000000000000000000001000000 ||
+V_3: || 5 | 0 | 1 | 8 | 3 || 00000000000000000000000100001010 ||
+V_4: || 4 | 0 | 1 | 7 | 3 || 00000000000000000000000010001010 ||
+V_5: || 5 | 0 | 1 | 8 | 5 || 00000000000000000000000110110010 ||
+V_6: || 5 | 0 | 1 | 8 | 5 || 00000000000000000000000100111010 ||
+V_7: || 3 | 0 | 3 | 7 | 4 || 00000000000000000000000010111000 ||
+V_8: || 5 | 0 | 1 | 8 | 6 || 00000000000000000000000110111010 ||
+DepthFirstSearch - Recursive call from level 7
+DepthFirstSearch - Label V_4 (q[4]) at level 8
+DepthFirstSearch - -- Label = 3 -- 
+DepthFirstSearch - Recursive call from level 8
+DepthFirstSearch - Store not consistent at depth 8
+DepthFirstSearch - Return from recursive call at level 8
+DepthFirstSearch - Backtrack on V_4 from level 8
+DepthFirstSearch - V_4 new labeling (rec. call) D^V_4\{3}
+DepthFirstSearch - V_4 became assigned with value 7
+DepthFirstSearch - Label V_7 (q[7]) at level 9
+DepthFirstSearch - -- Label = 3 -- 

@@ -22,23 +22,27 @@ __device__ CudaIntLinNe::~CudaIntLinNe ()
 }
 
 __device__ void
-CudaIntLinNe::consistency ()
-{
+CudaIntLinNe::consistency ( int ref )
+{ 
     /**
      * This function propagates only when there is just
      * variables that is not still assigned.
      * Otherwise it returns without any check.
      */
     if ( all_ground() )           return;
-
+	
     if ( !only_one_not_ground() ) return;
-
+	
+	// Idx of the non singleton variable (if any)
     int idx_not_singleton = get_not_ground ();
-    int prod_ground       = get_sum_ground ();
+    if ( idx_not_singleton < 0 ) return;
+    
+    // Value of the ground variables
+    int prod_ground = get_sum_ground ();
 
     // a + kx != c -> x != (c - a) / k
     int no_good_element = ( ARGS [ LAST_ARG_IDX ] - prod_ground ) / ARGS [ idx_not_singleton ];
-    subtract ( idx_not_singleton, no_good_element );
+    subtract ( idx_not_singleton, no_good_element, ref );
 }//consistency
 
 //! It checks whether the constraint is satisfied
@@ -58,8 +62,9 @@ CudaIntLinNe::satisfied ()
     {
     	return true;
     }
+    // It is enough to set 1 variable to false
     GET_VAR_EVT(X_VAR) = FAL_EVT;
-    //GET_VAR_EVT(Y_VAR) = FAL_EVT;
+
     return false;
 }//satisfied
 

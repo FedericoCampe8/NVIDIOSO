@@ -32,6 +32,9 @@ protected:
     //! Map for Boolean variables
     std::unordered_set<int> _bool_var_lookup;
     
+    //! Map between variables and events
+    std::unordered_map<int, int> _var_event_lookup;
+    
     //! Allocate domains on device
     bool alloc_variables ();
 	
@@ -39,6 +42,15 @@ public:
     CudaCPModelSimple ();
     ~CudaCPModelSimple();
   
+  	/**
+  	 * Reset the current state of the events associated with 
+  	 * the variables.
+  	 * This is done to notify constraint store about events that are 
+  	 * actually changed by propagation.
+  	 * @note after notifying the store, events are automatically reset.
+  	 */
+  	 void reset_device_state () override;
+  	 
     /**
      * Move the current state (set of domains) from host to device.
      * @return true if the upload has been completed successfully, False otherwise.

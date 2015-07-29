@@ -30,15 +30,16 @@ IntVariable::set_backtrack_manager ( BacktrackManagerPtr bkt_manager ) {
 void
 IntVariable::notify_backtrack_manager () {
   if ( _backtack_manager == nullptr ) {
-    throw NvdException ( (_dbg + "No backtrack Manager to notify.").c_str() );
+    throw NvdException ( (_dbg + "No Backtrack Manager to notify.").c_str() );
   }
   _backtack_manager->add_changed( get_backtrackable_id() );
 }//notify_backtrack_manager
 
 void
-IntVariable::notify_observers () {
-  notify_backtrack_manager ();
-  notify_store ();
+IntVariable::notify_observers () 
+{
+  	notify_backtrack_manager ();
+  	notify_store ();
 }//notify_observers
 
 EventType

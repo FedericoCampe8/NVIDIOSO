@@ -142,7 +142,8 @@ void
 Variable::notify_store () 
 {
 
-  if ( _constraint_store == nullptr ) {
+  if ( _constraint_store == nullptr ) 
+  {
     throw NvdException ( (_dbg + "No store attached to this constraint").c_str() );
   }
   
@@ -160,8 +161,10 @@ Variable::notify_store ()
   }
   
   vector< size_t > constraints_to_reevaluate;
-  for ( auto c : _attached_constraints[ event ] ){
-    if ( is_attached( c->get_unique_id() ) ) {
+  for ( auto c : _attached_constraints[ event ] )
+  {
+    if ( is_attached( c->get_unique_id() ) ) 
+    {
       constraints_to_reevaluate.push_back( c->get_unique_id() );
     }
   }

@@ -13,6 +13,8 @@
 
 #include "cuda_constraint_macro.h"
 
+#define G_DEV_CONSTRAINTS_ARRAY g_dev_constraints
+
 #if CUDAON
 
 /**
@@ -60,8 +62,16 @@ namespace CudaPropUtils
      * Propagates constraints in constraint_queue in parallel on device.
      * This function is supposed to be invoked with one block per variable and the
      * constraints are propagated w.r.t. that variable.
+     * @param constraint_queue queue of constraints for each variable: this queue contains
+     *        1 - Id of the constraint
+     * 		  2 - Index (0, 1, 2, etc.) of the variable to consider for propagation
+     * @param queue_idx indexes of the starting position for each queue of constraints for each variable
+     * @param domain_type type of domain (bool, standard, mixed)
+     * @aux_state pointer to an array of auxiliary states. Used for synchronization between blocks
+     * @todo use a separate array for indexes of variables
+     * @todo return asap if a failure is found
      */
-    __global__ void cuda_consistency_1b1v (  size_t * constraint_queue, int domain_type = STANDARD_DOM );
+    __global__ void cuda_consistency_1b1v (  size_t * constraint_queue, int* queue_idx, int domain_type = STANDARD_DOM, uint * aux_state = nullptr );
 #endif
 }
 

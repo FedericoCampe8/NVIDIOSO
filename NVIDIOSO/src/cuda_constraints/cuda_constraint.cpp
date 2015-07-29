@@ -19,11 +19,13 @@ _scope_size  ( n_vars ),
 _args_size   ( n_args ),
 _vars        ( vars ),
 _args        ( args ) {
-  _status      = (uint**) malloc ( _scope_size * sizeof (uint*) );
-  _temp_status = (uint**) malloc ( _scope_size * sizeof (uint*) );
+  _status            = (uint**) malloc ( _scope_size * sizeof (uint*) );
+  _temp_status       = (uint**) malloc ( _scope_size * sizeof (uint*) );
+  _status_idx_lookup = (int*) malloc ( _scope_size * sizeof (int) );
   for ( int i = 0; i < _scope_size; i++ )
   {
-    _status[ i ] = &domain_states[ domain_idx[ _vars[ i ] ] ];
+    _status[ i ]             = &domain_states[ domain_idx[ _vars[ i ] ] ];
+    _status_idx_lookup [ i ] =  domain_idx[ _vars[ i ] ];
   }//i
 }//CudaConstraint
 
@@ -33,22 +35,24 @@ CudaConstraint::~CudaConstraint () {
   free ( _args );
   free ( _status );
   free ( _temp_status );
+  free ( _status_idx_lookup );
 }//~Constraint
 
 __device__ void
 CudaConstraint::move_status_to_shared (  uint * shared_ptr, int dom_size )
 {
     if ( shared_ptr == nullptr ) return;
-
+	
     if ( blockDim.x * blockDim.y == 1 || dom_size == MIXED_DOM )
     {// One thread per block
+        
         if ( threadIdx.x == 0 )
         {
             int d_size, idx = 0;
             for ( int i = 0; i < _scope_size; i++ )
             {
-                _temp_status [ i ] = _status [ i ];
-                _status [ i ]      = &shared_ptr [ idx ];
+                _temp_status [ i ] = _status     [ i ];
+                _status      [ i ] = &shared_ptr [ idx ];
                 
                 if ( _status [ i ][ EVT ] == BOL_EVT )
                 {
@@ -59,8 +63,10 @@ CudaConstraint::move_status_to_shared (  uint * shared_ptr, int dom_size )
                     d_size = STANDARD_DOM;
                 } 
                 for ( int j = 0; j < d_size; j++ )
+                {
                     shared_ptr [ idx++ ] = _temp_status [ i ][ j ];
-            }//i
+            	}
+            }//i 
         }
     }
     else if ( blockDim.x * blockDim.y >= _scope_size )
@@ -105,7 +111,7 @@ CudaConstraint::move_status_to_shared (  uint * shared_ptr, int dom_size )
 }//move_status_to_shared
 
 __device__ void
-CudaConstraint::move_status_from_shared ( uint * shared_ptr, int dom_size )
+CudaConstraint::move_status_from_shared ( uint * shared_ptr, int dom_size, int ref )
 {
     if ( shared_ptr == nullptr ) return;
 
@@ -117,6 +123,20 @@ CudaConstraint::move_status_from_shared ( uint * shared_ptr, int dom_size )
             int d_size, idx = 0;
             for ( int i = 0; i < _scope_size; i++ )
             {
+                if ( ref >= 0 && i != ref ) 
+                {
+                	if ( _status [ i ][ EVT ] == BOL_EVT )
+                	{
+                		idx += BOOLEAN_DOM;
+                	}
+                	else
+                	{
+                		idx += STANDARD_DOM;
+                	}
+                	
+                	continue;
+                }
+                
                 if ( _status [ i ][ EVT ] == BOL_EVT )
                 {
                     d_size = 2;
@@ -130,6 +150,8 @@ CudaConstraint::move_status_from_shared ( uint * shared_ptr, int dom_size )
                 if ( shared_ptr [ idx ] == FAL_EVT )
                 {
                     _temp_status [ i ][ EVT ] = FAL_EVT;
+                    _status [ i ] = _temp_status[ i ];
+                    break;
                 }
                 else if ( shared_ptr [ idx ] == SNG_EVT )
                 {
@@ -152,6 +174,7 @@ CudaConstraint::move_status_from_shared ( uint * shared_ptr, int dom_size )
                 {// Bool representation
                     atomicMin ( &_temp_status [ i ][ ST ], shared_ptr [ idx + ST ] );
                     idx += BOOLEAN_DOM;
+                    _status [ i ] = _temp_status[ i ];
                     continue;
                 }
                 
@@ -199,6 +222,12 @@ CudaConstraint::move_status_from_shared ( uint * shared_ptr, int dom_size )
             
             if ( tid < _scope_size )
             {
+                if ( ref >= 0 && tid != ref ) 
+                {
+                	_status [ tid ] = _temp_status [ tid ];
+                	break;
+                }
+                
                 if ( dom_size == STANDARD_DOM || dom_size == BOOLEAN_DOM )
                 {
                     // EVT
@@ -256,32 +285,72 @@ CudaConstraint::move_status_from_shared ( uint * shared_ptr, int dom_size )
 }//move_status_from_shared
 
 __device__ void
-CudaConstraint::move_bit_status_from_shared ( uint * shared_ptr, int d_size )
+CudaConstraint::move_bit_status_from_shared ( uint * shared_ptr, int d_size, int ref, uint* extern_status )
 {
     if ( shared_ptr == nullptr ) return;
     if ( blockDim.x * blockDim.y == 1 || d_size == MIXED_DOM )
     {// One thread per block
         if ( threadIdx.x == 0 )
         {
-            int idx = 0;
+        	bool to_extern = ( extern_status != nullptr );
+            int idx = 0, ext_idx;
             for ( int i = 0; i < _scope_size; i++ )
             {
+            	ext_idx = _status_idx_lookup [ i ];
+                if ( ref >= 0 && i != ref ) 
+                {
+                	if ( d_size == BOOLEAN_DOM )
+                	{
+                		idx += BOOLEAN_DOM;
+                	}
+                	else
+                	{
+                		idx += STANDARD_DOM;
+                	}
+                	_status [ i ] = _temp_status[ i ];
+                	continue;
+                }
+                
                 // EVT
                 if ( shared_ptr [ idx ] == FAL_EVT )
                 {
-                    _temp_status [ i ][ EVT ] = FAL_EVT;
+                	if ( !to_extern )
+                	{ 
+                		_temp_status [ i ][ EVT ] = FAL_EVT;	
+                    }
+                    else
+                    {
+                    	//extern_status[map[i] + EVT] = FAL_EVT
+                    	extern_status[ ext_idx + EVT ] = FAL_EVT;
+                    }
                 }
                 else if ( d_size == BOOLEAN_DOM )
                 {// Bool representation
-                    atomicMin ( &_temp_status [ i ][ ST ], shared_ptr [ idx + ST ] );
+                	if ( !to_extern  )
+                	{
+                    	atomicMin ( &_temp_status [ i ][ ST ], shared_ptr [ idx + ST ] );
+                    }
+                    else
+                    {
+                    	atomicMin ( &extern_status [ ext_idx +  ST ], shared_ptr [ idx + ST ] );
+                    }
                     idx += BOOLEAN_DOM;
+                    
+                    _status [ i ] = _temp_status[ i ];
                     continue;
                 }
                 
                 idx += BIT;
                 for ( int j = BIT; j < d_size; j++ )
                 {
-                    atomicAnd ( &_temp_status [ i ][ j ], shared_ptr [ idx++ ] );
+                	if ( !to_extern )
+                	{
+                    	atomicAnd ( &_temp_status [ i ][ j ], shared_ptr [ idx++ ] );
+                    }
+                    else
+                    {
+                    	atomicAnd ( &extern_status [ ext_idx + j ], shared_ptr [ idx++ ] );
+                    }
                 }
                 
                 // Copy back the original pointers
@@ -291,24 +360,47 @@ CudaConstraint::move_bit_status_from_shared ( uint * shared_ptr, int d_size )
     }
     else if ( blockDim.x * blockDim.y >= _scope_size )
     {// One thread per variable
+
         int tid, loop = 1;
+        bool to_extern = ( extern_status != nullptr );
         int num_threads = blockDim.x + blockDim.y;
         while ( (num_threads * loop) < _scope_size )
         {
             tid = threadIdx.x + (((gridDim.x * blockIdx.y) + blockIdx.x) * blockDim.x) + ((blockDim.x * blockDim.y) * (loop - 1));
             ++loop;
+            
             if ( tid < _scope_size )
             {
+                if ( ref >= 0 && tid != ref ) 
+                {	
+                	_status [ tid ] = _temp_status [ tid ]; 
+                	break;
+                }
+                
                 if ( d_size == STANDARD_DOM || d_size == BOOLEAN_DOM )
                 {
                     // EVT
                     if ( shared_ptr [ tid * d_size ] == FAL_EVT )
                     {
-                        _temp_status [ tid ][ EVT ] = FAL_EVT;
+                    	if ( !to_extern )
+                		{
+                        	_temp_status [ tid ][ EVT ] = FAL_EVT;
+                        }
+                        else
+                        {
+                        	extern_status [ _status_idx_lookup [ tid ] + EVT ] = FAL_EVT;
+                        }
                     }
                     else if ( d_size == BOOLEAN_DOM )
                     {//Bool representation
-                        atomicMin ( &_temp_status [ tid ][ ST ], shared_ptr [ tid * d_size + ST ] );
+                    	if ( !to_extern )
+                		{
+                        	atomicMin ( &_temp_status [ tid ][ ST ], shared_ptr [ tid * d_size + ST ] );
+                        }
+                        else
+                        {
+                        	atomicMin ( &extern_status [ _status_idx_lookup [ tid ] + ST ], shared_ptr [ tid * d_size + ST ] );
+                        }
                     }
                     else
                     {
@@ -316,9 +408,17 @@ CudaConstraint::move_bit_status_from_shared ( uint * shared_ptr, int d_size )
                         tid_idx += BIT;
                         for ( int j = BIT; j < d_size; j++ )
                         {
-                        	atomicAnd ( &_temp_status [ tid ][ j ], shared_ptr [ tid_idx++ ] );
+                        	if ( !to_extern )
+                			{
+                        		atomicAnd ( &_temp_status [ tid ][ j ], shared_ptr [ tid_idx++ ] );
+                        	}
+                        	else
+                        	{
+                        		atomicAnd ( &extern_status [ _status_idx_lookup [ tid ] + j ], shared_ptr [ tid_idx++ ] );
+                        	}
                         }
                     }
+                    _status [ tid ] = _temp_status [ tid ];
                 }
             }
         }
@@ -376,7 +476,7 @@ CudaConstraint::get_not_ground () const
 }//get_not_ground
 
 __device__ void
-CudaConstraint::subtract ( int var, int val )
+CudaConstraint::subtract ( int var, int val, int ref )
 {
     /*
      * Three representations of domains to consider:
@@ -387,6 +487,16 @@ CudaConstraint::subtract ( int var, int val )
      *       singleton, empty/failed domain in EVT field.
      */
 
+    /*
+     * Return if there is a reference on the variable
+     * to propagate and the reference doesn't match
+     * with the current variable var given in input.
+     */
+    if ( ref >= 0 && ref != var ) return;
+    
+    // If already failed event, return
+    if ( _status[ var ][ EVT ] == FAL_EVT ) return; 
+    
     // Boolean domain
     if ( _status[ var ][ EVT ] == BOL_EVT )
     {
@@ -423,59 +533,73 @@ CudaConstraint::subtract ( int var, int val )
             uint val_chunk = _status[ var ][ chunk ];
             uint val_clear = val % BITS_IN_CHUNK;
             
-            // Check is the bit is already unsed
+            // Check if the element val is in the domain, if not return
             if ( !((val_chunk & ( 1 << val_clear )) != 0) ) return;
+            
+            // If val belongs to the domain, subtract it
             _status[ var ][ chunk ] = val_chunk & (~(1 << val_clear ));
             
-            int domain_size = _status[ var ][ DSZ ] - 1;
+            // Make the size consistent (avoid race conditions)
+            int domain_size = 0;
+            for ( int i = BIT; i < BIT + NUM_CHUNKS; i++ )
+            {
+            	if ( _status[ var ][ i ] == 0 ) continue;
+            	domain_size += num_1bit ( _status[ var ][ i ] );
+            }
+            
+            // Empty domain: fail event
             if ( domain_size <= 0 )
             {// Failed event
                 _status[ var ][ EVT ] = FAL_EVT;
                 return;
             }
 			
+			// Singleton event
             if ( domain_size == 1 )
-            {// Singleton event
+            {
             	_status[ var ][ DSZ ] = 1;
             	
-                // Lower bound increased
+                // Lower bound increased: val was the lower bound
                 if ( lower_bound == val )
                 {
                     _status[ var ][ LB ]  = upper_bound;
                     _status[ var ][ EVT ] = SNG_EVT;
                     return;
                 }
-                // Upper bound decreased
+                
+                // Upper bound decreased: val was the upper bound
                 _status[ var ][ UB ]  = lower_bound;
                 _status[ var ][ EVT ] = SNG_EVT;
                 return;
             }
             
-            // Lower bound increased
+            // At least two elements (after subtracting val)
             if ( lower_bound == val )
-            {
-            	while ( true ) 
-            	{
-      				lower_bound++;
-      				if ( contains ( var, lower_bound ) ) 
-      				{
-        				_status[ var ][ LB ]  = lower_bound;
-						break;
-      				}
-    			}
+            {// Lower bound increased
+            
+            	while ( lower_bound <= upper_bound ) 
+            	{// Find new lower bound
+                    ++lower_bound;
+                    if ( contains ( var, lower_bound ) ) 
+                    {
+                        _status[ var ][ LB ]  = lower_bound;
+                        break;
+                    }
+                }
                 _status[ var ][ EVT ] = MIN_EVT;
             }
             else if ( upper_bound == val )
-            {
-            	while ( true ) 
-            	{
-      				upper_bound--;
-      				if ( contains ( var, upper_bound ) ) 
-      				{
-        				_status[ var ][ UB ]  = upper_bound;
-						break;
-      				}
-    			}
+            {// Upper bound decreased
+            
+            	while ( upper_bound >= lower_bound ) 
+            	{// Find new upper bound
+                    --upper_bound;
+                    if ( contains ( var, upper_bound ) ) 
+                    {
+                        _status[ var ][ UB ]  = upper_bound;
+                        break;
+                    }
+                }
             	_status[ var ][ EVT ] = MAX_EVT;
             }
             else
@@ -483,6 +607,7 @@ CudaConstraint::subtract ( int var, int val )
             	_status[ var ][ EVT ] = CHG_EVT;
             }
             
+            // Set new domain size
             _status[ var ][ DSZ ] = domain_size;
         }
         else
@@ -583,7 +708,7 @@ CudaConstraint::is_empty ( int var ) const
 }//is_empty
 
 __device__ void
-CudaConstraint::shrink ( int var, int smin, int smax )
+CudaConstraint::shrink ( int var, int smin, int smax, int ref )
 {
     /*
      * Three representations of domains to consider:
@@ -593,6 +718,13 @@ CudaConstraint::shrink ( int var, int smin, int smax )
      * @note this function is also in charge of setting
      *       singleton, empty/failed domain in EVT field.
      */
+
+    /*
+     * Return if there is a reference on the variable
+     * to propagate and the reference doesn't match
+     * with the current variable var given in input.
+     */
+    if ( ref >= 0 && ref != var ) return;
     
     // Boolean domain
     if ( _status[ var ][ EVT ] == BOL_EVT )
@@ -730,7 +862,6 @@ CudaConstraint::contains ( int var, int val )
     
     int chunk = val / BITS_IN_CHUNK;
     chunk = BIT + NUM_CHUNKS - 1 - chunk;
-
 	return ( (_status [ var ][ chunk ] & (1 << (val % BITS_IN_CHUNK))) != 0 );
 }//contains
 

@@ -6,27 +6,6 @@
 # iNVIDIOSO installation script
 #
 
-# Make sure umask is sane
-umask 022
-
-# Set up a default search path.
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
-export PATH
-
-# Get a sane screen width
-# [ -z "${COLUMNS:-}" ] && COLUMNS=80
-
-# [ -z "${CONSOLETYPE:-}" ] && CONSOLETYPE="`/sbin/consoletype`"
-
-# if [ -f /etc/sysconfig/i18n -a -z "${NOLOCALE:-}" ] ; then
-#   . /etc/profile.d/lang.sh
-# fi
-
-# print_fun()
-# {
-#     echo "ciao"
-# }
-
 CreateMakeInc()
 {
 touch $MAKE_INC
@@ -95,6 +74,7 @@ fi
 if [ $CUDAON == "true" ]; then
 cat <<EOF >> $MAKE_INC_CUDA
 CUDAOPT += $CUDA_ON_OSX
+DEBUGFLAG = -G -Xcompiler -rdynamic -lineinfo
 CCOPT += -arch=sm_$CUDA_CAPABILITY
 COMPILE = -x cu -dc
 EOF

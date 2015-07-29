@@ -34,10 +34,10 @@ public:
                                    int* vars, int* args,
                                    int* domain_idx, uint* domain_states );
   
-  __device__ ~CudaArrayIntElement ();
+    __device__ ~CudaArrayIntElement ();
   
   //! It performs domain consistency
-  __device__ void consistency ();
+    __device__ void consistency ( int ref = -1 );
   
   //! It checks if x != y
   __device__ bool satisfied ();

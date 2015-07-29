@@ -22,7 +22,7 @@ __device__ CudaSetIntersect::~CudaSetIntersect ()
 }//CudaSetIntersect
 
 __device__ void
-CudaSetIntersect::consistency ()
+CudaSetIntersect::consistency ( int ref )
 {
 }//consistency
 

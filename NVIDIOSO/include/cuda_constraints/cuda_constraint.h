@@ -35,8 +35,8 @@ protected:
     int _scope_size;
   
     /**
-     * It represents the array of pointers to
-     * the domains of the variables in
+     * Array of pointers to
+     * the indexes of the variables in
      * the scope of this constraint.
      */
     int* _vars;
@@ -52,6 +52,13 @@ protected:
      */
     int* _args;
   
+    /**
+     * Mapping between indexes of vars in this constraint
+     * as 0, 1, 2, ... and the corresponding indexes on the global array
+     * of the status of all the variables.
+     */
+     int * _status_idx_lookup;
+     
     /**
      * Array of pointers to the domains 
      * of the variables involved in this constraint.
@@ -94,13 +101,16 @@ protected:
     //! Returns True if the variable var is ground, False otherwise
     __device__ bool is_ground ( int var ) const;
 
-    //! Returns the first var (idx) which is not ground
+    /**
+     * Returns the first var (idx) which is not ground.
+     * @note it returns -1 if all variables are ground.
+     */
     __device__ int get_not_ground () const;
-
-    //! Subtract {val} from the domain of var
-    __device__ void subtract ( int var, int val );
-	
-    //! Returns True if val belongs to the domain of var, False otherwise
+    
+    /**
+     * Returns True if val belongs to the domain of var, False otherwise.
+     * @note This function DOES NOT perform any check on the given value val.
+     */
     __device__ bool contains ( int var, int val );
 	
     //! Get lower bound of the domain of var
@@ -114,10 +124,7 @@ protected:
     
     //! Returns true if the domain of var is empty
     __device__ bool is_empty ( int var ) const;
-
-    //! Shrinks the domain of var to {min, max}
-    __device__ void shrink ( int var, int min, int max );
-
+    
     //! Utility for bit manipulation
     __device__ void clear_bits_i_through_0   ( uint& val, int idx );
 
@@ -126,6 +133,26 @@ protected:
 
     //! Utility for bit manipulation
     __device__ int  num_1bit ( uint val );
+
+    /*=======================================================
+     *
+     *				DOMAIN MANIPULATION FUNCTIONS
+     *
+     * The following functions manipulate the domain of 
+     * the variables in the constraint's scope. 
+     * These functions DO NOT use atomic operations, i.e., 
+     * if the domain is shared between concurrent threads, 
+     * the program may suffer of race conditions.
+     * Please, use shared memory for local changes w.r.t. 
+     * different block or synchronization utilities w.r.t. 
+     * threads in the same block.
+     *======================================================*/
+    
+    //! Subtract {val} from the domain of var
+    __device__ void subtract ( int var, int val, int ref = -1 );
+
+    //! Shrinks the domain of var to {min, max}
+    __device__ void shrink ( int var, int min, int max, int ref = -1 );
     
 #endif
   
@@ -167,30 +194,37 @@ public:
      * @param shared_ptr pointer to the region of shared memory
      *        where status will be copied from.
      * @param size of domains: standard (n ints), Boolean (2 ints), mixed.
+     * @param ref reference to the variable to move from shared (default: all variables in the scope)
      * @note This function uses atomic operations to synchronize writes on gloabl memory
      */
-    __device__ void move_status_from_shared ( uint * shared_ptr = nullptr, int d_size = MIXED_DOM );
+    __device__ void move_status_from_shared ( uint * shared_ptr = nullptr, int d_size = MIXED_DOM, int ref = -1 );
 
     /**
      * Copy the domains from shared to global memory.
-     * It copies only the bitmap status (or the bounds) without
-     * updating the EVT, LB, UP, DSZ, etc. fields.
+     * It copies ONLY the bitmap status (or the bounds) WITHOUT updating
+     * EVT, LB, UP, DSZ, etc. fields.
      * @param shared_ptr pointer to the region of shared memory
      *        where status will be copied from.
      * @param size of domains: standard (n ints), Boolean (2 ints), mixed.
+     * @param ref reference to the variable to move from shared (default: all variables in the scope)
+     * @param extern_status where to copy back the values from shared memory. If nullptr use pre-assigned global memory 
      * @note Updates on the bitmap field is performed with atomic operations.
      * @note This functions uses less atomics than move_status_from_shared and therefore
      *       if faster on moving from shared to global.
-     *       However, the non-bit fields should be updated somewhere else.
+     *       However, non-bit fields must be updated accordingly.
      */
-    __device__ void move_bit_status_from_shared ( uint * shared_ptr = nullptr, int d_size = MIXED_DOM );
+    __device__ void move_bit_status_from_shared ( uint * shared_ptr = nullptr, int d_size = MIXED_DOM, int ref = -1, uint* extern_status = nullptr );
     
     /**
      * It is a (most probably incomplete) consistency function which
      * removes the values from variable domains. Only values which
      * do not have any support in a solution space are removed.
+     * @param ref reference (index 0, 1, 2, ... ) of the variable in
+     *        the scope of this constraint on which consistency will be performed.
+     * @note by default ref if -1 meaning that consistency will be performed
+     *       (possibly) on all the variables in the scope of this constraint.
      */
-    __device__ virtual void consistency () = 0;
+    __device__ virtual void consistency ( int ref = -1 ) = 0;
     
     /**
      * It checks if the constraint is satisfied.

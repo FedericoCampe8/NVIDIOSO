@@ -12,17 +12,22 @@ ParamData* solver_params = nullptr;
 
 using namespace std;
 
-	// ======================= MACROS ======================
+    // ======================= MACROS ======================
      constexpr std::string ParamData::SEPARATOR_KWD = "_";
      constexpr std::string ParamData::PARAM_SEP_KWD = "=";
      constexpr std::string ParamData::PARAM_YES_KWD = "YES";
      constexpr std::string ParamData::PARAM_NO_KWD  = "NO";
+     constexpr std::string ParamData::CUDA_KWD      = "CUDA";
      constexpr std::string ParamData::SEARCH_KWD    = "SEARCH";
      constexpr std::string ParamData::CSTORE_KWD    = "CSTORE";
     // =====================================================
-    
+
+    // ======================= CUDA ======================
+    constexpr std::string ParamData::CUDA_SHARED_SIZE_KWD = "SHARED_MEM_SIZE";
+    // ===================================================
+
     // ======================== SEARCH PARAMETERS ========================
-     constexpr std::string ParamData::SEARCH_DEBUG_KWD        = "DEBUG";
+     constexpr std::string ParamData::SEARCH_DEBUG_KWD        = "TREE_DEBUG";
      constexpr std::string ParamData::SEARCH_TRAIL_DEBUG_KWD  = "TRAIL_DEBUG";
      constexpr std::string ParamData::SEARCH_TIME_WATCHER_KWD = "TIME_WATCHER";
      constexpr std::string ParamData::SEARCH_TIMEOUT_KWD      = "TIMEOUT";
@@ -36,13 +41,13 @@ using namespace std;
      constexpr std::string ParamData::CSTORE_CONSISTENCY_KWD    = "CONSISTENCY";
      constexpr std::string ParamData::CSTORE_SATISFIABILITY_KWD = "SATISFIABILITY";
 
-    // 					======== CONSTRAINT STORE CUDA ========
+    // 		      ======== CONSTRAINT STORE CUDA ========
     
-     constexpr std::string ParamData::CSTORE_CUDA_PROP_KWD 			= "CUDA_PROP";
+     constexpr std::string ParamData::CSTORE_CUDA_PROP_KWD          = "CUDA_PROP";
      constexpr std::string ParamData::CSTORE_CUDA_PROP_LOOP_OUT_KWD = "CUDA_PROP_LOOP_OUT";
-     constexpr std::string ParamData::CSTORE_CUDA_SEQ_KWD  			= "sequential";
-     constexpr std::string ParamData::CSTORE_CUDA_BPC_KWD  			= "block_per_constraint";
-     constexpr std::string ParamData::CSTORE_CUDA_BPV_KWD  			= "block_per_variable";
+     constexpr std::string ParamData::CSTORE_CUDA_SEQ_KWD           = "sequential";
+     constexpr std::string ParamData::CSTORE_CUDA_BPC_KWD           = "block_per_constraint";
+     constexpr std::string ParamData::CSTORE_CUDA_BPV_KWD           = "block_per_variable";
     // ===========================================================================
     
 
@@ -108,6 +113,9 @@ ParamData::cstore_int_to_type ( int ctype ) const
 void
 ParamData::set_default_parameters ()
 {
+	// --- CUDA ---
+	_cuda_shared_available = 46000;
+	
     // --- Search ---
     _search_debug = false;
     _search_trail_debug = false;
@@ -176,12 +184,12 @@ ParamData::read_params ()
         pos = line.find_first_of ( "#" );
         if ( pos != string::npos )
         {
-            line = line.substr ( pos + 1 );
+            line = line.substr ( 0, pos + 1 );
         }
-
+		
         //Skip empty lines
-        if ( line.size() == 0 ) continue;
-
+        if ( line.size() == 0 || pos == 0 ) continue;
+		
         // Skip lines with spaces
         bool useful_char = false;
         for ( auto& c : line )
@@ -193,7 +201,7 @@ ParamData::read_params ()
             }
         }
         if ( !useful_char ) continue;
-
+		
         // Parse line according to the solver's component
         // Search Engine
         pos = line.find ( SEARCH_KWD );
@@ -207,6 +215,13 @@ ParamData::read_params ()
         if ( pos != string::npos )
         {
             set_constraint_engine_parameters ( line );
+        }
+        
+        // CUDA
+        pos = line.find ( CUDA_KWD );
+        if ( pos != string::npos )
+        {
+            set_cuda_parameters ( line );
         }
     }
 }//read_params
@@ -225,10 +240,9 @@ ParamData::set_search_parameters ( std::string& line )
     {
         return;
     }
-
+	
     string line_aux = line.substr ( pos + 1 );
     string param    = get_param_value ( line_aux );
-
     pos = line_aux.find ( SEARCH_DEBUG_KWD );
     if ( pos != string::npos )
     {
@@ -372,12 +386,50 @@ ParamData::set_constraint_engine_parameters ( std::string& line )
             _cstore_cuda_propagation_function = CudaPropParam::BLOCK_PER_CON;
         }
         else if ( param == CSTORE_CUDA_BPV_KWD )
-        {
+        {	
             _cstore_cuda_propagation_function = CudaPropParam::BLOCK_PER_VAR;
+            LogMsg << "===== WORK IN PROGRESS: 1b1v is not yet available! =====" << endl;
+            LogMsg << "Will use 1b1c" << endl;
+            
+            _cstore_cuda_propagation_function = CudaPropParam::BLOCK_PER_CON;
+            getchar();
         }
         return;
     }
 }//set_constraint_engine_parameters
+
+void
+ParamData::set_cuda_parameters ( std::string& line )
+{
+	std::size_t pos = line.find ( CUDA_KWD );
+    if ( pos == string::npos )
+    {
+        return;
+    }
+    
+    pos = line.find_first_of ( SEPARATOR_KWD );
+    if ( pos == string::npos )
+    {
+        return;
+    }
+
+    string line_aux = line.substr ( pos + 1 );
+    string param    = get_param_value ( line_aux );
+    
+    pos = line_aux.find ( CUDA_SHARED_SIZE_KWD );
+    if ( pos != string::npos )
+    {
+        _cuda_shared_available = atoi ( param.c_str() );
+        _cuda_shared_available *= 1000;
+        return;
+    }
+}//set_cuda_parameters
+
+size_t 
+ParamData::cuda_get_shared_mem_size () const
+{
+	return _cuda_shared_available;
+}//cuda_get_shared_mem_size
 
 bool
 ParamData::search_get_debug () const
@@ -481,6 +533,13 @@ ParamData::print_option ( string s, bool new_line ) const
 }//print_option
 
 void
+ParamData::print_option ( std::size_t size, bool new_line ) const
+{
+    cout << size;
+    if ( new_line ) cout << endl;
+}//print_option
+
+void
 ParamData::print_option ( CudaPropParam p, bool new_line ) const
 {
     switch ( p )
@@ -529,6 +588,10 @@ ParamData::print () const
     print_option ( _cstore_consistency );
     cout << "\t+ Satisfiability active: ";
     print_option ( _cstore_satisfiability );
+    
+    cout << "- Device:\n";
+    cout << "\t+ Device max shared memory: ";
+    print_option ( _cuda_shared_available );
     
     cout << "- Device Constraint Store:\n";
     cout << "\t+ Device propagation loop Limit: ";

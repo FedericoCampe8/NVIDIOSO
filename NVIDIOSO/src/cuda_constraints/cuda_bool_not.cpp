@@ -22,7 +22,7 @@ __device__ CudaBoolNot::~CudaBoolNot ()
 }
 
 __device__ void
-CudaBoolNot::consistency ()
+CudaBoolNot::consistency ( int ref )
 {
 }//consistency
 

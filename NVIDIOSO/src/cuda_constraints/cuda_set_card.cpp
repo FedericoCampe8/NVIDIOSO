@@ -22,7 +22,7 @@ __device__ CudaSetCard::~CudaSetCard ()
 }
 
 __device__ void
-CudaSetCard::consistency ()
+CudaSetCard::consistency ( int ref )
 {
 }//consistency
 

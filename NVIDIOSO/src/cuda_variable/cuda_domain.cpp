@@ -498,11 +498,13 @@ CudaDomain::print () const {
 void
 CudaDomain::print_domain () const {
   cout << "|| ";
-  for ( int i = 0; i < BIT_IDX(); i++ ) {
-    cout << _domain[ i ];
+  for ( int i = 0; i < BIT_IDX(); i++ ) 
+  {
+	cout << _domain[ i ];
     if ( i < BIT_IDX() - 1 ) cout << " | ";
     else cout << " || ";
   }
+
   // Print according to the internal representatation of domain
   _concrete_domain->print ();
   cout << "||\n";

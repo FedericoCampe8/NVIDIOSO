@@ -22,7 +22,7 @@ __device__ CudaSetEqReif::~CudaSetEqReif ()
 }
 
 __device__ void
-CudaSetEqReif::consistency ()
+CudaSetEqReif::consistency ( int ref )
 {
 }//consistency
 

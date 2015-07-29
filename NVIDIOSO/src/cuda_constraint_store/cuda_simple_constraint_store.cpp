@@ -15,10 +15,20 @@ using namespace std;
 
 CudaSimpleConstraintStore::CudaSimpleConstraintStore () :
     SimpleConstraintStore (),
+    _force_propagation    ( false ),
     _loop_out             ( 1 ),
     _d_constraint_queue   ( nullptr ),
     _cp_model_ptr         ( nullptr ) {
     _dbg = "CudaSimpleConstraintStore - ";
+    if ( solver_params != nullptr )
+    {
+    	_shared_limit = solver_params->cuda_get_shared_mem_size ();
+    }
+    else
+    {
+    	// Min of 16KB of shared memory
+    	_shared_limit = 16000;
+    }
 }//CudaSimpleConstraintStore
 
 CudaSimpleConstraintStore::~CudaSimpleConstraintStore () {
@@ -41,6 +51,33 @@ CudaSimpleConstraintStore::get_prop_loop_out () const
 {
 	return _loop_out;
 }//get_prop_loop_out
+
+void 
+CudaSimpleConstraintStore::add_changed ( size_t c_id, EventType event ) 
+{
+	SimpleConstraintStore::add_changed ( c_id, event );
+	set_force_propagation ( event );
+}//add_changed
+
+void 
+CudaSimpleConstraintStore::set_force_propagation ( EventType event )
+{
+	if ( event == EventType::SINGLETON_EVT )
+	{
+		_force_propagation = true;
+	}
+}//set_force_propagation
+
+bool  
+CudaSimpleConstraintStore::force_propagation () 
+{
+	if ( _force_propagation )
+	{
+		_force_propagation = false;
+		return true;
+	}
+	return false;
+}//force_propagation
 
 void
 CudaSimpleConstraintStore::finalize ( CudaCPModel* ptr )
@@ -76,13 +113,13 @@ CudaSimpleConstraintStore::finalize ( CudaCPModel* ptr )
 bool
 CudaSimpleConstraintStore::move_states_to_device () 
 {
-  return _cp_model_ptr->upload_device_state ();
+	return _cp_model_ptr->upload_device_state ();
 }//move_states_to_device
 
 bool
 CudaSimpleConstraintStore::move_states_from_device () 
 {
-  return _cp_model_ptr->download_device_state ();
+	return _cp_model_ptr->download_device_state ();
 }//move_states_to_device
 
 void
@@ -102,9 +139,15 @@ CudaSimpleConstraintStore::move_queue_to_device ()
         _h_constraint_queue[ i++ ] = _cp_model_ptr->constraint_mapping_h_d[ c ];
     }
 
-    cudaMemcpy( _d_constraint_queue, &_h_constraint_queue[0],
-                _constraint_queue.size() * sizeof( size_t ), cudaMemcpyHostToDevice );
+    if ( logger.cuda_handle_error ( cudaMemcpy( _d_constraint_queue, &_h_constraint_queue[0],
+                					_constraint_queue.size() * sizeof( size_t ), cudaMemcpyHostToDevice ) ) )
+    {
+    	string err = _dbg + "Error uploading constraint queue to device.\n";
+        throw NvdException ( err.c_str(), __FILE__, __LINE__ );
+    }
+    
 #endif
+
 }//move_queue_to_device
 
 bool
@@ -124,26 +167,42 @@ CudaSimpleConstraintStore::consistency ()
         handle_failure ();
         return false;
     }
-
+	
+	// If constraint queue is empty, return
+	if ( _constraint_queue.size() == 0 ) return true;
+	
     // Update states on device
     move_states_to_device ();
 
-    // Move queue on device
-    move_queue_to_device ();
+    // Init the store
+    init_store ();
 
-    // Propagate constraints on device
-    dev_consistency ();
+    // Iterate to propagate constraints
+    std::size_t loop = 0;
+    while ( ((loop++ < _loop_out) && (_constraint_queue.size() > 0)) || force_propagation () )
+    {// @note the domains must be consistent on device at every loop iteration
+    
+        // Move queue on device
+        move_queue_to_device ();
 
-    // Clear queue since it is not needed anymore
-    clear_queue ();
+        // Propagate constraints on device
+        dev_consistency ();
 
-    // Update states on host
-    bool success = move_states_from_device ();
-
-    if ( !success )
-    {// Fail propagation
+        // Clear queue since it is not needed anymore
         clear_queue ();
-        return false;
+
+        /*
+         * Updates states on host.
+         * @note this might trigger other constraints
+         *       and fill the constraint queue again.
+         */
+        bool success = move_states_from_device ();
+
+        if ( !success )
+        {// Fail propagation
+            clear_queue ();
+            return false;
+        }
     }
     
 #endif
@@ -152,8 +211,20 @@ CudaSimpleConstraintStore::consistency ()
 }//consistency
 
 void
-CudaSimpleConstraintStore::dev_consistency ()
+CudaSimpleConstraintStore::init_store ()
 {
+}//init_store
+
+void
+CudaSimpleConstraintStore::clear_queue () 
+{
+	SimpleConstraintStore::clear_queue();
+	_force_propagation = false;
+}//clear_queue
+
+void
+CudaSimpleConstraintStore::dev_consistency ()
+{// Default propagation: sequential on device
 #if CUDAON
 
 	CudaPropUtils::cuda_consistency_sequential <<< 1, 1, _scope_state_size >>> ( _d_constraint_queue, _constraint_queue.size() );

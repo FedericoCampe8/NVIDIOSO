@@ -35,6 +35,8 @@ CudaCPModelSimple::alloc_variables ()
     int var_id = 0;
     for ( auto var : _variables ) 
     {
+    	_var_event_lookup [ var->get_id () ] = 0;
+    	
         // Map Boolean variables
         if ( var->get_size() == 2 )
         {
@@ -58,11 +60,12 @@ CudaCPModelSimple::alloc_variables ()
     }
     
     // Set states on device
-    int idx = 0;
-    vector<int> map_vars_to_doms( _variables.size() );
+  	_map_vars_to_doms.resize ( _variables.size() );
+  	
+    int idx = 0; 
     for ( auto var : _variables ) 
     {// Save the index where each variable domain starts at
-    	map_vars_to_doms[ _cuda_var_lookup[ var->get_id() ] ] = idx;
+    	_map_vars_to_doms[ _cuda_var_lookup[ var->get_id() ] ] = idx;
     	idx += ( (var->domain_iterator)->get_domain_status() ).first / sizeof(int);
     }
   
@@ -73,7 +76,7 @@ CudaCPModelSimple::alloc_variables ()
     }
     
     // Copy lookup index for variables on device
-    if ( logger.cuda_handle_error ( cudaMemcpy (_d_domain_index, &map_vars_to_doms[ 0 ],
+    if ( logger.cuda_handle_error ( cudaMemcpy (_d_domain_index, &_map_vars_to_doms[ 0 ],
     	                                        _variables.size() * sizeof ( int ), cudaMemcpyHostToDevice ) ) ) 
     {
     	return false;
@@ -83,6 +86,15 @@ CudaCPModelSimple::alloc_variables ()
   
     return true;
 }//alloc_variables
+
+void
+CudaCPModelSimple::reset_device_state ()
+{
+	for ( auto var : _variables ) 
+    {
+    	_var_event_lookup [ var->get_id () ] = 0;
+    }
+}//reset_device_state
 
 bool
 CudaCPModelSimple::upload_device_state () 
@@ -94,7 +106,7 @@ CudaCPModelSimple::upload_device_state ()
     bool singleton;
     const uint * var_domain;
     for ( auto var : _variables )
-    {
+    {	
         var_domain = static_cast<const uint *> ( ( (var->domain_iterator)->get_domain_status() ).second );
         singleton  = ( var_domain [ LB ] ==  var_domain [ UB ] );
         value      = var_domain [ LB ];
@@ -133,7 +145,7 @@ CudaCPModelSimple::upload_device_state ()
         string err = _dbg + "Error updating device from host.\n";
         throw NvdException ( err.c_str(), __FILE__, __LINE__ );
     }
-  
+    
 #endif
 
     return true;
@@ -178,25 +190,42 @@ CudaCPModelSimple::download_device_state ()
             	( (var->domain_iterator->get_domain_status)() ).second , 
             	( (var->domain_iterator->get_domain_status)() ).first);
                 var_domain [ EVT ] = SNG_EVT;
-                var_domain [ LB ] = var_domain [ UB ] = _h_domain_states [ idx + 1 ];
+                var_domain [ LB ]  = var_domain [ UB ] = _h_domain_states [ idx + 1 ];
                 var_domain [ DSZ ] = 1;
+                bool changed = ( _var_event_lookup [ var->get_id () ] != _h_domain_states[ idx ] );
                 (var->domain_iterator->set_domain_status)( (void *) var_domain );
+                if ( changed )
+                {
+                	_var_event_lookup [ var->get_id () ] = _h_domain_states[ idx ];
+                    var->notify_observers ();
+                }
             }
             
             idx += 2;
         }
         else
         {//Standard domain representation
-        	bool changed = (((uint*)( (var->domain_iterator)->get_domain_status() ).second)[ 0 ] != _h_domain_states[ idx ]);
-            (var->domain_iterator)->set_domain_status( (void *) &_h_domain_states[ idx ] );
+        
+  			// Simple check to determine a change: domain size
+            bool changed = ( ((uint*)( (var->domain_iterator)->get_domain_status() ).second)[ DSZ ] != _h_domain_states[ idx+ DSZ ] );
+
             if ( changed ) 
-            {
+            {	
+            	// Changed -> update domain on host
+            	(var->domain_iterator)->set_domain_status( (void *) &_h_domain_states[ idx ] );
+            	
+            	// Set new status on the lookup map
+            	_var_event_lookup [ var->get_id () ] = _h_domain_states[ idx ];
+            	
+            	// Notify observers that this var is changed and reset its event
             	var->notify_observers ();
             }
             idx += ( (var->domain_iterator)->get_domain_status() ).first / sizeof(int);
         }
     }
+
   	delete [] var_domain;
+  		
 #endif
 
 return true;

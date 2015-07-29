@@ -22,7 +22,7 @@ __device__ CudaSetSubsetReif::~CudaSetSubsetReif ()
 }
 
 __device__ void
-CudaSetSubsetReif::consistency ()
+CudaSetSubsetReif::consistency ( int ref )
 {
 }//consistency
 

@@ -82,6 +82,11 @@ nvidioso :	$(OBJECTS)
 	$(CC) $(CUDAOPT) $(CCLNDIRS) $(CFLAGS) -o $(NVIDIOSO_INS)/$(TARGET) \
 	$(OBJECTS:%=$(PRG_PATH)/obj/%)
 
+# Debug
+debug : $(OBJECTS) 
+	$(CC) $(CUDAOPT) $(DEBUGFLAG) $(CCLNDIRS) $(CFLAGS) -o $(TARGET) \
+	$(OBJECTS:%=$(PRG_PATH)/obj/%)
+
 # Library
 lib : $(OBJECTS)
 	$(AR) $(ARFLAGS) lib/$(TARGET).a \

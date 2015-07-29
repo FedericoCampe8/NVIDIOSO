@@ -21,6 +21,7 @@ namespace CudaSynchUtils
     /**
      * Set the fields before BITs (e.g., EVT, LB, UB, DSZ),
      * consistent with the bits in BIT field.
+     * @param domain_idx indexes for each variable of its starting point on the array of states
      * @param domain_states array of all the domains stored sequentially in memory
      * @note domain_idx can be used to lookup the domains corresponding to the
      *       (ids of the) variables stored in vars
@@ -32,6 +33,17 @@ namespace CudaSynchUtils
      * @note domain_type_size should be either STANDARD_DOM or BOOLEAN_DOM.
      */
     __global__ void cuda_set_domains_from_bit_1b1v ( int* domain_idx, uint* domain_states, int domain_type_size = STANDARD_DOM );
+    
+    /**
+     * Copy domains states from source_states to dest_states in parallel using 1 block per variable.
+     * @param domain_idx indexes for each variable of its starting point on the array of states
+     * @param source_states states to be copied
+     * @param dest_states destination
+     * @note domain_idx can be used to lookup the domains corresponding to the
+     *       (ids of the) variables stored in vars
+     * @note domain_type_size should be either STANDARD_DOM or BOOLEAN_DOM
+     */
+    __global__ void cuda_copy_state_1b1v ( int* domain_idx, uint* source_states, uint* dest_states, int domain_type_size = STANDARD_DOM );
     
 #endif
     

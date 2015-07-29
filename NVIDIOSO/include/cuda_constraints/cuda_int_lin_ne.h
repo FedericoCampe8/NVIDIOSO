@@ -37,7 +37,7 @@ public:
     __device__ ~CudaIntLinNe ();
 
     //! It performs domain consistency
-    __device__ void consistency ();
+    __device__ void consistency ( int ref = -1 );
 
     //! It checks whether sum_i var_i * coeff_i != c
     __device__ bool satisfied ();

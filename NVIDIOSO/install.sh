@@ -42,7 +42,7 @@ cat <<EOF
 ###########################################
 EOF
 
-PROG_COUNT=$(ls | grep -c -x $iNVIDIOSO)
+PROG_COUNT=`ls | grep -c -x $iNVIDIOSO`
 if [ $PROG_COUNT -ne 0 ]; then
     echo "A version of the solver is already present in this folder."
     echo "Press any key to continue or ctrl-c to exit."
@@ -72,6 +72,9 @@ case "$OS" in
     [Bb]sd* )
     OS="BSD"
     ;;
+    CYGWIN* )
+    OS="CYGWIN"
+    ;;
     * )
         echo "Unknown OS: $OS"
         exit 1;;
@@ -97,11 +100,11 @@ if [ $VERSION == "G" ]; then
             They also provide useful NVIDIA "Getting Started" guides.
         2 - If CUDA is already installed in your platform,
             try to export environment variables or check iNVIDIOSO.envs for environment variables
-                export LD_LIBRARY_PATH=/usr/local/cuda/lib
-                export PATH=\$PATH:/usr/local/cuda/bin
+            export LD_LIBRARY_PATH=/usr/local/cuda/lib
+            export PATH=\$PATH:/usr/local/cuda/bin
         3 - Install again.
 EOF
-    else
+else
         echo ""
         echo "Note: CUDA Compute Capability currently set: $CUDA_CAPABILITY."
         cat <<EOF
@@ -113,7 +116,8 @@ EOF
         http://developer.nvidia.com/cuda-downloads.
         Press any key to continue or ctrl-c to exit.
 EOF
-        read EXT 
+
+		read EXT 
         CC=$NVCC 
         CUDAON="true"
     fi
@@ -201,9 +205,11 @@ do
 done
 echo ""
 
-# Check installation errors
-VARERROR=`grep -c Error $FILELOG`
-if [ $VARERROR -gt 0 ] || [$PROG_COUNT -eq 0 ]; then
+# Check install errors
+VARERROR=`grep -c -i Error $FILELOG`
+VARSTOP=`grep -c -i Stop $FILELOG`
+PROG_COUNT=`ls | grep -c -x $iNVIDIOSO`
+if [ $VARERROR -gt 0 ] || [ $VARSTOP -gt 0 ] || [ $PROG_COUNT -eq 0 ]; then
     echo "Something went wrong during installation."
     echo "Check log file: $FILELOG"
 else
