@@ -6,8 +6,7 @@ iNVIDIa-based cOnstraint SOlver v. 1.0
 iNVIDIOSO1.0 is a constraint solver for constraint satisfaction and optimization problems.
 It takes advantage of the GPU architecture -- if available -- to speedup exploration of the search space and propagation of constraints.
 The solver allows the user to choose between complete (e.g., DFS), and incomplete search strategies, e.g., (e.g., local search, MCMC sampling, etc.).
-iNVIDIOSO1.0 is written in C++ and uses the CUDA programming model[^cuda] for GPU computation.   
-[^cuda]: www.nvidia.com.
+iNVIDIOSO1.0 is written in C++ and uses the CUDA programming model (developer.nvidia.com) for GPU computation.  
 
 
 
@@ -31,8 +30,7 @@ just type "C" for the CPU version or "G" for the GPU version and press enter.
 If everything goes well, you should see the following message at the end of the installation:
 > Installation completed
 
-If the installation cannot be completed successfully, some information about the possible issue can be found in the log file[^mail]
-[^mail]: Please, feel free to send the log file and/or ask for further explanation or suggestions to fede.campe@gmail.com.
+If the installation cannot be completed successfully, some information about the possible issue can be found in the log file.
 
 
 > install_hhhhmmdd.log
@@ -55,8 +53,7 @@ Please, refer to the *manual* of the solver to get more information about iNVIDI
 The folder
 > iNVIDIOSO/Doxygen
 
-contains the descriptions of all the classes. This folder has been generated using *Doxygen*[^doxygen].
-[^doxygen]: www.doxygen.com.
+contains the descriptions of all the classes. This folder has been generated using *Doxygen*(www.doxygen.org).
 
 To navigate through the classes, open the index file with your preferred browser:
 > iNVIDIOSO/Doxygen/html/index.html
@@ -109,8 +106,8 @@ Where:
 	If DSZ is less than a predefined value, the representation automatically switches to a list of bits representing the domain's elements (i.e., REP = 0).
 	
 > **Note:**
->- Domains are represented slightly different on GPU. In particular, to save space, iNVIDIOSO1.0 represents domains on the GPU ***only*** by using a bitmap representation (i.e., REP = 0) ***or*** by a single pair of bounds, i.e., using two Integers values when domains cannot be represented by all the bits in the BIT field[^cuda_bit].
-[^cuda_bit]: Propagation algorithms on device consider these two domain representations only. In particular, when the domain is represented by a pair of bounds, only bound consistency is performed.
+>- Domains are represented slightly different on GPU. In particular, to save space, iNVIDIOSO1.0 represents domains on the GPU ***only*** by using a bitmap representation (i.e., REP = 0) ***or*** by a single pair of bounds, i.e., using two Integers values when domains cannot be represented by all the bits in the BIT field.
+  Note that propagation algorithms on device consider these two domain representations only. In particular, when the domain is represented by a pair of bounds, only bound consistency is performed.
 
 #### <i class="icon-pencil"></i> Constraints
 We implemented (almost) all the FlatZinc constraints on integers.
