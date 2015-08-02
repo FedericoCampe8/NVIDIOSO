@@ -25,6 +25,7 @@ using namespace std;
 
     // ======================= CUDA ======================
     constexpr std::string ParamData::CUDA_SHARED_SIZE_KWD = "SHARED_MEM_SIZE";
+    constexpr std::string ParamData::CUDA_MAX_BLOCK_SIZE_KWD = "MAX_BLOCK_SIZE";
     // ===================================================
 
     // ======================== SEARCH PARAMETERS ========================
@@ -49,6 +50,8 @@ using namespace std;
      constexpr std::string ParamData::CSTORE_CUDA_SEQ_KWD           = "sequential";
      constexpr std::string ParamData::CSTORE_CUDA_BPC_KWD           = "block_per_constraint";
      constexpr std::string ParamData::CSTORE_CUDA_BPV_KWD           = "block_per_variable";
+     constexpr std::string ParamData::CSTORE_CUDA_BKC_KWD           = "block_per_k_constraint";
+     constexpr std::string ParamData::CSTORE_CUDA_BKV_KWD           = "block_per_k_variable";
     // ===========================================================================
     
     // ======================= CONSTRAINT PARAMETERS =======================
@@ -93,6 +96,10 @@ ParamData::cstore_type_to_int ( CudaPropParam ctype ) const
     		return 1;
     	case CudaPropParam::BLOCK_PER_VAR:
     		return 2;
+    	case CudaPropParam::BLOCK_K_CON:
+    		return 3;
+    	case CudaPropParam::BLOCK_K_VAR:
+    		return 4;
     	default:
     		return 0;
     }
@@ -109,6 +116,10 @@ ParamData::cstore_int_to_type ( int ctype ) const
     		return CudaPropParam::BLOCK_PER_CON;
     	case 2:
     		return CudaPropParam::BLOCK_PER_VAR;
+    	case 3:
+    		return CudaPropParam::BLOCK_K_CON;
+    	case 4:
+    		return CudaPropParam::BLOCK_K_VAR;
     	default:
     		return CudaPropParam::SEQUENTIAL;
     }
@@ -119,6 +130,7 @@ ParamData::set_default_parameters ()
 {
 	// --- CUDA ---
 	_cuda_shared_available = 46000;
+	_cuda_max_block_size = 512;
 	
     // --- Search ---
     _search_debug = false;
@@ -457,6 +469,13 @@ ParamData::set_cuda_parameters ( std::string& line )
         _cuda_shared_available *= 1000;
         return;
     }
+    
+    pos = line_aux.find ( CUDA_MAX_BLOCK_SIZE_KWD );
+    if ( pos != string::npos )
+    {
+        _cuda_max_block_size = atoi ( param.c_str() );
+        return;
+    }
 }//set_cuda_parameters
 
 size_t 
@@ -464,6 +483,12 @@ ParamData::cuda_get_shared_mem_size () const
 {
 	return _cuda_shared_available;
 }//cuda_get_shared_mem_size
+
+size_t 
+ParamData::cuda_get_max_block_size () const
+{
+	return _cuda_max_block_size;
+}//cuda_get_max_block_size
 
 bool
 ParamData::search_get_debug () const
@@ -636,6 +661,8 @@ ParamData::print () const
     cout << "- Device:\n";
     cout << "\t+ Device max shared memory: ";
     print_option ( _cuda_shared_available );
+    cout << "\t+ Device max block size: ";
+    print_option ( _cuda_max_block_size );
     
     cout << "- Device Constraint Store:\n";
     cout << "\t+ Device propagation loop Limit: ";

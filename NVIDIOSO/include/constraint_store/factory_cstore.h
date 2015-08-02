@@ -15,6 +15,7 @@
 #include "cuda_simple_constraint_store.h"
 #include "cuda_simple_constraint_store_seq.h"
 #include "cuda_simple_constraint_store_1b1c.h"
+#include "cuda_simple_constraint_store_1bKc.h"
 #include "cuda_simple_constraint_store_1b1v.h"
 
 class FactoryCStore {
@@ -40,8 +41,12 @@ public:
         	case CudaPropParam::BLOCK_PER_CON:
         		return std::make_shared<CudaSimpleConstraintStore1b1c> ();
         	case CudaPropParam::BLOCK_PER_VAR:
-        		//! @todo propagation 1 block per variable
         		return std::make_shared<CudaSimpleConstraintStore1b1v> ();
+        	case CudaPropParam::BLOCK_K_CON:
+        		return std::make_shared<CudaSimpleConstraintStore1bKc> ();
+        	case CudaPropParam::BLOCK_K_VAR:
+        		/* return std::make_shared<CudaSimpleConstraintStore1bKv> (); */
+        		return std::make_shared<CudaSimpleConstraintStoreSeq> ();
       		default:
         		return std::make_shared<CudaSimpleConstraintStoreSeq> ();
     	}

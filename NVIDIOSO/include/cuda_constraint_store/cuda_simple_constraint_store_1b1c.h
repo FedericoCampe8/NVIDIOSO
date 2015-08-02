@@ -15,7 +15,7 @@
 #include "cuda_simple_constraint_store.h"
 
 class CudaSimpleConstraintStore1b1c : public CudaSimpleConstraintStore {
-private:
+protected:
     /**
      * Flag forcing the upated of domains on all the variables.
      * @note no computation to determine the changed variables is performed
@@ -54,7 +54,6 @@ private:
      */
     void sequential_propagation ();
     
-protected:
     //! Invoke the kernel which performs consistency on device
     void dev_consistency () override;
 

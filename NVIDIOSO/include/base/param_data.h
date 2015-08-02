@@ -23,7 +23,9 @@ enum class CudaPropParam
 {
     SEQUENTIAL,
     BLOCK_PER_CON,
-    BLOCK_PER_VAR
+    BLOCK_PER_VAR,
+    BLOCK_K_CON,
+    BLOCK_K_VAR
 };
 
 class ParamData {
@@ -52,7 +54,9 @@ private:
 
     // ======================= CUDA ======================
     std::size_t _cuda_shared_available;
+    std::size_t _cuda_max_block_size;
     static constexpr std::string CUDA_SHARED_SIZE_KWD;
+    static constexpr std::string CUDA_MAX_BLOCK_SIZE_KWD;
     // ===================================================
     
     // ======================== SEARCH PARAMETERS ========================
@@ -88,6 +92,8 @@ private:
     static constexpr std::string CSTORE_CUDA_SEQ_KWD;
     static constexpr std::string CSTORE_CUDA_BPC_KWD;
     static constexpr std::string CSTORE_CUDA_BPV_KWD;
+    static constexpr std::string CSTORE_CUDA_BKC_KWD;
+    static constexpr std::string CSTORE_CUDA_BKV_KWD;
     static constexpr std::string CSTORE_CUDA_PROP_LOOP_OUT_KWD;
     // ===========================================================================
 
@@ -154,6 +160,7 @@ public:
     
     // ========= CUDA =========
     std::size_t cuda_get_shared_mem_size () const;
+    std::size_t cuda_get_max_block_size () const;
     // ========================
     
     // ========= SEARCH PARAMETERS =========

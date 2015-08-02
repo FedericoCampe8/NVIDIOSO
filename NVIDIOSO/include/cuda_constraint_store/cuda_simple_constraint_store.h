@@ -25,6 +25,9 @@ protected:
     //! Max amount of shared memory available
     std::size_t _shared_limit;
     
+    //! Max number of threads per block
+    std::size_t _max_block_size;
+    
     //! Constraint queue: constraints to be propagated on device
     std::size_t * _d_constraint_queue;
 
@@ -98,6 +101,9 @@ public:
     ~CudaSimpleConstraintStore ();
 	
 	using SimpleConstraintStore::add_changed;
+	
+	//! Sets the maximum size for CUDA blocks.
+	void set_max_block_size ( size_t max_block_size = 512 );
 	
 	/**
 	 * Sets the number of iterations to perform to

@@ -15,6 +15,7 @@ using namespace std;
 
 CudaSimpleConstraintStore::CudaSimpleConstraintStore () :
     SimpleConstraintStore (),
+    _max_block_size       ( 512 ),
     _force_propagation    ( false ),
     _loop_out             ( 1 ),
     _d_constraint_queue   ( nullptr ),
@@ -36,6 +37,12 @@ CudaSimpleConstraintStore::~CudaSimpleConstraintStore () {
     cudaFree ( _d_constraint_queue );
 #endif
 }//~CudaSimpleConstraintStore
+
+void 
+CudaSimpleConstraintStore::set_max_block_size ( size_t max_block_size )
+{
+	_max_block_size = max_block_size;
+}//set_max_block_size
 
 void 
 CudaSimpleConstraintStore::set_prop_loop_out ( int loop_out )

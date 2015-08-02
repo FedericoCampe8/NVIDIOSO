@@ -268,11 +268,21 @@ CudaGenerator::get_store ()
     ConstraintStorePtr store;
   
 #if CUDAON
-	store = FactoryCStore::get_cstore ( true, 
-	 					 				solver_params->cstore_type_to_int (
-						 				solver_params->cstore_get_dev_propagation () ) );
+	if ( solver_params != nullptr )
+    {
+		store = FactoryCStore::get_cstore ( true, 
+	 					 					solver_params->cstore_type_to_int (
+						 					solver_params->cstore_get_dev_propagation () ) );
+	}
+	else
+	{// Default Constraint Store on device
+		store = FactoryCStore::get_cstore ( true );
+	}
+    
 #else
+
 	store = FactoryCStore::get_cstore ();
+	
 #endif
 
     // Set solver parameters
@@ -283,6 +293,9 @@ CudaGenerator::get_store ()
         
 #if CUDAON
 
+		(std::static_pointer_cast<CudaSimpleConstraintStore>( store ))->
+		set_max_block_size ( solver_params->cuda_get_max_block_size () );
+		
 		(std::static_pointer_cast <CudaSimpleConstraintStore> ( store ))->
 		set_prop_loop_out ( solver_params->cstore_get_dev_loop_out () );
 		

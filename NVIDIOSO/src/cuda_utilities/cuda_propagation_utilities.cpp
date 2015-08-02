@@ -54,7 +54,26 @@ CudaPropUtils::cuda_consistency_1b1c ( size_t * constraint_queue, int domain_typ
     G_DEV_CONSTRAINTS_ARRAY [ constraint_queue [ blockIdx.x ] ]->satisfied(); 
 
     G_DEV_CONSTRAINTS_ARRAY [ constraint_queue [ blockIdx.x ] ]->move_bit_status_from_shared ( shared_status, domain_type );
+    
 }//cuda_consistency__1b1c
+
+__global__ void
+CudaPropUtils::cuda_consistency_1bKc ( size_t * constraint_queue, size_t constraint_queue_size, int domain_type )
+{
+    extern __shared__ uint shared_status[];
+    
+    int warp_idx = (blockIdx.x * blockDim.x + threadIdx.x) / WARP_SIZE;
+    if ( ((threadIdx.x % WARP_SIZE) == 0) && (warp_idx < constraint_queue_size) )
+    {
+    	uint * local_shared = &shared_status [ (threadIdx.x / WARP_SIZE) * domain_type ];
+    	G_DEV_CONSTRAINTS_ARRAY [ constraint_queue [ warp_idx ] ]->move_status_to_shared ( local_shared, domain_type );
+
+    	G_DEV_CONSTRAINTS_ARRAY [ constraint_queue [ warp_idx ] ]->consistency();
+    	G_DEV_CONSTRAINTS_ARRAY [ constraint_queue [ warp_idx ] ]->satisfied(); 
+
+    	G_DEV_CONSTRAINTS_ARRAY [ constraint_queue [ warp_idx ] ]->move_bit_status_from_shared ( local_shared, domain_type );
+    }
+}//cuda_consistency_1bKc
 
 __global__ void
 CudaPropUtils::cuda_consistency_1b1v ( size_t * constraint_queue, int* queue_idx, int domain_type, uint * aux_state )

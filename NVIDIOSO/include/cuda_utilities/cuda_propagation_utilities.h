@@ -57,6 +57,17 @@ namespace CudaPropUtils
      * @param domain_type the type of domain (i.e., standard, Boolean, etc.).
      */
     __global__ void cuda_consistency_1b1c (  size_t * constraint_queue, int domain_type = STANDARD_DOM );
+    
+    /**
+     * Propagates constraints in constraint_queue in parallel on device.
+     * This kernel function uses a block per K constraints.
+     * This kernel function should be invoked with a number of blocks equal to the 
+     * (ceil of the )number of constraints in the constraint queue, divided by block size.
+     * @param constraint_queue the queue of constraints to propagate.
+     * @param queue_size size of the constraint queue.
+     * @param domain_type the type of domain (i.e., standard, Boolean, etc.).
+     */
+    __global__ void cuda_consistency_1bKc (  size_t * constraint_queue, std::size_t constraint_queue_size, int domain_type = STANDARD_DOM );
 
     /**
      * Propagates constraints in constraint_queue in parallel on device.
