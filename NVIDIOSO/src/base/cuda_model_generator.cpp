@@ -13,10 +13,11 @@
 #include "token_sol.h"
 #include "fzn_constraint_generator.h"
 #include "fzn_search_generator.h"
-//#include "cuda_simple_constraint_store.h"
 #include "factory_cstore.h"
 
 using namespace std;
+
+GlobalConstraintRegister& glb_constraint_register = GlobalConstraintRegister::get_instance ();
 
 CudaGenerator::CudaGenerator () :
     _dbg( "CudaGenerator - " )
@@ -139,11 +140,12 @@ CudaGenerator::get_variable ( UTokenPtr tkn_ptr )
 
 ConstraintPtr
 CudaGenerator::get_constraint ( UTokenPtr tkn_ptr )
-{  
+{ 
     // Error handling
 	assert( tkn_ptr != nullptr );
 	  
-    if ( tkn_ptr->get_type() != TokenType::FD_CONSTRAINT ) 
+    if ( tkn_ptr->get_type() != TokenType::FD_CONSTRAINT  && 
+         tkn_ptr->get_type() != TokenType::FD_GLB_CONSTRAINT ) 
     {
 	   	LogMsg.error( _dbg + "Error while instantiating a Constraint",
         	          __FILE__, __LINE__);
@@ -183,18 +185,31 @@ CudaGenerator::get_constraint ( UTokenPtr tkn_ptr )
      * It is initialized with the parameters of the token, i.e., the
      * name, list of pointer to FD variables, and auxiliary arguments.
      */
-    try
-    {
-        return
+	if ( tkn_ptr->get_type() == TokenType::FD_CONSTRAINT )
+	{
+		try
+    	{
+        	return
             FZNConstraintFactory::get_fzn_constraint_shr_ptr( constraint_name,
                                                               var_ptr,
                                                               params_vec );
-    }
-    catch ( NvdException& e )
-    {
-        cout << e.what() << endl;
-        throw;
-    }
+    	}
+    	catch ( NvdException& e )
+    	{
+        	cout << e.what() << endl;
+        	throw;
+    	}
+	}
+	else
+	{
+		GlobalConstraintPtr glb_constraint = glb_constraint_register.get_global_constraint ( constraint_name );
+		glb_constraint->setup ( var_ptr, params_vec );
+		if ( solver_params != nullptr )
+		{
+			glb_constraint->set_propagator_class ( solver_params->constraint_get_propagator_class () );
+		}
+		return glb_constraint;
+	}
 }//get_constraint
 
 SearchEnginePtr

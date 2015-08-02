@@ -20,7 +20,7 @@ class Domain;
 typedef std::shared_ptr<Domain> DomainPtr;
 
 /**
- * Type of domain.
+ * Domains type:
  * - Boolean ( BOOLEAN ),
  * - Integer ( INTEGER ),
  *  -Set     ( SET ).

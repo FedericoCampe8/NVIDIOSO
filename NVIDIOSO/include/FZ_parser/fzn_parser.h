@@ -61,6 +61,12 @@ private:
      */
     void store_token ( UTokenPtr );
   
+  	//! Ask whether there are more constraits to get
+    bool more_base_constraints    () const;
+    
+    //! Ask whether there are more constraits to get
+    bool more_global_constraints  () const;
+    
 public:
   
     FZNParser ();

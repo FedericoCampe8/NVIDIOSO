@@ -7,6 +7,7 @@
 //
 //  ParamData class:
 //  Class used to read parameters options for the solver.
+//  @todo Change this class into a xml parser.
 //
 
 
@@ -45,6 +46,7 @@ private:
     static constexpr std::string PARAM_NO_KWD;
     static constexpr std::string CUDA_KWD;
     static constexpr std::string SEARCH_KWD;
+    static constexpr std::string CONSTRAINT_KWD;
     static constexpr std::string CSTORE_KWD;
     // =====================================================
 
@@ -89,6 +91,11 @@ private:
     static constexpr std::string CSTORE_CUDA_PROP_LOOP_OUT_KWD;
     // ===========================================================================
 
+	// ======================= CONSTRAINT PARAMETERS =======================
+	std::string _constraint_propagator_class;
+	static constexpr std::string CONSTRAINT_PROP_CLASS_KWD;
+	// =====================================================================
+	
     //Print utilities
     void print_option ( bool         b,  bool new_line=true ) const;
     void print_option ( int          n,  bool new_line=true ) const;
@@ -116,6 +123,9 @@ protected:
     //! Search engine parameters
     virtual void set_search_parameters ( std::string& line );
 
+	//! Constraint parameters
+    virtual void set_constraint_parameters ( std::string& line );
+    
     //! Constraint store parameters
     virtual void set_constraint_engine_parameters ( std::string& line );
     
@@ -157,6 +167,11 @@ public:
     double search_get_timeout () const;
     // =====================================
 
+	// ========= CONSTRAINT PARAMETERS =========
+	std::string constraint_get_propagator_class () const;
+	// =========================================
+	
+	
     // ========= CSTORE PARAMETERS =========
     bool cstore_get_consistency () const;
     bool cstore_get_satisfiability () const;

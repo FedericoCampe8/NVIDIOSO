@@ -33,8 +33,11 @@ protected:
   //! Variables
   std::vector < VariablePtr >    _variables;
   
-  //! Constraint Store
-  std::vector <  ConstraintPtr > _constraints;
+  //! Base Constraints
+  std::vector < ConstraintPtr > _constraints;
+  
+  //! Global Constraints
+  std::vector < GlobalConstraintPtr > _glb_constraints;
   
   //! Search engine
   SearchEnginePtr _search_engine;
@@ -65,7 +68,7 @@ public:
    * actually defining the constraint graph.
    * @param ptr pointer to the variable to add to the model
    */
-  virtual void add_variable      ( VariablePtr ptr );
+  virtual void add_variable ( VariablePtr ptr );
   
   /**
    * Add a constraint to the model.
@@ -73,7 +76,8 @@ public:
    * actually defining the constraint graph.
    * @param ptr pointer to the constraint to add to the model
    */
-  virtual void add_constraint    ( ConstraintPtr ptr );
+  virtual void add_constraint ( ConstraintPtr ptr );
+  virtual void add_constraint ( GlobalConstraintPtr ptr );
   
   /**
    * Add a search engine to the model.

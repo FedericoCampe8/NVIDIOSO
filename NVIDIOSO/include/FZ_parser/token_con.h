@@ -1,9 +1,9 @@
 //
 //  token_con.h
-//  NVIDIOSO
+//  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 07/07/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 //  This class specializes a token for constraints.
 //  @note: this class represents the minium set of information
@@ -25,6 +25,15 @@ protected:
   
   //! Parameters involved in the constraint
   std::vector < std::string > _exprs;
+  
+  //! Array of global constraint keywords
+  static std::vector < std::string > global_constraint_keyword;
+  
+  /**
+   * Identifies a global constraint.
+   * @return True if the constraint is a global constraint, False otherwise.
+   */
+   bool global_constraint ( std::string constraint_name );
   
 public:
   

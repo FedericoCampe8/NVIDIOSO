@@ -3,7 +3,7 @@
 //  NVIDIOSO
 //
 //  Created by Federico Campeotto on 27/06/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 #ifndef NVIDIOSO_system_description_h
@@ -12,115 +12,165 @@
 
 /**
  * @mainpage
- *                                      NVIDIOSO
- *                         NVIDIa-based cOnstraint SOlver v. 1.0
- *
- *                               __CSP/COP REPRESENTATION__
- *
- * VARIABLES:
- *
- * Variable has variable types.
- * - bool: true, false
- * - int: -42, 0, 69
- * - set of int: {}, {2, 3, 4}, 1..10
- *
- * We distinguish  between four different types of variables, namely:
- * - FD  Variables: standard Finite Domain variables
- * - SUP Variables: SUPport variable introduced to compute the objective
- *                  function. These variables have unbounded int domains.
- * - OBJ Variables: OBJective variables. These variables store the objective
- *                  value as calculated by the objective function through
- *                  standard propagation. These variables have unbounded
- *                  int domains.
- *
- *
- * DOMAINS:
- *
- * Domain representation may vary depending on the type of model that is 
- * instantiated.
- * In particular, for a CPU model the domains can be represented by lists
- * of sets of domain value.
- * For CUDA models domains are represented as follows.
- * There are two internal representations for an finite domain D depending
- * on whether |D| <= max_vector or not:
- * - Bitmap: if |D| <= max_vector;
- * - List of bounds: otherwise.
- *
- * By default, max_vector is equal to 256. This value can be redefined via
- * and environment variable VECTOR_MAX.
- *
- * Domains have the following structure:
- *
- * | EVT | REP | LB | UB | DSZ || ... BIT ... |
- *
- * where
- *
- * - EVT: represents the EVenT happened on the domain;
- * - REP: is the REPresentation currently used;
- *        This value can be one of the following:
- *        - -1, -2, -3, ...: BIT represents a set of 1, 2, 3, ... bitmaps
- *                           respectively. Each bitmap represents a 
- *                           domain subset of values {LB, UB};
- *        - 0              : BIT represents a Bitmap of contiguous values
- *                           starting from LB: LB..VECTOR_MAX.
- *        - 1, 2, 3, ...   : in BIT there are respectively 0, 1, 2, ...
- *                           pairs of bound. If there are 0 pairs, then
- *                           there is a unique pair of bounds {LB, UB}
- *                           in the LB/UB field respectively.
- * - LB: Lower Bound of the current domain;
- * - UB: Upper Bound of the current domain;
- * - DSZ: Domain SiZe where DSZ <= max_vector -> REP = 0.
- *         Moreover, 
- *         - {LB, UB}' = {LB, k} {k', UB} -> DSZ' = DSZ - ( k' - k + 1 );
- *         - LB' = LB + k                 -> DSZ' = DSZ - ( k - LB + 1 );
- *         - UB' = UB - k                 -> DSZ' = DSZ - ( UB - k + 1 );
- * - BIT: bit vector where
- *      - REP < 0: there is a total of (<=) VECTOR_MAX bits representing
- *                 REP pairs of bounds. The first part of BIT is used to
- *                 store REP pairs <LB, UB>.
- *                 The second part of BIT stores the actual bitmaps.
- *                 Using UB - LB + 1 it is possible to calculate the
- *                 size of the bitmap and hence the position
- *                 in BIT of the next pair <LB, UB>.
- *      - REP = 0: there are UB - LB + 1 <= VECTOR_MAX
- *                 bits of contiguous domain values starting from 0;
- *      - REP > 0: each pair of bound is identified as
- *                 LB, UB (LB = UB if singlet).
- *                 If REP = 1, then there is only 1 pair of bounds
- *                 represented by {LB, UB}, without any pair in BIT.
- *                 If REP > 1, then there are at least 2 pairs in BIT
- *                 and the LB/UB fields represent respectively the
- *                 min/max values among all the pairs.
- *
- * OBSERVATIONS (CUDA implementation):
- *
- * Shared Memory: 49152 = 48 kB per block -> keep 47 kB available.
- * - REP < 0 there are 47 * 1024 = 48128 ->
- *   (48128 - 5 * 32)/32 = 1499 possible storable values.
- *   Worst case: REP = -256 -> 3 * 256 triples = 3 * 256 = 768 < 1499 (-8=256/32).
- * - REP = 0 and VECTOR_MAX = 4096 the worst case is when there are 4096 sing.:
- *   ((4096 + 4096 * 2 * 32) / 8) / 1024 = 32.5 kB < 45 kB
- *   ((tot_bits + tot_bits * 2 int * bit_per_int) / B) / kB.
- * - REP > 0: 45 kB = 11520 int -> 11520 - 5 = 11515 -> 11515/2 (used two int
- *   to represent a pair of bounds) = 5757 pairs separated by at least
- *   one "hole" from each other -> 5757 * 2 = 11514 such as {0, 1}, {3, 4}, ... .
- *
- * @note The above observation means that when the domains are greater 
- *       than 11514 then a check must be performed in order to apply 
- *       multiple copies from global to share memory if needed.
- * @note A domain such as {300, 450} has 150 values < VECTOR_MAX but it still
- *       represented as REP < 0. This is done for efficiency reasons, avoiding to
- *       store a further base-offset for contiguous domains of size < VECTOR_MAX.
- * @note When a domain (or subsets of it) is (are) represented using a bitmap,
- *       the values are stored from left to right in chunks of 32 bits 
- *       (considering a 32bit representation for an unsigned int), where
- *       the most significan bit is in the leftmost position of the chuck, 
- *       i.e., it is the 31th bit.
- *       For example, the domain {0, 63} is store as
- *       |31...0|32...63|.
- *       The chunk is easily retrieved computing num / 32, while the 
- *       position within each chunk can be retrieved by num % 32.
- *
+ **iNVIDIOSO**
+======================================
+NVIDIa-based cOnstraint SOlver v. 1.0 
+======================================
+
+iNVIDIOSO1.0 is a constraint solver for constraint satisfaction and optimization problems.
+It takes advantage of the GPU architecture -- if available -- to speedup exploration 
+of the search space and propagation of constraints.
+The solver allows the user to choose between complete (e.g., DFS), 
+and incomplete search strategies, e.g., (e.g., local search, MCMC sampling, etc.).
+iNVIDIOSO1.0 is written in C++ and uses the CUDA programming model for GPU computation.   
+
+
+
+Installation
+-------------
+
+To install iNVIDIOSO1.0,  first set the environment variables 
+in the file
+	> NVIDIOSO/config/iNVIDIOSO.envs
+	
+In this file you can set several environment variables such as the path where 
+to install iNVIDIOSO1.0, the compiler version, and the compute capability of 
+the graphic card if present.
+
+After the environment variables have been set, you just need to go into the iNVIDIOSO 
+main folder run the installation script as follows:
+```
+$ cd iNVIDIOSO/NVIDIOSO
+$ ./install.sh
+```
+During the installation process you will be asked whether you prefer to install 
+the CPU version or the GPU version of the solver:
+just type "C" for the CPU version or "G" for the GPU version and press enter.
+
+If everything goes well, you should see the following message at the
+end of the installation:
+> Installation completed
+
+If the installation cannot be completed successfully, some information about the 
+possible issue can be found in the log file[^mail]
+[^mail]: Please, feel free to send the log file and/or ask for further 
+explanation or suggestions to fede.campe@gmail.com.
+
+
+> install_hhhhmmdd.log
+ 
+ Please, note that this is an ongoing project.
+ In particular, there might be bugs or issues we are not yet aware of. 
+ We try to do our best to keep the solver updated and to fix bugs as soon as we find them. 
+If you are experiencing an issue, you want to know more about the solver, 
+or you have some comments on it, please feel free to send an email to
+> fede.campe@gmail.com
+
+Here there are some new features we will implement in the next future:
+> - Allow the user to define different local search strategies
+     in a declarative way as input for the solver.
+     The solver will automatically run the local search strategy in parallel on the GPU;
+> - Use a multi-GPU environment to scale horizontally when 
+     searching for sub-optimal solutions for optimization problems;
+>- Implement the Simplex algorithm (sequential and parallel version) for solving LP problems;
+>- Handle Floating point variables and continuous constraints.
+
+Please, refer to the *manual* of the solver to get more information about iNVIDIOSO1.0. 
+The folder
+> iNVIDIOSO/Doxygen
+
+contains the descriptions of all the classes. 
+This folder has been generated using *Doxygen*.
+
+To navigate through the classes, open the index file with your preferred browser:
+> iNVIDIOSO/Doxygen/html/index.html
+
+The same content is printed in a pdf file named *iNVIDIOSO_refman.pdf*:
+> iNVIDIOSO/Doxygen/iNVIDIOSO_refman.pdf
+ 
+ ----------
+
+Solver's Framework
+-------------
+  
+  We briefly describe how iNVIDIOSO internally represents **Variables**, **Domains**, 
+  and **Constraints** in what follows. 
+
+#### <i class="icon-pencil"></i> Variables
+iNVIDIOSO1.0 can handle three types of variables
+> - Boolean variables: True/False
+> - Integer variables: ..., -2, -1, 0, 1, 2, ...
+> - Sets of integers: {}, {2, 3, 4}, {1..10}
+
+Internally, iNVIDIOSO1.0 distinguishes between three different variable "objects", namely:
+: FD variables: Finite Domain variables;
+: SUP Variables: SUPport variables introduced to calculate the objective function. 
+These variables have unbounded int domains;
+: OBJ Variables: OBJective variables. These variables store the objective value 
+as calculated by the objective function through standard propagation. 
+These variables have unbounded int domains.
+
+#### <i class="icon-pencil"></i> Domains
+iNVIDIOSO1.0 represents Integer and Set domains a sequence 
+of 5 Integer values followed by an array of bits.
+Boolean domains are represented only by two Integer values.
+For Integer and Set variables, domains have the following structure:
+>  | EVT | REP | LB | UB | DSZ || ... BIT ... | 
+
+Where:
+>- EVT: represents the EVenT happened on the domain and it can be one of the following events:
+	>>-  FAILED: for empty domains
+	>>- SINGLETON: for domains with just one element
+	>>- MIN: when the *lower bound* of the domain has changed due to propagation
+	>>- MAX: when the *upper bound* of the domain has changed due to propagation
+	>>- BOUND: when the *lower* and/or the *upper* have been changed due to propagation 
+	(this is a more general case w.r.t. the MIN, and MAX events)
+	>>- CHANGED: when the domain is changed due to propagation ***and***, 
+	no bounds are modified and the domain is neither SINGLETON nor FAILED.
+
+>- REP: is the REPresentation used for the domain's elements. 
+This field can assume positive and negative values with the following meanings:
+>>- -1, -2, -3, ...: the BIT field contains a set of 1, 2, 3, ... bitmaps respectively. 
+Each of this bitmaps is stored in the BIT field as a sequence of two Integer values 
+representing the lower and upper bounds respectively and a sequence of bits 
+representing the elements contained between the two bounds.
+>>- 0: the whole BIT field represents a bitmap of (contiguous) values
+>>- 1, 2, 3, ...   : the BIT field contains 0, 1, 2, ... 
+lists of pairs <*lower*, *upper*> bounds. If the value is 1, then the pair of 
+bounds is represented by the two fields LB and UB.
+
+>- LB: Lower Bound of the domain;
+>- UB: Upper Bound of the domain;
+
+>- DSZ: Domain SiZe, i.e., number of elements in the domain.
+	If DSZ is less than a predefined value, the representation automatically switches 
+	to a list of bits representing the domain's elements (i.e., REP = 0).
+	
+> **Note:**
+>- Domains are represented slightly different on GPU. In particular, to save space, 
+iNVIDIOSO1.0 represents domains on the GPU ***only*** by using a bitmap representation 
+(i.e., REP = 0) ***or*** by a single pair of bounds, i.e., using two 
+Integers values when domains cannot be represented by all the bits in the BIT field.
+
+
+#### <i class="icon-pencil"></i> Constraints
+We implemented (almost) all the FlatZinc constraints on integers.
+The list of FlatZinc constraints can be found at http://www.minizinc.org/.
+
+ 
+Thank you for reading this page.
+  If you've have any question, suggestion or observation, please don't hesitate to write at 
+  > fede.campe@gmail.com. 
+  
+  --------------------
+  
+  Why “iNVIDIOSO”?
+  “INVIDIA” is an italian word which means “envy”. “INVIDIOSO” 
+  is used to refer to someone who is envious for some reason. 
+  Moreover, the solver uses the NVIDIA CUDA programming model, 
+  that allows one to program code running on NVIDIA graphic cards.
+Therefore,
+>  i + NVIDI + OSO = iNVIDIA-based cOnstraint SOlver
  */
 
 #endif

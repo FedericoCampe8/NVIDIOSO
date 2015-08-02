@@ -17,6 +17,7 @@
 
 #include "globals.h"
 #include "constraint.h"
+#include "global_constraint.h"
 
 class ConstraintStore;
 typedef std::shared_ptr<ConstraintStore> ConstraintStorePtr;
@@ -62,7 +63,7 @@ public:
     virtual void add_changed ( std::vector< size_t >& c_id, EventType event ) = 0;
   
     /**
-     * Imposes a constraint to the store. The constraint is added
+     * Imposes a constraint on the store. The constraint is added
      * to the list of constraints in this constraint store as well as
      * to the queue of constraint to re-evaluate next call to consistency.
      * Most probably this function is called every time a new constraint

@@ -29,6 +29,7 @@ enum class ConsistencyType {
 
 class Constraint : public std::enable_shared_from_this< Constraint > {
 private:
+
   //! Unique global identifier for a given constraint.
   size_t _unique_id;
   
@@ -43,6 +44,9 @@ private:
 protected:
   //! Debug string
   std::string _dbg;
+  
+  //! It specifies whether the constraint is a global constraint
+  bool _global;
   
   /**
    * It specifies the number if for a given constraint.
@@ -74,6 +78,13 @@ protected:
    * @note see domain.h for the list of events of type "EventType".
    */
   std::vector<EventType> _trigger_events;
+  
+  /**
+   * It represents the array of variables into the 
+   * scope of this constraints.
+   * For example:
+   */ 
+  std::vector<VariablePtr> _scope;
   
   /**
    * It represents the array of auxiliary arguments needed by
@@ -111,6 +122,9 @@ public:
   
   //! Get the name id of this constraint.
   std::string get_name () const;
+  
+  //! Get global constraint info
+  bool is_global () const;
   
   //! Get the weight of this constraint.
   int get_weight () const;
@@ -242,7 +256,7 @@ public:
    * of all the variables involved in a
    * given constraint (i.e., its scope).
    */
-  virtual const std::vector<VariablePtr> scope () const = 0;
+  virtual const std::vector<VariablePtr> scope () const;
   
   /**
    * It attaches this constraint (observer) to the list of

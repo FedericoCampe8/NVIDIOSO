@@ -11,6 +11,7 @@
 using namespace std;
 
 Constraint::Constraint () :
+_global      ( false ),
 _number_id   ( -1 ),
 _str_id      ( "-1" ),
 _weight      ( 0 ),
@@ -43,6 +44,12 @@ std::string
 Constraint::get_name () const {
   return _str_id;
 }//get_name
+
+bool
+Constraint::is_global () const 
+{
+	return _global;
+}//is_global
 
 int
 Constraint::get_weight () const {
@@ -83,6 +90,13 @@ const std::vector<EventType>&
 Constraint::events () const {
   return _trigger_events;
 }//events
+
+const std::vector<VariablePtr>
+Constraint::scope () const 
+{
+  // Return the constraint's scope
+  return _scope;
+}//scope
 
 const std::vector<int>&
 Constraint::arguments () const {

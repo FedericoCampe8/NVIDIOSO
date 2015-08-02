@@ -115,7 +115,7 @@ public:
     void add_changed ( std::vector< size_t >& c_id, EventType event ) override;
   
     /**
-     * Imposes a constraint to the store. The constraint is added
+     * Imposes a constraint on the store. The constraint is added
      * to the list of constraints in this constraint store as well as
      * to the queue of constraint to re-evaluate next call to consistency.
      * Most probably this function is called every time a new constraint

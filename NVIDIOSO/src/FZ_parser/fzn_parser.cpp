@@ -1,9 +1,9 @@
 //
 //  fzn_parser.cpp
-//  NVIDIOSO
+//  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 03/07/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 #include "fzn_parser.h"
@@ -47,13 +47,32 @@ FZNParser::more_variables () const {
 }//more_variables
 
 bool
-FZNParser::more_constraints () const {
-  auto it = _lookup_token_table.find( TokenType::FD_CONSTRAINT );
-  if ( it != _lookup_token_table.end() ) {
-    return ( it->second.size() > 0 );
-  }
-  return false;
+FZNParser::more_constraints () const 
+{
+	return (more_base_constraints() || more_global_constraints ());
 }//more_constraints
+
+bool 
+FZNParser::more_base_constraints () const 
+{
+	auto it = _lookup_token_table.find( TokenType::FD_CONSTRAINT );
+  	if ( it != _lookup_token_table.end() ) 
+  	{
+    	return ( it->second.size() > 0 );
+  	}
+  	return false;
+}
+
+bool 
+FZNParser::more_global_constraints () const 
+{
+	auto it = _lookup_token_table.find( TokenType::FD_GLB_CONSTRAINT );
+  	if ( it != _lookup_token_table.end() ) 
+  	{
+    	return ( it->second.size() > 0 );
+  	}
+  	return false;
+}
 
 bool
 FZNParser::more_search_engines () const {
@@ -105,7 +124,7 @@ FZNParser::get_variable () {
 
 UTokenPtr
 FZNParser::get_constraint () {
-    if ( more_constraints () )
+    if ( more_base_constraints () )
     {
         auto it = _lookup_token_table.find( TokenType::FD_CONSTRAINT );
         size_t ptr = it->second[ it->second.size () - 1 ];
@@ -113,6 +132,16 @@ FZNParser::get_constraint () {
         _num_tokens--;
         return std::move ( _map_tokens[ ptr ] );
     }//more_constraints
+    
+    if ( more_global_constraints () )
+    {
+    	auto it = _lookup_token_table.find( TokenType::FD_GLB_CONSTRAINT );
+    	size_t ptr = it->second[ it->second.size () - 1 ];
+        it->second.pop_back();
+        _num_tokens--;
+        return std::move ( _map_tokens[ ptr ] );
+    }
+    
     UTokenPtr ptr ( nullptr );
     return std::move ( ptr );
 }//get_constraint

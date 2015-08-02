@@ -20,34 +20,47 @@ CPModel::~CPModel () {
 }//~CPModel
 
 int
-CPModel::get_id () const {
+CPModel::get_id () const 
+{
   return _model_id;
 }//get_id
 
 size_t
-CPModel::num_variables () const {
+CPModel::num_variables () const 
+{
   return _variables.size ();
 }//num_variables
 
 size_t
-CPModel::num_constraints () const {
+CPModel::num_constraints () const 
+{
   return _constraints.size ();
 }//num_variables
 
 void
-CPModel::add_variable ( VariablePtr vpt ) {
+CPModel::add_variable ( VariablePtr vpt ) 
+{
   assert( vpt != nullptr );
   _variables.push_back( vpt );
 }//add_variable
 
 void
-CPModel::add_constraint ( ConstraintPtr cpt ) {
+CPModel::add_constraint ( ConstraintPtr cpt ) 
+{
   if( cpt == nullptr ) return;
-  _constraints.push_back( cpt );
+  _constraints.push_back ( cpt );
 }//add_constraint
 
 void
-CPModel::add_search_engine ( SearchEnginePtr spt ) {
+CPModel::add_constraint ( GlobalConstraintPtr cpt ) 
+{
+  if( cpt == nullptr ) return;
+  _glb_constraints.push_back ( cpt );
+}//add_constraint
+
+void
+CPModel::add_search_engine ( SearchEnginePtr spt ) 
+{
   assert( spt != nullptr );
   _search_engine = spt;
   
@@ -57,12 +70,14 @@ CPModel::add_search_engine ( SearchEnginePtr spt ) {
 }//add_search_engine
 
 SearchEnginePtr
-CPModel::get_search_engine () {
+CPModel::get_search_engine () 
+{
   return _search_engine;
 }//get_search_engine
 
 void
-CPModel::add_constraint_store ( ConstraintStorePtr store ) {
+CPModel::add_constraint_store ( ConstraintStorePtr store ) 
+{
   assert( store != nullptr );
   _store = store;
   
@@ -72,29 +87,50 @@ CPModel::add_constraint_store ( ConstraintStorePtr store ) {
 }//add_constraint_store
 
 void
-CPModel::init_constraint_store () {
+CPModel::init_constraint_store () 
+{
   if ( _store == nullptr ) return;
   if ( _constraints.size () == 0 ) return;
   
-  for ( auto c : _constraints ) {
-    _store->impose( c );
+  // Add base constraints
+  for ( auto c : _constraints ) 
+  {
+	_store->impose( c );
+  }
+  
+  // Add global constraints
+  for ( auto c : _glb_constraints ) 
+  {
+	_store->impose( c );
   }
 }//init_constraint_store
 
 void
-CPModel::finalize () {
+CPModel::finalize () 
+{
 }//finalize
 
 void
-CPModel::create_constraint_graph () {
+CPModel::create_constraint_graph () 
+{
   if ( !_constraints.size() ) return;
-  for ( auto c : _constraints ) {
-    c->attach_me_to_vars();
+  
+  // Attach base constraints to variables
+  for ( auto c : _constraints ) 
+  {
+	c->attach_me_to_vars();
+  }
+  
+  // Attach global constraints to variable
+  for ( auto c : _glb_constraints ) 
+  {
+	c->attach_me_to_vars();
   }
 }//create_constraint_graph
 
 void
-CPModel::attach_constraint_store () {
+CPModel::attach_constraint_store () 
+{
   if ( !_variables.size()) return;
   
   if ( _store == nullptr ) {
@@ -107,30 +143,45 @@ CPModel::attach_constraint_store () {
 }//attach_constraint_store
 
 void
-CPModel::set_solutions_limit ( size_t sol_limit ) {
-  _search_engine->set_solution_limit ( sol_limit );
+CPModel::set_solutions_limit ( size_t sol_limit ) 
+{
+	_search_engine->set_solution_limit ( sol_limit );
 }//set_solutions_limit
 
 void
-CPModel::set_timeout_limit ( double timeout ) {
-  _search_engine->set_timeout_limit ( timeout );
+CPModel::set_timeout_limit ( double timeout ) 
+{
+	_search_engine->set_timeout_limit ( timeout );
 }//set_timeout_limit
 
 void
-CPModel::print () const {
+CPModel::print () const 
+{
   cout << "CP Model:\n";
-  cout << "|V|: " << _variables.size() << endl;
-  cout << "|C|: " << _constraints.size() << endl;
+  cout << "|V|:  " << _variables.size()       << endl;
+  cout << "|C|:  " << _constraints.size()     << endl;
+  cout << "|GC|: " << _glb_constraints.size() << endl;
   if ( _search_engine != nullptr ) {
     cout << "Search engine:\n";
     _search_engine->print();
   }
+  
+  cout << "=== VARIABLES ===\n";
   for ( auto& v: _variables )
   {
   	v->print ();
   }
+  cout << "=================\n";
+  cout << "=== CONSTRAINTS ===\n";
   for ( auto& c: _constraints )
   {
   	c->print ();
   }
+  cout << "=================\n";
+  cout << "=== GLOBAL CONSTRAINTS ===\n";
+  for ( auto& c: _glb_constraints )
+  {
+  	c->print ();
+  }
+  cout << "=================\n";
 }//print

@@ -10,6 +10,94 @@
 
 using namespace std;
 
+std::vector<std::string> TokenCon::global_constraint_keyword = 
+{
+	"abs_value",
+	"all_differ_from_at_least_k_pos",
+	"all_differ_from_at_most_k_pos",
+	"all_differ_from_exactly_k_pos",
+	"all_equal",
+	"all_equal_peak",
+	"all_equal_peak_max",
+	"all_equal_valley",
+	"all_equal_valley_min",
+	"all_incomparable",
+	"all_min_dist",
+	"alldifferent",
+	"alldifferent_between_sets",
+	"alldifferent_consecutive_values",
+	"alldifferent_cst",
+	"alldifferent_except_0",
+	"alldifferent_interval",
+	"alldifferent_modulo",
+	"alldifferent_on_intersection",
+	"alldifferent_partition",
+	"alldifferent_same_value",
+	"allperm",
+	"among",
+	"among_diff_0",
+	"among_interval",
+	"among_low_up",
+	"among_modulo",
+	"among_seq",
+	"among_var",
+	"and",
+	"arith",
+	"arith_or",
+	"arith_sliding",
+	"assign_and_counts",
+	"assign_and_nvalues",
+	"atleast",
+	"atleast_nvalue",
+	"atleast_nvector",
+	"atmost",
+	"atmost_nvalue",
+	"atmost_nvector",
+	"balance",
+	"balance_cycle",
+	"balance_interval",
+	"balance_modulo",
+	"balance_partition",
+	"balance_path",
+	"balance_tree",
+	"between_min_max",
+	"big_peak",
+	"big_valley",
+	"bin_packing",
+	"bin_packing_capa",
+	"binary_tree",
+	"bipartite",
+	"calendar",
+	"cardinality_atleast",
+	"cardinality_atmost",
+	"cardinality_atmost_partition",
+	"change",
+	"change_continuity",
+	"change_pair",
+	"change_partition",
+	"change_vectors",
+	"circuit",
+	"circuit_cluster",
+	"circular_change",
+	"clause_and",
+	"clause_or",
+	"clique", 
+	
+	/* 5.71 in http://sofdem.github.io/gccat/gccat/Catleast.html */
+	/* core global constraints here */
+	
+	"cumulative",
+	"cycle",
+	"diffn",
+	"disjunctive",
+	"element",
+	"global_cardinality",
+	"global_cardinality_with_costs",
+	"minimum_weight_alldifferent",
+	"nvalue",
+	"sort"
+};
+
 TokenCon::TokenCon () :
 Token         ( TokenType::FD_CONSTRAINT ),
 _con_id       ( "" ) {
@@ -32,11 +120,17 @@ TokenCon::set_token ( std::string& token_str )
     	return false;
   	}
   
-  	set_con_id( token_str.substr( 0, ptr_idx ) );
-
+  	std::string constraint_name = token_str.substr( 0, ptr_idx );
+  	set_con_id ( constraint_name );
+	
+	if ( global_constraint ( constraint_name ) )
+	{
+		set_type ( TokenType::FD_GLB_CONSTRAINT );
+	}
+	
   	// Get the expressions that identify the constraint
   	token_str = token_str.substr ( ptr_idx + 1, ptr_aux - ptr_idx - 1 );
-  
+  	
   	int brk_counter = 0;
   	string expression = "";
   	for ( int i = 0; i < token_str.size(); i++ ) 
@@ -89,6 +183,21 @@ TokenCon::set_token ( std::string& token_str )
   	}
   	return true;
 }//set_token
+
+bool 
+TokenCon::global_constraint ( std::string constraint_name )
+{
+	auto it = std::find ( 
+	TokenCon::global_constraint_keyword.begin(), 
+	TokenCon::global_constraint_keyword.end(),
+	constraint_name );
+	if ( it != TokenCon::global_constraint_keyword.end () ) 
+	{
+		return true;
+	}
+	
+	return false;
+}//global_constraint
 
 void
 TokenCon::set_con_id ( string con_id ) {

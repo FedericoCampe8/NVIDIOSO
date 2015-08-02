@@ -1,9 +1,9 @@
 //
 //  fzn_constraint.h
-//  NVIDIOSO
+//  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 28/07/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 //  This class specializes the Constraint class with the constraints
 //  as defined by the Specification of the FlatZinc language.

@@ -25,6 +25,7 @@ enum class TokenType {
   FD_VAR_ARRAY,
   FD_DOMAIN,
   FD_CONSTRAINT,
+  FD_GLB_CONSTRAINT,
   FD_SOLVE,
   FD_LNS,
   OTHER

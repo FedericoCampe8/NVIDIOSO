@@ -3,7 +3,7 @@
 //  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 07/09/15.
-//  Copyright (c) 2014-2015 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 //  Macros used by cuda_constraint(s)
 //
@@ -19,6 +19,9 @@
 // MAX SIZE BIT MAP
 #include "envs.h"
 
+// GLOBAL STATUS/ WORKING STATUS ON DEVICE
+#define D_STATUS _working_status
+
 // EVENTS ON DOMAINS
 #define NOP_EVT 0
 #define SNG_EVT 1
@@ -33,7 +36,8 @@
 #define BND_REP 1
 
 // BOOLEAN DOMAIN REPRESENTATION
-#define BOL_EVT 7
+#define BOL_EVT     7
+#define BOL_SNG_EVT 8
 #define BOL_F   0
 #define BOL_T   1
 #define BOL_U   2
@@ -55,12 +59,12 @@
 #define STANDARD_DOM (5 + (VECTOR_MAX/(8*sizeof(int))))
 
 // STATUS
-#define STATUS(x, y) (_status[(x)][(y)])
-#define GET_VAR_EVT(x)	_status[(x)][EVT]
-#define GET_VAR_REP(x)	_status[(x)][REP]
-#define GET_VAR_LB(x)	_status[(x)][LB]
-#define GET_VAR_UB(x)	_status[(x)][UB]
-#define GET_VAR_DSZ(x)	_status[(x)][DSZ]
+#define STATUS(x, y) (D_STATUS[(x)][(y)])
+#define GET_VAR_EVT(x)D_STATUS[(x)][EVT]
+#define GET_VAR_REP(x)D_STATUS[(x)][REP]
+#define GET_VAR_LB(x)D_STATUS[(x)][LB]
+#define GET_VAR_UB(x)D_STATUS[(x)][UB]
+#define GET_VAR_DSZ(x)D_STATUS[(x)][DSZ]
 
 // DEVELOPER "FRIENDLY" ALIAS
 #define NUM_ARGS _args_size
@@ -82,3 +86,4 @@ constexpr int NUM_CHUNKS    = VECTOR_MAX / BITS_IN_CHUNK;
 using uint = unsigned int;
 
 #endif
+

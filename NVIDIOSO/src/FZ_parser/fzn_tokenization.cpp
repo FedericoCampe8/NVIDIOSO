@@ -198,7 +198,7 @@ FZNTokenization::analyze_token_con ()
     UTokenPtr t_ptr ( nullptr );
     std::unique_ptr < TokenCon > ptr ( new TokenCon () );
   
-  	// // Skip CON_TOKEN identifier
+  	// Skip CON_TOKEN identifier
   	for ( int i = 0; i < _fzn_keywords[ "CON_TOKEN" ].length(); i++ ) 
   		_c_token++;
   	

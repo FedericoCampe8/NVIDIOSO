@@ -13,13 +13,14 @@ ParamData* solver_params = nullptr;
 using namespace std;
 
     // ======================= MACROS ======================
-     constexpr std::string ParamData::SEPARATOR_KWD = "_";
-     constexpr std::string ParamData::PARAM_SEP_KWD = "=";
-     constexpr std::string ParamData::PARAM_YES_KWD = "YES";
-     constexpr std::string ParamData::PARAM_NO_KWD  = "NO";
-     constexpr std::string ParamData::CUDA_KWD      = "CUDA";
-     constexpr std::string ParamData::SEARCH_KWD    = "SEARCH";
-     constexpr std::string ParamData::CSTORE_KWD    = "CSTORE";
+     constexpr std::string ParamData::SEPARATOR_KWD  = "_";
+     constexpr std::string ParamData::PARAM_SEP_KWD  = "=";
+     constexpr std::string ParamData::PARAM_YES_KWD  = "YES";
+     constexpr std::string ParamData::PARAM_NO_KWD   = "NO";
+     constexpr std::string ParamData::CUDA_KWD       = "CUDA";
+     constexpr std::string ParamData::SEARCH_KWD     = "SEARCH";
+     constexpr std::string ParamData::CONSTRAINT_KWD = "CONSTRAINT";
+     constexpr std::string ParamData::CSTORE_KWD     = "CSTORE";
     // =====================================================
 
     // ======================= CUDA ======================
@@ -50,6 +51,9 @@ using namespace std;
      constexpr std::string ParamData::CSTORE_CUDA_BPV_KWD           = "block_per_variable";
     // ===========================================================================
     
+    // ======================= CONSTRAINT PARAMETERS =======================
+	constexpr std::string ParamData::CONSTRAINT_PROP_CLASS_KWD = "PROPAGATOR_CLASS";
+	// =====================================================================
 
 
 ParamData::ParamData () :
@@ -125,12 +129,16 @@ ParamData::set_default_parameters ()
     _search_nodes_limit = -1;
     _search_wrong_decisions_limit = -1;
     _search_timeout = -1.0;
+    
+    // --- Constraint ---
+    _constraint_propagator_class = "naive";
 
     // --- Constraint Store ---
     _cstore_consistency    = true;
     _cstore_satisfiability = true;
     _cstore_cuda_prop_loop_out = 1;
     _cstore_cuda_propagation_function = CudaPropParam::SEQUENTIAL;
+    
 }//set_default_parameters
 
 void
@@ -210,6 +218,13 @@ ParamData::read_params ()
             set_search_parameters ( line );
         }
 
+		// CONSTRAINT
+        pos = line.find ( CONSTRAINT_KWD );
+        if ( pos != string::npos )
+        {
+            set_constraint_parameters ( line );
+        }
+		
         // Constraint Store
         pos = line.find ( CSTORE_KWD );
         if ( pos != string::npos )
@@ -322,6 +337,30 @@ ParamData::set_search_parameters ( std::string& line )
 }//set_search_parameters
 
 void
+ParamData::set_constraint_parameters ( std::string& line )
+{
+	std::size_t pos = line.find ( CONSTRAINT_KWD );
+    if ( pos == string::npos )
+    {
+        return;
+    }
+    
+    pos = line.find_first_of ( SEPARATOR_KWD );
+    if ( pos == string::npos )
+    {
+        return;
+    }
+
+    string line_aux = line.substr ( pos + 1 );
+    string param    = get_param_value ( line_aux );
+    pos = line_aux.find ( CONSTRAINT_PROP_CLASS_KWD );
+    if ( pos != string::npos )
+    {
+    	_constraint_propagator_class = param;
+    }
+}//set_constraint_parameters
+
+void
 ParamData::set_constraint_engine_parameters ( std::string& line )
 {
     std::size_t pos = line.find ( CSTORE_KWD );
@@ -388,11 +427,6 @@ ParamData::set_constraint_engine_parameters ( std::string& line )
         else if ( param == CSTORE_CUDA_BPV_KWD )
         {	
             _cstore_cuda_propagation_function = CudaPropParam::BLOCK_PER_VAR;
-            LogMsg << "===== WORK IN PROGRESS: 1b1v is not yet available! =====" << endl;
-            LogMsg << "Will use 1b1c" << endl;
-            
-            _cstore_cuda_propagation_function = CudaPropParam::BLOCK_PER_CON;
-            getchar();
         }
         return;
     }
@@ -478,6 +512,12 @@ ParamData::search_get_wrong_decision_limit () const
 {
     return _search_wrong_decisions_limit;
 }//search_get_wrong_decision_limit
+
+std::string 
+ParamData::constraint_get_propagator_class () const
+{
+	return _constraint_propagator_class;
+}//constraint_get_propagator_class
 
 bool
 ParamData::cstore_get_consistency () const
@@ -582,6 +622,10 @@ ParamData::print () const
     print_option ( _search_wrong_decisions_limit );
     cout << "\t+ Search Timeout: ";
     print_option ( _search_timeout );
+    
+    cout << "- Constraints:\n";
+    cout << "\t+ Propagator class: "; 
+    print_option ( _constraint_propagator_class );
     
     cout << "- Constraint Store:\n";
     cout << "\t+ Consistency active: ";

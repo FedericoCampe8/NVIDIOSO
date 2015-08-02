@@ -172,7 +172,7 @@ CudaSimpleConstraintStore1b1c::dev_consistency ()
          * Synchronize domains and make them consistent
          * @todo synchronize only the variable that have effectively changed
          */
-        CudaSynchUtils::cuda_set_domains_from_bit_1b1v <<< dev_grid_size, dev_block_size, STANDARD_DOM >>>
+        CudaSynchUtils::cuda_set_domains_from_bit_1b1v <<< dev_grid_size, dev_block_size, STANDARD_DOM * sizeof ( uint ) >>>
         ( _domains_idx_ptr, _domains_ptr );
     }
     

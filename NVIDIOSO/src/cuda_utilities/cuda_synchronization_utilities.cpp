@@ -140,12 +140,6 @@ CudaSynchUtils::cuda_copy_state_1b1v  ( int* domain_idx, uint* source_states, ui
         {
             dest_states[ idx + i ] = addr[ i ];
         }
-        /*
-        printf ( "V_%d (idx %d, len: %d): %d %d %d %d %d : %d\n", 
-        blockIdx.x, domain_idx[ blockIdx.x ], domain_type_size,
-        dest_states[ idx + 0 ], dest_states[ idx + 1 ], dest_states[ idx + 2 ], dest_states[ idx + 3 ],
-        dest_states[ idx + 4 ], dest_states[ idx + 12 ] );
-        */
     }
 	
 }//cuda_copy_state_1b1v

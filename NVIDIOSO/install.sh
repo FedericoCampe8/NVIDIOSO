@@ -132,7 +132,8 @@ echo "Installing iNVIDIOSO (`date`)"
 OBJ=obj
 LIB=lib
 SRC=src
-OBJ_FOLDER=("base constraints" "cuda_constraints" "constraint_store" \
+OBJ_FOLDER=("base constraints" "cuda_constraints" \
+"global_constraints" "cuda_global_constraints" "constraint_store" \
 "cuda_constraint_store" "parser" "FZ_parser" "core" "search exception" \
 "cuda_utilities" "variable cuda_variable" )
 

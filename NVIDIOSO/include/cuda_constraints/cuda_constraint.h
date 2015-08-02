@@ -3,16 +3,25 @@
 //  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 12/02/14.
-//  Modified by Federico Campeotto in 07/07/15
-//  Copyright (c) 2014-2015 ___UDNMSU___. All rights reserved.
+//  Modified by Federico Campeotto in 08/01/15
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
-//  This class represents the interface/abstract class for all constraints that run on CUDA device.
-//  Defines how to construct a constraint, impose, check satisiability,
+//  This class represents the interface/abstract class for constraints on device.
+//  Defines how to declare and define a constraint, check for satisiability,
 //  enforce consistency, etc.
 //  Domain representation for standard domains and Boolean domains:
-//  - EVT | REP | LB | UB | DSZ | Bit
-//  - EVT | BOOL|
-//  where BOOL can be 0 (False), 1 (True), 2 (Undef-Not ground)
+//  - | EVT | REP | LB | UB | DSZ | Bit
+//  - | EVT | BOOL|
+//  where BOOL can be 0 (False), 1 (True), 2 (Undef-Not ground).
+//  @note In the current implementation we consider only the above two representations
+//        which are mutually exclusive.
+//  @note Constraints work directly on arrays representing the domain of a variable.
+//        The use of arrays gives to the user the ability to implement different 
+//        search strategies (e.g., parallel beam search) by passing directly the arrays 
+//        representing the current status of the computation.
+//  @note Each constraint has an array of pointer (_status) pointing to the array in 
+//        global memory containing all the status (i.e., domains) of all the variables
+//        in the model.
 //
 
 #ifndef NVIDIOSO_cuda_constraint_h
@@ -62,11 +71,23 @@ protected:
     /**
      * Array of pointers to the domains 
      * of the variables involved in this constraint.
+     * Constraint propagation can be performed either on this array
+     * or (better) on shared memory and use this array as a read-only array.
      */
     uint** _status;
 
-    //! Temporary status used for copy on shared memory
-    uint** _temp_status;
+    /**
+     * Temporary status (pointers to) used for copies to/from shared memory.
+     * This array can be used as "temporary output" array, i.e., result of 
+     * domain propagation can be set on this write-only array.
+     * @note This is a temporary array, after domain propagation, results must be
+     *       consistent on the array _status.
+     * @note Propagation algorithms WORK ON THIS array. 
+     *       Therefore, _status array must be copied (pointers to) to _working_status
+     *       before ANY propagation happen.
+     * @note By default this array points to NULL.
+     */
+    uint** _working_status;
     
 #if CUDAON
 
@@ -88,6 +109,24 @@ protected:
     __device__ CudaConstraint ( int n_id, int n_vars, int n_args,
                                 int* vars, int* args,
                                 int* domain_idx, uint* domain_states );
+                                
+    /*=======================================================
+     *
+     *				DOMAIN INFO FUNCTIONS
+     *
+     * The following functions get information  about
+     * the current status of the variables 
+     * in the constraint's scope. 
+     * These functions DO NOT use atomic operations, i.e., 
+     * if the domain is shared between concurrent threads, 
+     * the program may suffer of race conditions.
+     * Please, use shared memory for local changes w.r.t. 
+     * different block or synchronization utilities w.r.t. 
+     * threads in the same block.
+     * @note The following functions work on the
+     *       		_working_status 
+     *       array.
+     *======================================================*/
     
     //! Returns True if all variables are singletons, False otherwise
     __device__ bool all_ground () const;
@@ -124,14 +163,8 @@ protected:
     
     //! Returns true if the domain of var is empty
     __device__ bool is_empty ( int var ) const;
-    
-    //! Utility for bit manipulation
-    __device__ void clear_bits_i_through_0   ( uint& val, int idx );
 
-    //! Utility for bit manipulation
-    __device__ void clear_bits_MSB_through_i ( uint& val, int idx );
-
-    //! Utility for bit manipulation
+    //! Returns the number of set bits in val
     __device__ int  num_1bit ( uint val );
 
     /*=======================================================
@@ -146,7 +179,16 @@ protected:
      * Please, use shared memory for local changes w.r.t. 
      * different block or synchronization utilities w.r.t. 
      * threads in the same block.
+     * @note The following functions work on the
+     *       		_working_status 
+     *       array.
      *======================================================*/
+     
+    //! Clears all set bits from pos i to pos 0
+    __device__ void clear_bits_i_through_0   ( uint& val, int idx );
+
+    //! Clears all set bits from MSB to pos 0
+    __device__ void clear_bits_MSB_through_i ( uint& val, int idx );
     
     //! Subtract {val} from the domain of var
     __device__ void subtract ( int var, int val, int ref = -1 );
@@ -185,11 +227,13 @@ public:
      * @param shared_ptr pointer to the region of shared memory
      *        where status in global memory will be copied to.
      * @param size of domains: standard (n ints), Boolean (2 ints), mixed.
-     * @note No synchronization or atomic operatations are used here
+     * @note No synchronization or atomic operatations are used here.
+     * @todo If shared_ptr is NULL use _status instead of shared_ptr.
      */
     __device__ void move_status_to_shared ( uint * shared_ptr = nullptr, int d_size = MIXED_DOM );
     
     /**
+     * === DEPRECATED ===
      * Copy status from shared memory to global memory.
      * @param shared_ptr pointer to the region of shared memory
      *        where status will be copied from.

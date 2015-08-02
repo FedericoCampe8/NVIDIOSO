@@ -25,14 +25,21 @@ __global__ void
 CudaPropUtils::cuda_consistency_sequential ( size_t * constraint_queue, int queue_size, int domain_type  )
 {
     extern __shared__ uint shared_status[];
-
+	
     // Now everything is sequential here
     if (blockIdx.x == 0)
     {
         for (int i = 0; i < queue_size; i++)
         {
+        	G_DEV_CONSTRAINTS_ARRAY [ constraint_queue [ i ] ]->move_status_to_shared ( shared_status, domain_type );
+        	
             G_DEV_CONSTRAINTS_ARRAY [ constraint_queue [ i ] ]->consistency();
-            if ( !G_DEV_CONSTRAINTS_ARRAY [ constraint_queue [ i ] ]->satisfied() ) break;
+            if ( !G_DEV_CONSTRAINTS_ARRAY [ constraint_queue [ i ] ]->satisfied() )
+            { 
+            	G_DEV_CONSTRAINTS_ARRAY [ constraint_queue [ i ] ]->move_bit_status_from_shared ( shared_status, domain_type );
+            	break;
+            }
+            G_DEV_CONSTRAINTS_ARRAY [ constraint_queue [ i ] ]->move_bit_status_from_shared ( shared_status, domain_type );
         }
     }
 }//cuda_consistency_sequential
@@ -72,13 +79,12 @@ CudaPropUtils::cuda_consistency_1b1v ( size_t * constraint_queue, int* queue_idx
 		// Perform consistency w.r.t. the variable associated to this block 
         G_DEV_CONSTRAINTS_ARRAY [ c_idx ]->consistency ( v_idx );
         
-        /*
+        
         if ( !g_dev_constraints [ c_idx ]->satisfied() )
         {
             g_dev_constraints [ c_idx ]->move_bit_status_from_shared ( shared_status, domain_type, v_idx );
             break;
         }
-		*/
 		
 		/*
 		 * Copy reduced domains back to global memory.
