@@ -19,8 +19,7 @@ extern GlobalConstraintRegister& glb_constraint_register;
 
 class CudaGenerator : public ModelGenerator {
 private:
-	//! Register for global constraints
-	
+
     //! This map is used to link strings ids with variables.
     std::map<std::string, VariablePtr>  _var_lookup_table;
   
@@ -30,7 +29,10 @@ protected:
 public:
     CudaGenerator  ();
     ~CudaGenerator ();
-  
+  	
+  	//! See "model_generator.h"
+    std::pair < std::string, std::vector< int > > get_auxiliary_parameters ( UTokenPtr );
+    
     //! See "model_generator.h"
     VariablePtr get_variable ( UTokenPtr );
   
@@ -41,7 +43,7 @@ public:
     SearchEnginePtr get_search_engine ( UTokenPtr );
   
     //! See "model_generator.h"
-    ConstraintStorePtr get_store ();
+    ConstraintStorePtr get_store ( UTokenPtr );
 };
 
 #endif

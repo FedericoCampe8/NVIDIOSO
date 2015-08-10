@@ -34,6 +34,37 @@ _num_tokens ( 0 ) {
   _tokenizer->add_comment_symb( "%" );
 }//FZNParser
 
+std::string 
+FZNParser::replace_bool_vars ( std::string line )
+{
+	return find_and_replace ( line, "var bool", "var 0..1" );
+}//replace_bool_vars
+
+std::string 
+FZNParser::replace_bool_vals ( std::string line )
+{
+	std::string rep = find_and_replace ( line, "true", "1" );
+	return find_and_replace ( rep, "false", "0" );
+}//replace_bool_vals
+
+std::string 
+FZNParser::replace_bool ( std::string line )
+{
+	std::string rep = replace_bool_vars ( line );
+	return replace_bool_vals ( rep );
+}//replace_bool
+
+bool
+FZNParser::more_aux_arrays () const 
+{
+	auto it = _lookup_token_table.find ( TokenType::FD_VAR_INFO_ARRAY );
+  	if ( it != _lookup_token_table.end() ) 
+  	{
+    	return ( it->second.size() > 0 );
+  	}
+  	return false;
+}//more_aux_arrays
+
 bool
 FZNParser::more_variables () const {
   auto it     = _lookup_token_table.find ( TokenType::FD_VARIABLE );
@@ -82,6 +113,22 @@ FZNParser::more_search_engines () const {
   }
   return false;
 }//more_search_engines
+
+UTokenPtr 
+FZNParser::get_aux_array ()
+{
+	if ( more_aux_arrays () )
+    {
+        auto it = _lookup_token_table.find( TokenType::FD_VAR_INFO_ARRAY );
+        size_t ptr = it->second[ it->second.size () - 1 ];
+        it->second.pop_back();
+        _num_tokens--;
+        return std::move ( _map_tokens[ ptr ] );
+    }//more_constraints
+    
+    UTokenPtr ptr ( nullptr );
+    return std::move ( ptr );
+}//get_aux_array
 
 UTokenPtr
 FZNParser::get_variable () {
@@ -218,7 +265,13 @@ FZNParser::parse () {
       
                 // Update position on the stream
                 _curr_pos = _if_stream->tellg();
-      
+      	
+				/*
+				 * Replace strings in FlatZinc syntax with a 
+				 * syntax, structures, more suitable for iNVIDIOSO.
+				 */
+      			line = replace_bool ( line );
+      			
                 // Get token
                 _tokenizer->set_new_tokenizer( line );
                 _new_line  = _tokenizer->find_new_line();

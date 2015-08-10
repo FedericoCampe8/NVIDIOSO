@@ -3,7 +3,7 @@
 //  NVIDIOSO
 //
 //  Created by Federico Campeotto on 27/06/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 //  This class is in charge of defining a data store for a CP model.
 //  It uses a parser to parse CP models and to allocate data structures

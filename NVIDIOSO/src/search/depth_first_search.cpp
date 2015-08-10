@@ -238,7 +238,7 @@ DepthFirstSearch::labeling ()
   }
   
   /*
-   * Initial consistency on the store.
+   * Initial consistency on constraints into the store.
    * @note Exit asap if the problem is unsatisfiable and
    * this can be found with a single propagation, e.g., checking domains.
    */

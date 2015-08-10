@@ -122,7 +122,7 @@ CudaIntNe::satisfied ()
 __device__ void
 CudaIntNe::print() const
 {
-    if ( threadIdx.x != 0 )
+    if ( (threadIdx.x % WARP_SIZE) != 0 )
         return;
     
     if ( NUM_ARGS == 2 )

@@ -2,8 +2,8 @@
 //  tokenization.cpp
 //  NVIDIOSO
 //
-//  Created by Federico Campeotto on 03/07/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Created by Federico Campeotto on 07/03/14.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 // Not for gcc < 4.8

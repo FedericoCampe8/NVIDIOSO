@@ -15,6 +15,7 @@ CudaConstraint::CudaConstraint ( int n_id, int n_vars, int n_args,
                                  int* vars, int* args,
                                  int* domain_idx, uint* domain_states ) :
 	_unique_id   ( n_id ),
+	_weight      ( 0 ),
 	_scope_size  ( n_vars ),
 	_args_size   ( n_args ),
 	_vars        ( vars ),
@@ -41,7 +42,7 @@ CudaConstraint::~CudaConstraint () {
 }//~Constraint
 
 __device__ void
-CudaConstraint::move_status_to_shared (  uint * shared_ptr, int domain_size )
+CudaConstraint::move_status_to_shared (  uint * shared_ptr, int domain_size, int thread_offset )
 {
     if ( shared_ptr == nullptr ) return;
 	
@@ -74,13 +75,11 @@ CudaConstraint::move_status_to_shared (  uint * shared_ptr, int domain_size )
     else 
     {// One thread per variable
     
-    	int tid, loop = 1;
-        int num_threads = blockDim.x * blockDim.y;
+    	int tid, loop   = 0;
+        int num_threads = WARP_SIZE; //blockDim.x * blockDim.y;
         while ( (num_threads * loop) < _scope_size )
         {
-            tid = threadIdx.x + 
-            (((gridDim.x * blockIdx.y) + blockIdx.x) * blockDim.x) + 
-            ((blockDim.x * blockDim.y) * (loop - 1));
+            tid = thread_offset + threadIdx.x + num_threads * loop;
             
             ++loop;
             if ( tid < _scope_size )
@@ -93,8 +92,6 @@ CudaConstraint::move_status_to_shared (  uint * shared_ptr, int domain_size )
             }
         }
     }
-    
-    __syncthreads();
 }//move_status_to_shared
 
 /*
@@ -104,7 +101,7 @@ CudaConstraint::move_status_to_shared (  uint * shared_ptr, int domain_size )
  * ======================================================================
  */
 __device__ void
-CudaConstraint::move_status_from_shared ( uint * shared_ptr, int domain_size, int ref )
+CudaConstraint::move_status_from_shared ( uint * shared_ptr, int domain_size, int ref, int thread_offset )
 {
     if ( shared_ptr == nullptr ) return;
 
@@ -196,11 +193,11 @@ CudaConstraint::move_status_from_shared ( uint * shared_ptr, int domain_size, in
     else if ( blockDim.x * blockDim.y >= _scope_size )
     {// One thread per variable
         
-        int tid, loop = 1;
-        int num_threads = blockDim.x * blockDim.y;
+        int tid, loop   = 0;
+        int num_threads = WARP_SIZE; //blockDim.x * blockDim.y;
         while ( (num_threads * loop) < _scope_size )
         {
-            tid = threadIdx.x + (((gridDim.x * blockIdx.y) + blockIdx.x) * blockDim.x) + ((blockDim.x * blockDim.y) * (loop - 1));
+            tid = thread_offset + threadIdx.x + num_threads * loop;
             loop++;
             
             if ( tid < _scope_size )
@@ -266,11 +263,10 @@ CudaConstraint::move_status_from_shared ( uint * shared_ptr, int domain_size, in
             }
         }
     }
-    __syncthreads();
 }//move_status_from_shared
 
 __device__ void
-CudaConstraint::move_bit_status_from_shared ( uint * shared_ptr, int d_size, int ref, uint* extern_status )
+CudaConstraint::move_bit_status_from_shared ( uint * shared_ptr, int d_size, int ref, uint* extern_status, int thread_offset )
 {
     if ( shared_ptr == nullptr ) return;
     
@@ -343,14 +339,12 @@ CudaConstraint::move_bit_status_from_shared ( uint * shared_ptr, int d_size, int
     else
     {// One thread per variable
 
-        int tid, loop = 1;
-        bool to_extern = ( extern_status != nullptr );
-        int num_threads = blockDim.x * blockDim.y;
+        int tid, loop = 0;
+        bool to_extern  = ( extern_status != nullptr );
+        int num_threads = WARP_SIZE; //blockDim.x * blockDim.y;
         while ( (num_threads * loop) < _scope_size )
         {
-            tid = threadIdx.x + 
-            (((gridDim.x * blockIdx.y) + blockIdx.x) * blockDim.x) + 
-            ((blockDim.x * blockDim.y) * (loop - 1));
+            tid = thread_offset + threadIdx.x + num_threads * loop;
             ++loop;
             
             if ( tid < _scope_size )
@@ -365,7 +359,7 @@ CudaConstraint::move_bit_status_from_shared ( uint * shared_ptr, int d_size, int
                 // Check event
                 if ( shared_ptr [ tid * d_size ] == FAL_EVT )
                 {
-                    if ( !to_extern )
+                    if ( to_extern )
                 	{
                 		extern_status [ _status_idx_lookup [ tid ] + EVT ] = FAL_EVT;
                     }
@@ -377,7 +371,7 @@ CudaConstraint::move_bit_status_from_shared ( uint * shared_ptr, int d_size, int
                 else if ( d_size == BOOLEAN_DOM )
                 {//Bool domain representation
                 
-                    if ( !to_extern )
+                    if ( to_extern )
                 	{
                 		atomicMin ( &extern_status [ _status_idx_lookup [ tid ] + ST ], shared_ptr [ tid * d_size + ST ] );
                     }
@@ -393,7 +387,7 @@ CudaConstraint::move_bit_status_from_shared ( uint * shared_ptr, int d_size, int
                     tid_idx += BIT;
                     for ( int j = BIT; j < d_size; j++ )
                     {
-                        if ( !to_extern )
+                        if ( to_extern )
                 		{
                 			atomicAnd ( &extern_status [ _status_idx_lookup [ tid ] + j ], shared_ptr [ tid_idx++ ] );
                         	
@@ -883,6 +877,19 @@ CudaConstraint::get_unique_id () const
 {
 	return _unique_id;
 }//get_unique_id
+
+__device__ bool 
+CudaConstraint::is_soft () const
+{
+	return _weight > 0;
+}//is_soft
+
+__device__ int 
+CudaConstraint::unsat_level () const
+{
+	printf ( "CudaConstraint::unsat_level - not yet implemented\n" );
+	return 0;
+}//unsat_level
 
 __device__ size_t
 CudaConstraint::get_scope_size () const

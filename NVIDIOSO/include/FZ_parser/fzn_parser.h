@@ -44,6 +44,28 @@ private:
      */
     std::map < size_t, UTokenPtr > _map_tokens;
     
+    /** 
+     * Utility function for replacing bool vars with 0..1 int vars.
+     * @param line input string
+     * @param string where "var bool" is replaced by "var 0..1".
+     */
+     std::string replace_bool_vars ( std::string line );
+     
+     /**
+      * Utility function for replacing true/false values in FlatZinc 
+      * with 1/0 respectively.
+      * @param line input string
+      * @param string where "true" and "false" are replaced by "1" and "0" respectively.
+      */
+      std::string replace_bool_vals ( std::string line );
+      
+      /**
+      * Utility function for converting Boolean FlatZinc input into 1/0 input.
+      * @param line input string
+      * @param converted string for iNVIDIOSO input.
+      */
+      std::string replace_bool ( std::string line );
+    
     /**
      * Stores the tokens both in the lookup table 
      * and in the map of tokens.
@@ -76,15 +98,25 @@ public:
     bool parse (); //override
     
     // Get tokens w.r.t. their type
+    //! Ask whether there are more info/aux arrays to get
+    bool more_aux_arrays     () const override;
+    
     //! Ask whether there are more variables to get
-    bool more_variables      () const;
+    bool more_variables      () const override;
   
     //! Ask whether there are more constraits to get
-    bool more_constraints    () const;
+    bool more_constraints    () const override;
   
     //! Ask whether there are more search engines to get
-    bool more_search_engines () const;
+    bool more_search_engines () const override;
   
+  	/**
+     * Get a "aux/info array" token.
+     * @return token pointer to a "aux/info array" token.
+     * @note the returned pointer is a unique_ptr.
+     */
+  	UTokenPtr get_aux_array     ();
+  	
     /**
      * Get a "variable" token.
      * @return token pointer to a "variable" token.

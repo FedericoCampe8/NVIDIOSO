@@ -55,6 +55,15 @@ protected:
     //! Positions in stream (file)
     std::streampos _curr_pos;
     
+    /**
+     * Find & replace utility function
+     * @param s input string
+     * @param toReplace string to replace
+     * @param replaceWith replacement string
+     * @return a string where the substring "toReplace" is replaced with the string "replaceWith"
+     */
+    std::string find_and_replace ( std::string &s, std::string toReplace, std::string replaceWith );
+    
     //! Constructor
     Parser ();
     Parser ( std::string );
@@ -138,6 +147,7 @@ public:
      * These methods should be used together with the 
      * "get" methods.
      */
+    virtual bool more_aux_arrays     () const = 0;
     virtual bool more_variables      () const = 0;
     virtual bool more_constraints    () const = 0;
     virtual bool more_search_engines () const = 0;
@@ -150,6 +160,7 @@ public:
      * variables.
      * @return return a unique_ptr
      */
+    virtual UTokenPtr get_aux_array     () = 0;
     virtual UTokenPtr get_variable      () = 0;
     virtual UTokenPtr get_constraint    () = 0;
     virtual UTokenPtr get_search_engine () = 0;

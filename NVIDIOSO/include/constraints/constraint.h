@@ -22,9 +22,9 @@ class Constraint;
 typedef std::shared_ptr<Constraint> ConstraintPtr;
 
 enum class ConsistencyType {
-  BOUND_C,
-  DOMAIN_C,
-  OTHER_C
+	BOUND_C,
+  	DOMAIN_C,
+	OTHER_C
 };
 
 class Constraint : public std::enable_shared_from_this< Constraint > {
@@ -37,7 +37,8 @@ private:
    * It specifies the weight of this constraint.
    * Weight can be used to implement soft constraints or imposing
    * an order on the propagation of constraints.
-   * Default value is 0.
+   * @note Default value is 0 and it identifies a hard constraint.
+   *       A value grater than 0 identifies a soft constraint.
    */
   int _weight;
   
@@ -109,25 +110,38 @@ protected:
   virtual ConstraintPtr get_this_shared_ptr ();
   
 public:
-  virtual ~Constraint ();
+  	virtual ~Constraint ();
   
-  //! Get unique (global) id of this constraint.
-  size_t get_unique_id () const;
+  	//! Get unique (global) id of this constraint.
+  	size_t get_unique_id () const;
   
-  /**
-   * Get number id of this constraint.
-   * @note same type of constraints have same number_id.
-   */
-  int get_number_id () const;
+  	/**
+   	 * Get number id of this constraint.
+   	 * @note same type of constraints have same number_id.
+   	 */
+  	int get_number_id () const;
   
-  //! Get the name id of this constraint.
-  std::string get_name () const;
+  	//! Get the name id of this constraint.
+  	std::string get_name () const;
   
-  //! Get global constraint info
-  bool is_global () const;
+	/**
+   	 * Get naive constraint info.
+   	 * A constraint is said to be "naive" if
+   	 * it doesn't involve any variable.
+   	 */
+	bool is_naive () const;
+	
+  	//! Get unary constraint info
+  	bool is_unary () const;
   
-  //! Get the weight of this constraint.
-  int get_weight () const;
+  	//! Get global constraint info
+ 	bool is_global () const;
+  
+  	//! Get soft constraint info
+  	bool is_soft () const;
+  
+  	//! Get the weight of this constraint.
+  	int get_weight () const;
   
   /**
    * Set the consistency level for this

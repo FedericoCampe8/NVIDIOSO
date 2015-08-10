@@ -38,24 +38,30 @@ CPModel::num_constraints () const
 }//num_variables
 
 void
+CPModel::add_aux_array ( std::string id, std::vector<int>& aux_info )
+{
+	_auxiliary_info [ id ] = aux_info;
+}//add_variable
+
+void
 CPModel::add_variable ( VariablePtr vpt ) 
 {
-  assert( vpt != nullptr );
-  _variables.push_back( vpt );
+	assert( vpt != nullptr );
+  	_variables.push_back( vpt );
 }//add_variable
 
 void
 CPModel::add_constraint ( ConstraintPtr cpt ) 
 {
-  if( cpt == nullptr ) return;
-  _constraints.push_back ( cpt );
+	if( cpt == nullptr ) return;
+  	_constraints.push_back ( cpt );
 }//add_constraint
 
 void
 CPModel::add_constraint ( GlobalConstraintPtr cpt ) 
 {
-  if( cpt == nullptr ) return;
-  _glb_constraints.push_back ( cpt );
+	if( cpt == nullptr ) return;
+	_glb_constraints.push_back ( cpt );
 }//add_constraint
 
 void
@@ -161,11 +167,24 @@ CPModel::print () const
   cout << "|V|:  " << _variables.size()       << endl;
   cout << "|C|:  " << _constraints.size()     << endl;
   cout << "|GC|: " << _glb_constraints.size() << endl;
-  if ( _search_engine != nullptr ) {
+  if ( _search_engine != nullptr ) 
+  {
     cout << "Search engine:\n";
     _search_engine->print();
   }
   
+  cout << "=== AUXILIARY ARRAYS ===\n";
+  for ( auto& a: _auxiliary_info )
+  {
+  	cout << "ID: " << a.first << ":\n";
+  	cout << "[ -, ";
+  	for ( auto& elem : a.second )
+  	{
+  		cout << elem << ", ";
+  	}
+  	cout << "- ]" << endl;
+  }
+  cout << "=================\n";
   cout << "=== VARIABLES ===\n";
   for ( auto& v: _variables )
   {

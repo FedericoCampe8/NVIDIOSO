@@ -40,6 +40,14 @@ protected:
     //! Unique global identifier for a given constraint.
     size_t _unique_id;
   
+  	/**
+  	 * Weight of this constraint.
+  	 * This may be used, for example, for soft constraints.
+  	 * @note default is 0 and it identifies a hard constraint.
+  	 *       A value grater than 0 identifies a soft constraint.
+  	 */
+  	 int _weight;
+  
     //! Scope size
     int _scope_size;
   
@@ -206,6 +214,20 @@ public:
   
     //! Get unique (global) id of this constraint.
     __device__ size_t get_unique_id () const;
+    
+    //! Is soft information
+    __device__ bool is_soft () const;
+  
+  	/**
+   	 * It returns an integer value that can be used
+     * to represent how much the current constraint is
+     * unsatisfied. This function can be used to
+     * implement some heuristics for optimization problems.
+     * @return an integer value representing how much this 
+     *         constraint is unsatisfied. It returns 0 if
+     *         this constraint is satisfied.
+     */
+  	__device__ int unsat_level () const;
   
     /**
      * Get the size of the scope of this constraint,
@@ -227,10 +249,11 @@ public:
      * @param shared_ptr pointer to the region of shared memory
      *        where status in global memory will be copied to.
      * @param size of domains: standard (n ints), Boolean (2 ints), mixed.
+     * @param thread_offset an offset may be needed to copy status in parallel on shared.
      * @note No synchronization or atomic operatations are used here.
      * @todo If shared_ptr is NULL use _status instead of shared_ptr.
      */
-    __device__ void move_status_to_shared ( uint * shared_ptr = nullptr, int d_size = MIXED_DOM );
+    __device__ void move_status_to_shared ( uint * shared_ptr = nullptr, int d_size = MIXED_DOM, int thread_offset = 0  );
     
     /**
      * === DEPRECATED ===
@@ -238,10 +261,11 @@ public:
      * @param shared_ptr pointer to the region of shared memory
      *        where status will be copied from.
      * @param size of domains: standard (n ints), Boolean (2 ints), mixed.
-     * @param ref reference to the variable to move from shared (default: all variables in the scope)
+     * @param ref reference to the variable to move from shared (default: all variables in the scope).
+     * @param thread_offset an offset may be needed to copy status in parallel on shared.
      * @note This function uses atomic operations to synchronize writes on gloabl memory
      */
-    __device__ void move_status_from_shared ( uint * shared_ptr = nullptr, int d_size = MIXED_DOM, int ref = -1 );
+    __device__ void move_status_from_shared ( uint * shared_ptr = nullptr, int d_size = MIXED_DOM, int ref = -1, int thread_offset = 0 );
 
     /**
      * Copy the domains from shared to global memory.
@@ -251,13 +275,15 @@ public:
      *        where status will be copied from.
      * @param size of domains: standard (n ints), Boolean (2 ints), mixed.
      * @param ref reference to the variable to move from shared (default: all variables in the scope)
-     * @param extern_status where to copy back the values from shared memory. If nullptr use pre-assigned global memory 
+     * @param extern_status where to copy back the values from shared memory. 
+     *        If nullptr use pre-assigned global memory.
+     * @param thread_offset an offset may be needed to copy status in parallel on shared.
      * @note Updates on the bitmap field is performed with atomic operations.
      * @note This functions uses less atomics than move_status_from_shared and therefore
      *       if faster on moving from shared to global.
      *       However, non-bit fields must be updated accordingly.
      */
-    __device__ void move_bit_status_from_shared ( uint * shared_ptr = nullptr, int d_size = MIXED_DOM, int ref = -1, uint* extern_status = nullptr );
+    __device__ void move_bit_status_from_shared ( uint * shared_ptr = nullptr, int d_size = MIXED_DOM, int ref = -1, uint* extern_status = nullptr, int thread_offset = 0 );
     
     /**
      * It is a (most probably incomplete) consistency function which

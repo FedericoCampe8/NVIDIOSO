@@ -22,6 +22,9 @@ protected:
   
   //! Info about the constraint
   std::string _con_id;
+
+  //! Soft constraint
+  bool _soft_constraint;
   
   //! Parameters involved in the constraint
   std::vector < std::string > _exprs;
@@ -36,6 +39,7 @@ protected:
    bool global_constraint ( std::string constraint_name );
   
 public:
+  static const std::string SOFT_CONSTRAINT_KEYWORD;
   
   TokenCon ();
   
@@ -56,6 +60,9 @@ public:
    * @param str string representing the expression.
    */
   void add_expr ( std::string str );
+  
+  //! Soft constraint info
+  bool is_soft () const;
   
   //! Get the number of parameters needed by the constraint
   int  get_num_expr () const;

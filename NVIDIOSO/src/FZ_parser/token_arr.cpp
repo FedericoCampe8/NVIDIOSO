@@ -2,8 +2,8 @@
 //  token_arr.cpp
 //  NVIDIOSO
 //
-//  Created by Federico Campeotto on 05/07/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Created by Federico Campeotto on 07/05/14.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 #include "token_arr.h"
@@ -11,17 +11,16 @@
 using namespace std;
 
 TokenArr::TokenArr () :
-_size           ( -1 ),
-_array_lwb      ( 0 ),
-_array_upb      ( -1 ),
-_lw_var_glb_idx ( 0 ),
-_up_var_glb_idx ( 0 ),
-_output_arr     ( false ),
-_support_array  ( false ),
-_valid_array    ( true ),
-_support_elements ( "" ) {
-  _dbg = "TokenArr - ";
-  set_type ( TokenType::FD_VAR_ARRAY );
+	_size           ( -1 ),
+	_array_lwb      ( 0 ),
+	_array_upb      ( -1 ),
+	_lw_var_glb_idx ( 0 ),
+	_up_var_glb_idx ( 0 ),
+	_output_arr     ( false ),
+	_support_array  ( false ),
+	_valid_array    ( true ) {
+  	_dbg = "TokenArr - ";
+  	set_type ( TokenType::FD_VAR_ARRAY );
 }//TokenArr
 
 bool 
@@ -37,19 +36,25 @@ TokenArr::set_token ( std::string& arr_str )
 	
 	// Get substring excluding the range
 	std::string type_str = arr_str.substr ( idx + 1 ); 
-	
-	bool is_valid = false;
+
+	bool is_info_array = true;
 	for ( auto& x : type_str )
 	{
 		if ( x != ' ' && x != ';' )
 		{
-			is_valid = true;
+			is_info_array = false;
 			break;
 		}
 	}
-	if ( !is_valid )
+	if ( is_info_array )
 	{
 		_valid_array = false;
+		
+		//Parse and return array content
+		get_info_array ( arr_str );
+		
+		set_type ( TokenType::FD_VAR_INFO_ARRAY );
+		
 		return true;
 	}
 	
@@ -107,6 +112,41 @@ TokenArr::set_token ( std::string& arr_str )
 	
 	return true;
 }//set_token
+
+void 
+TokenArr::get_info_array ( std::string& line )
+{
+	set_id ( line );
+	set_type_var ( line );
+	
+	std::size_t idx_l = line.find_last_of ( "[" );
+	std::size_t idx_r = line.find_last_of ( "]" );
+	
+	// Sanity check
+	assert ( idx_l != std::string::npos );
+	assert ( idx_r != std::string::npos );
+	assert ( idx_r > idx_l );
+	
+	// Get substring of values
+	std::string values_str = line.substr ( idx_l + 1, idx_r - idx_l - 1); 
+	
+	// Tokenize vars which are comma separated
+	std::istringstream ss ( values_str );
+	std::string tok_var;
+	while ( std::getline ( ss, tok_var, ',' ) )
+	{
+		std::string no_spaces {};
+		for ( auto& c : tok_var )
+		{
+			if ( c != ' ' )
+			{
+				 no_spaces += c;
+			}
+		}
+
+		_support_elements.push_back ( no_spaces );
+	}
+}//get_info_array
 
 void
 TokenArr::set_size_arr ( int size ) 
@@ -186,15 +226,18 @@ TokenArr::is_var_in ( int var_idx ) const {
 }//is_var_in
 
 bool
-TokenArr::is_var_in ( string var_id ) const {
+TokenArr::is_var_in ( string var_id ) const 
+{
   // Check whether var_id is a valid id for an array
   size_t found     = var_id.find_first_of( "[" );
   size_t found_aux = var_id.find_first_of( "]" );
   if ( (found     == std::string::npos) ||
        (found_aux == std::string::npos) ) return false;
+       
   // Check whether var_id is the id for this array
   string array_id = var_id.substr( 0, found );
   if ( _var_id.compare ( array_id ) ) return false;
+  
   // Check whether the element is within the array
   array_id = var_id.substr( found + 1, found_aux - found - 1 );
   int idx = atoi ( array_id.c_str() );
@@ -203,11 +246,10 @@ TokenArr::is_var_in ( string var_id ) const {
 
 void
 TokenArr::set_support_elements ( std::string elem_str ) {
-  _support_array    = true;
-  _support_elements = elem_str;
+  _support_array = true;
 }//set_support_elements
 
-string
+std::vector<std::string>
 TokenArr::get_support_elements () const {
   return _support_elements;
 }//get_support_elements

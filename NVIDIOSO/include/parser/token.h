@@ -23,6 +23,7 @@ typedef std::shared_ptr<Token> TokenPtr;
 enum class TokenType {
   FD_VARIABLE,
   FD_VAR_ARRAY,
+  FD_VAR_INFO_ARRAY,
   FD_DOMAIN,
   FD_CONSTRAINT,
   FD_GLB_CONSTRAINT,

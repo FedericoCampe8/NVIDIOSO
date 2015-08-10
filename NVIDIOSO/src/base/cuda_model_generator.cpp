@@ -9,6 +9,7 @@
 #include "cuda_model_generator.h"
 #include "cuda_variable.h"
 #include "token_var.h"
+#include "token_arr.h"
 #include "token_con.h"
 #include "token_sol.h"
 #include "fzn_constraint_generator.h"
@@ -28,6 +29,38 @@ CudaGenerator::CudaGenerator () :
 CudaGenerator::~CudaGenerator () {
     _var_lookup_table.clear();
 }//~CudaGenerator
+
+std::pair < std::string, std::vector< int > > 
+CudaGenerator::get_auxiliary_parameters ( UTokenPtr tkn_ptr )
+{
+	// Assert current token not nullptr
+    assert( tkn_ptr != nullptr );
+    
+    // Check consistency of current token
+    if ( tkn_ptr->get_type() != TokenType::FD_VAR_INFO_ARRAY )
+    {
+        throw  NvdException ( (_dbg + "Error while instantiating a auxiliary info array").c_str(),  
+                              __FILE__, __LINE__ );
+    }
+    
+    /*
+     * Get the pointer to the TokenVar.
+     * @Todo Change implementation avoiding casting and
+     *       decoupling model_generator from tokens.
+     * @note Try with Visitor.
+     */
+    TokenArr * ptr = static_cast<TokenArr *> ( tkn_ptr.get() );
+    
+    std::vector < std::string > aux_elements = ptr->get_support_elements();
+    std::vector < int > aux_int_elements;
+    
+    for ( auto& s : aux_elements )
+    {
+    	aux_int_elements.push_back ( atoi ( s.c_str() ) ); 
+    }
+    
+    return make_pair ( ptr->get_var_id (), aux_int_elements );
+}//get_auxiliary_parameters
 
 VariablePtr
 CudaGenerator::get_variable ( UTokenPtr tkn_ptr )
@@ -187,9 +220,10 @@ CudaGenerator::get_constraint ( UTokenPtr tkn_ptr )
      */
 	if ( tkn_ptr->get_type() == TokenType::FD_CONSTRAINT )
 	{
+		ConstraintPtr fzn_constraint;
 		try
     	{
-        	return
+        	fzn_constraint = 
             FZNConstraintFactory::get_fzn_constraint_shr_ptr( constraint_name,
                                                               var_ptr,
                                                               params_vec );
@@ -199,6 +233,11 @@ CudaGenerator::get_constraint ( UTokenPtr tkn_ptr )
         	cout << e.what() << endl;
         	throw;
     	}
+    	if ( ptr->is_soft () )
+    	{
+    		fzn_constraint->increase_weight ();
+    	}
+    	return fzn_constraint;
 	}
 	else
 	{
@@ -208,6 +247,11 @@ CudaGenerator::get_constraint ( UTokenPtr tkn_ptr )
 		{
 			glb_constraint->set_propagator_class ( solver_params->constraint_get_propagator_class () );
 		}
+		if ( ptr->is_soft () )
+    	{
+    		glb_constraint->increase_weight ();
+    	}
+    	
 		return glb_constraint;
 	}
 }//get_constraint
@@ -263,7 +307,7 @@ CudaGenerator::get_search_engine ( UTokenPtr tkn_ptr )
 }//get_search_engine
 
 ConstraintStorePtr
-CudaGenerator::get_store ()
+CudaGenerator::get_store ( UTokenPtr tkn_ptr )
 {
     ConstraintStorePtr store;
   

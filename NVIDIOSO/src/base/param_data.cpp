@@ -440,6 +440,15 @@ ParamData::set_constraint_engine_parameters ( std::string& line )
         {	
             _cstore_cuda_propagation_function = CudaPropParam::BLOCK_PER_VAR;
         }
+        else if ( param == CSTORE_CUDA_BKC_KWD )
+        {
+            _cstore_cuda_propagation_function = CudaPropParam::BLOCK_K_CON;
+        }
+        else if ( param == CSTORE_CUDA_BKV_KWD )
+        {	
+        	throw NvdException( (_dbg + "block_per_k_variable not yet implemented").c_str() );
+            //_cstore_cuda_propagation_function = CudaPropParam::BLOCK_K_VAR;
+        }
         return;
     }
 }//set_constraint_engine_parameters

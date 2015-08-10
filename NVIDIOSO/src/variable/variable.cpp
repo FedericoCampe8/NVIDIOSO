@@ -165,7 +165,7 @@ Variable::notify_store ()
   {
     if ( is_attached( c->get_unique_id() ) ) 
     {
-      constraints_to_reevaluate.push_back( c->get_unique_id() );
+    	constraints_to_reevaluate.push_back( c->get_unique_id() );
     }
   }
 
@@ -184,15 +184,17 @@ Variable::notify_observers ()
 }//notify_observers
 
 void
-Variable::detach_constraint ( ConstraintPtr c ) {
-  // Consistency check
-  if ( c == nullptr ) return;
-  detach_constraint ( c->get_unique_id() );
+Variable::detach_constraint ( ConstraintPtr c ) 
+{
+	// Consistency check
+  	if ( c == nullptr ) return;
+  	detach_constraint ( c->get_unique_id() );
 }//detach_constraint
 
 void
-Variable::detach_constraint ( size_t c_id ) {
-  _detach_constraints.push_back( c_id );
+Variable::detach_constraint ( size_t c_id ) 
+{
+	_detach_constraints.push_back( c_id );
 }//detach_constraint
 
 size_t
@@ -219,11 +221,12 @@ Variable::size_constraints () {
 }//size_constraints
 
 bool
-Variable::is_attached ( size_t c_id ) {
+Variable::is_attached ( size_t c_id ) 
+{
   if ( _detach_constraints.size() == 0 ) return true;
   
   for ( auto x : _detach_constraints )
-    if ( x == c_id ) return false;
+	if ( x == c_id ) return false;
   return true;
 }//is_attached
 

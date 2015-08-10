@@ -30,11 +30,14 @@ protected:
   //! Unique id for this model
   int _model_id;
   
+  //! Aux info (e.g., arrays of values) pairs of id - vector of values
+  std::unordered_map < std::string, std::vector<int> > _auxiliary_info;
+  
   //! Variables
   std::vector < VariablePtr >    _variables;
   
   //! Base Constraints
-  std::vector < ConstraintPtr > _constraints;
+  std::vector < ConstraintPtr > _constraints; 
   
   //! Global Constraints
   std::vector < GlobalConstraintPtr > _glb_constraints;
@@ -61,6 +64,13 @@ public:
   
   //! Return the current number of constraints in the model
   virtual size_t num_constraints () const;
+  
+  /**
+   * Add a auxiliary info arrays to the model (e.g., tables).
+   * @param string id, unique identifier of the array
+   * @param vector of integers/aux values
+   */
+  virtual void add_aux_array ( std::string id, std::vector<int>& aux_info );  
   
   /**
    * Add a variable to the model.

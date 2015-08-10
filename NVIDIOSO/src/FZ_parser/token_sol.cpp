@@ -3,7 +3,7 @@
 //  NVIDIOSO
 //
 //  Created by Federico Campeotto on 07/07/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 #include "token_sol.h"

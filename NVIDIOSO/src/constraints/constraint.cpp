@@ -46,18 +46,39 @@ Constraint::get_name () const {
 }//get_name
 
 bool
+Constraint::is_naive () const 
+{
+	return (get_scope_size() == 0);
+}//is_naive
+
+bool
+Constraint::is_unary () const 
+{
+	return (get_scope_size() == 1);
+}//is_unary
+
+
+bool
 Constraint::is_global () const 
 {
 	return _global;
 }//is_global
 
+bool 
+Constraint::is_soft () const
+{
+	return (get_weight () > 0);
+}//is_soft
+
 int
-Constraint::get_weight () const {
+Constraint::get_weight () const 
+{
   return _weight;
 }//get_weight
 
 void
-Constraint::increase_weight ( int weight ) {
+Constraint::increase_weight ( int weight ) 
+{
   _weight += weight;
 }//increase_weight
 
@@ -144,13 +165,15 @@ Constraint::changed_vars () const {
 }//get_vars_from_event
 
 bool
-Constraint::fix_point () const {
+Constraint::fix_point () const 
+{
   return  ((changed_vars()).size() == 0);
 }//fix_point
 
 int
-Constraint::unsat_level () const {
-  return 0;
+Constraint::unsat_level () const 
+{
+	return 0;
 }//unsat_level
 
 

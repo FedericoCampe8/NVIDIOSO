@@ -3,7 +3,7 @@
 //  NVIDIOSO
 //
 //  Created by Federico Campeotto on 07/01/14.
-//  Copyright (c) 2015 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 #include "parser.h"
@@ -29,6 +29,18 @@ Parser::Parser () :
 Parser::~Parser () {
   delete _tokenizer;
 }//~Parser
+
+std::string 
+Parser::find_and_replace( std::string &s, std::string toReplace, std::string replaceWith )
+{
+	// Sanity check
+	std::string fromString = s;
+	while ( fromString.find ( toReplace ) != string::npos )
+	{
+		fromString = ( fromString.replace ( fromString.find ( toReplace ), toReplace.length(), replaceWith ) );
+	}
+	return fromString;
+}//find_and_replace
 
 void
 Parser::set_input ( string in_file ) {
@@ -67,7 +79,8 @@ Parser::more_tokens ()
 {
   	//return _more_tokens;
     return
-    ( more_variables      () ||
+    ( more_aux_arrays     () ||
+      more_variables      () ||
       more_constraints    () ||
       more_search_engines () );
 }//has_more_elements
@@ -75,6 +88,10 @@ Parser::more_tokens ()
 UTokenPtr
 Parser::get_next_content ()
 {
+	while ( more_aux_arrays () )
+    {
+        return std::move ( get_aux_array () );
+    }	
     while ( more_variables () )
     {
         return std::move ( get_variable () );

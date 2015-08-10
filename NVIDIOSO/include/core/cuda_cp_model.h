@@ -3,7 +3,7 @@
 //  NVIDIOSO
 //
 //  Created by Federico Campeotto on 30/11/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 //  This class represents a base CP model on CUDA.
 //  It holds the state concerning all the information needed to

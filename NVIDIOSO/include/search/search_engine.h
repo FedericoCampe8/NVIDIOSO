@@ -3,7 +3,7 @@
 //  NVIDIOSO
 //
 //  Created by Federico Campeotto on 08/07/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 //  This class represents the interface for a search engine.
 //  Different search strategies implement this interface.

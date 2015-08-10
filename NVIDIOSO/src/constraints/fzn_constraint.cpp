@@ -232,20 +232,29 @@ FZNConstraint::attach_me_to_vars () {
     var->attach_constraint( get_this_shared_ptr() );
 }//attach_me
 
+int
+FZNConstraint::unsat_level () const 
+{
+	throw NvdException ( (_dbg + "Constraint " + _str_id + " unsat_level not yet implemented").c_str() );
+}//unsat_level
+
 void
-FZNConstraint::consistency () {
-  throw NvdException ( (_dbg + "Constraint " + _str_id + " not yet implemented").c_str() );
+FZNConstraint::consistency () 
+{
+  throw NvdException ( (_dbg + "Constraint " + _str_id + " consistency not yet implemented").c_str() );
 }//consistency
 
 bool
-FZNConstraint::satisfied () {
-  throw NvdException ( (_dbg + "Constraint " + _str_id + " not yet implemented").c_str() );
+FZNConstraint::satisfied () 
+{
+  throw NvdException ( (_dbg + "Constraint " + _str_id + " satisfied not yet implemented").c_str() );
 }//satisfied
 
 void
 FZNConstraint::remove_constraint () {
-  for ( auto var : scope() ) {
-    var->detach_constraint ( get_unique_id() );
+  for ( auto var : scope() ) 
+  {
+	var->detach_constraint ( get_unique_id() );
   }
 }//remove_constraint
 

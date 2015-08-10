@@ -42,11 +42,12 @@ private:
   
   /**
    * String representing the elements of a support array.
-   * @note The client is in charge of converting the string
-   *       in the type of objects it requires according to 
-   *       the type of this array.
+   * @note array of strings representing the elements.
    */
-  std::string _support_elements;
+  std::vector<std::string> _support_elements;
+  
+  // Collect array's element on arrays of ints
+  void get_info_array ( std::string& line );
   
 public:
   TokenArr ();
@@ -113,7 +114,7 @@ public:
   void set_support_elements ( std::string elem_str );
   
   //! Returns a string describing the elements of a support array.
-  std::string get_support_elements () const;
+  std::vector<std::string> get_support_elements () const;
   
   //! Print info methods
   void print () const;

@@ -97,7 +97,27 @@ CPStore::init_model ()
      * instantiate the right object (e.g., a FD variable).
      * The object is then added to the CP model.
      */
-  
+  	// Aux info
+  	LogMsg << _dbg + "add auxiliary info/arrays to the model" << std::endl;
+  	while ( _parser->more_aux_arrays () )
+  	{
+  		try
+        {
+        	std::pair < std::string, std::vector< int > > aux_pair = 
+        	generator->get_auxiliary_parameters ( _parser->get_aux_array() );
+        	
+            _cp_model->add_aux_array ( aux_pair.first, aux_pair.second );
+        }
+        catch ( exception& e )
+        {
+            // Log exception
+            LogMsg << e.what() << endl;
+
+            // Throw again to exit the program in a clean fashion
+            throw;
+        }
+  	}
+  	
     // Variables
     LogMsg << _dbg + "add variables to the model" << std::endl;
     while ( _parser->more_variables () ) 
@@ -138,7 +158,7 @@ CPStore::init_model ()
     LogMsg << _dbg + "add a constraint store to the model" << std::endl;
     try
     {
-        _cp_model->add_constraint_store( generator->get_store () );
+        _cp_model->add_constraint_store( generator->get_store ( nullptr ) );
     }
     catch ( exception& e )
     {

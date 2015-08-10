@@ -19,11 +19,12 @@ private:
 	std::size_t _grid_size;
 	std::size_t _block_size;
 	std::size_t _shared_mem_size;
+	std::size_t _shared_mem_array_size;
 	std::size_t _num_constraints_per_block;
 protected:
 
-	//! Initialize the store
-	void init_store () override; 
+	//! Move queue to device
+    void move_queue_to_device () override; 
 	
     //! Invoke the kernel which performs consistency on device
     void dev_consistency () override;

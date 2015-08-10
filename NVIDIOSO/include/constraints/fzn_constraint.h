@@ -288,6 +288,17 @@ public:
   virtual void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) = 0;
   
   /**
+   * It returns an integer value that can be used
+   * to represent how much the current constraint is
+   * unsatisfied. This function can be used to
+   * implement some heuristics for optimization problems.
+   * @return an integer value representing how much this 
+   *         constraint is unsatisfied. It returns 0 if
+   *         this constraint is satisfied.
+   */
+  virtual int unsat_level () const override;
+  
+  /**
    * It attaches this constraint (observer) to the list of
    * the variables in its scope.
    * When a variable changes state, this constraint could be

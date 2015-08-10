@@ -3,12 +3,16 @@
 //  NVIDIOSO
 //
 //  Created by Federico Campeotto on 07/07/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 #include "token_con.h"
-
+#include <algorithm> 
+#include <string>
+ 
 using namespace std;
+
+const std::string TokenCon::SOFT_CONSTRAINT_KEYWORD = "soft";
 
 std::vector<std::string> TokenCon::global_constraint_keyword = 
 {
@@ -99,10 +103,17 @@ std::vector<std::string> TokenCon::global_constraint_keyword =
 };
 
 TokenCon::TokenCon () :
-Token         ( TokenType::FD_CONSTRAINT ),
-_con_id       ( "" ) {
+Token            ( TokenType::FD_CONSTRAINT ),
+_con_id          ( "" ),
+_soft_constraint ( false ) {
   _dbg = "TokenCon - ";
 }//TokenVar
+
+bool
+TokenCon::is_soft () const
+{
+	return _soft_constraint;
+}//is_soft
 
 bool 
 TokenCon::set_token ( std::string& token_str ) 
@@ -126,6 +137,13 @@ TokenCon::set_token ( std::string& token_str )
 	if ( global_constraint ( constraint_name ) )
 	{
 		set_type ( TokenType::FD_GLB_CONSTRAINT );
+	}
+	
+	// Check for soft constraints
+	auto it = token_str.find ( SOFT_CONSTRAINT_KEYWORD );
+	if ( it != std::string::npos )
+	{
+		_soft_constraint = true;
 	}
 	
   	// Get the expressions that identify the constraint

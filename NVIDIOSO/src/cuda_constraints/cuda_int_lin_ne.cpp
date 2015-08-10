@@ -72,7 +72,7 @@ CudaIntLinNe::satisfied ()
 __device__ void
 CudaIntLinNe::print() const
 {
-    if ( threadIdx.x != 0 )
+    if ( (threadIdx.x % WARP_SIZE) != 0 )
         return;
         
     printf ("c_%d: cuda_int_lin_ne != %d\n",

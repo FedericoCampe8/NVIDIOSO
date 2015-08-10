@@ -71,13 +71,22 @@ SimpleConstraintStore::add_changed ( size_t c_id, EventType event ) {
    * Check if the constraints belongs to the constraint store.
    * @note it requires log n time, where n = _number_of_constraints.
    */
-  if ( _lookup_table.find( c_id ) == _lookup_table.end() ) return;
+  if ( _lookup_table.find ( c_id ) == _lookup_table.end() ) return;
   
   /*
    * Check if the constraints is already set for re-evaluation.
    * @note it requires log n time, where n = _constraint_queue_size.
    */
   if ( _constraint_queue.insert( c_id ).second ) _constraint_queue_size++;
+  
+  /*
+   * Detach constraint if naive or unary, once propagated one time
+   * there is no need to propagate/check it anymore.
+   */
+   if ( _lookup_table[ c_id ]->is_naive () || _lookup_table[ c_id ]->is_unary () )
+   {
+   		_lookup_table[ c_id ]->remove_constraint ();
+   }
 }//add_changed
 
 void
