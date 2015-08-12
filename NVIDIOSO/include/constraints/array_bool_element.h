@@ -16,6 +16,14 @@
 #include "int_variable.h"
 
 class ArrayBoolElement : public FZNConstraint {  
+private:
+private:
+	//! States whether var int or var bool is ground when there is only 1 unassigned var
+	bool _ground_var_int;
+	
+  	IntVariablePtr _var_x = nullptr;
+  	IntVariablePtr _var_y = nullptr;
+  
 public:
     /**
      * Basic constructor.

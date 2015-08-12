@@ -83,7 +83,8 @@ SimpleSolutionManager::notify () {
   if ( !_variables.size() ) return true;
   
   string solution_str = "";
-  for ( auto var : _variables ) {
+  for ( auto var : _variables ) 
+  {
     if ( !var.second->is_singleton() ) 
     {
       throw

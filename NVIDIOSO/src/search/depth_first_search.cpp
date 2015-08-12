@@ -243,7 +243,7 @@ DepthFirstSearch::labeling ()
    * this can be found with a single propagation, e.g., checking domains.
    */
   bool search_consistent  = _store->consistency();
-  
+
   /*
    * Store the state before any labeling on FD vars.
    * This is done to preserve the variables (status) for further operations

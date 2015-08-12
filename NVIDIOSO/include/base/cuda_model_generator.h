@@ -20,8 +20,11 @@ extern GlobalConstraintRegister& glb_constraint_register;
 class CudaGenerator : public ModelGenerator {
 private:
 
-    //! This map is used to link strings ids with variables.
-    std::map<std::string, VariablePtr>  _var_lookup_table;
+	//! This hash table is used to link (string) ids to aux arrays.
+    std::unordered_set<std::string>  _arr_lookup_table;
+    
+    //! This hash table is used to link (string) ids to variables.
+    std::unordered_map<std::string, VariablePtr>  _var_lookup_table;
   
 protected:
     std::string _dbg;

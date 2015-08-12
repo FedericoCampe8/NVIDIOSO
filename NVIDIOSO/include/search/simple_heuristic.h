@@ -2,8 +2,8 @@
 //  simple_heuristic.h
 //  NVIDIOSO
 //
-//  Created by Federico Campeotto on 07/08/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Created by Federico Campeotto on 08/07/14.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 //  This class represent a simple heuristic customizable by
 //  the client with the given input parameters for selecting
@@ -40,6 +40,15 @@ protected:
    * to assign to the selected variable.
    */
   ValueChoiceMetric * _value_metric;
+  
+	/**
+	 * It places the variable at index "variablePosition" at "searchPosition".
+	 * @param searchPosition position currently considered by this heuristic
+	 * @param variablePosition current position of the variable choosen by search. 
+	 * @return variable choosen to be the choice point.
+	 * @note this function actually swaps variables "searchPosition" with "variablePosition".
+	 */
+	void placeSearchVariable ( int searchPosition, int variablePosition );
   
 public:
   /**

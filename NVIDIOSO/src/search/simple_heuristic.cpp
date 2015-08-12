@@ -23,6 +23,13 @@ SimpleHeuristic::~SimpleHeuristic () {
   delete _value_metric;
 }//~SimpleHeuristic
 
+void 
+SimpleHeuristic::placeSearchVariable ( int searchPosition, int variablePosition )
+{
+	std::iter_swap ( _fd_variables.begin() + searchPosition,
+                     _fd_variables.begin() + variablePosition );	
+}//placeSearchVariable
+
 Variable *
 SimpleHeuristic::get_choice_variable ( int index ) 
 {
@@ -39,7 +46,7 @@ SimpleHeuristic::get_choice_variable ( int index )
   {
 	selected_var = _fd_variables[ index ];
   } while ( (selected_var->is_singleton()) && (++index < last_idx) );
-
+	
   // Consistency check: no more vars to label
   if ( index == last_idx ) return nullptr;
   
@@ -63,14 +70,14 @@ SimpleHeuristic::get_choice_variable ( int index )
    *       current selected one (with the above do-while loop).
    */
   Variable * other_var;
-  int    comparison;
+  int    comparison      = 0;
   int    metric_position = index;
   double metric_value    = _variable_metric->metric_value ( selected_var );
   
   for ( int i = index + 1; i < last_idx; i++ ) 
   {
 	other_var = _fd_variables [ i ];
-    
+ 
     /*
      * The following check skips singleton variables (no point to label them)
      * and updates the position metric_position accordingly.
@@ -80,6 +87,7 @@ SimpleHeuristic::get_choice_variable ( int index )
       // Next var is singleton, go ahead
       if ( index == metric_position ) 
       {
+      	placeSearchVariable ( index, i );
     	metric_position = i;
         index++;
       }
@@ -96,7 +104,15 @@ SimpleHeuristic::get_choice_variable ( int index )
            * the corresponding var is not singleton.
            * Update the position of the metric.
            */
-          if ( index == metric_position ) metric_position = i;
+          if ( index == metric_position ) 
+          {
+          	placeSearchVariable ( index, i );
+          	metric_position = i;
+          }
+          else
+          {
+          	placeSearchVariable ( index, i );
+          }
           
           // Update the index in order to consider next variable
           index++;
@@ -133,8 +149,7 @@ SimpleHeuristic::get_choice_variable ( int index )
   // Swap the values if index is different from metric
   if ( index != metric_position ) 
   {
-    std::iter_swap ( _fd_variables.begin() + index,
-                     _fd_variables.begin() + metric_position );
+  	placeSearchVariable ( index, metric_position );
   }
   
   // Update current index

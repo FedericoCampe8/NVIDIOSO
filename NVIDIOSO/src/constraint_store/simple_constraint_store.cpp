@@ -144,7 +144,7 @@ SimpleConstraintStore::consistency () {
       }
     
       _number_of_propagations++;
-    
+
       if ( _satisfiability_check )
       {
           succeed = _constraint_to_reevaluate->satisfied ();

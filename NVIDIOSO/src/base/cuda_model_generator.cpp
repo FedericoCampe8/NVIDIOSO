@@ -54,10 +54,19 @@ CudaGenerator::get_auxiliary_parameters ( UTokenPtr tkn_ptr )
     std::vector < std::string > aux_elements = ptr->get_support_elements();
     std::vector < int > aux_int_elements;
     
+    // Num rows
+    aux_int_elements.push_back ( 1 ); 
+    
+    // Num columns
+    aux_int_elements.push_back ( aux_elements.size () ); 
+    
     for ( auto& s : aux_elements )
     {
     	aux_int_elements.push_back ( atoi ( s.c_str() ) ); 
     }
+    
+    // Set this ID as ID for aux array
+    _arr_lookup_table.insert ( ptr->get_var_id () );
     
     return make_pair ( ptr->get_var_id (), aux_int_elements );
 }//get_auxiliary_parameters
@@ -202,17 +211,26 @@ CudaGenerator::get_constraint ( UTokenPtr tkn_ptr )
  	 * set the list of var pointer accordingly.
  	 */
 	vector<VariablePtr> var_ptr;
-	for ( auto expr : expr_var_vec )
+	vector<string> 		par_ptr;
+	for ( auto& expr : expr_var_vec )
     {
         auto ptr_aux = _var_lookup_table.find ( expr );
         if ( ptr_aux != _var_lookup_table.end() )
         {
             var_ptr.push_back ( ptr_aux->second );
         }
-   	 }
+        auto ptr_arr = _arr_lookup_table.find ( expr );
+        if ( ptr_arr != _arr_lookup_table.end() )
+        {
+        	par_ptr.push_back ( expr );
+        }
+	}
     
-    vector<string> params_vec = ptr->get_expr_not_var_elements_array();
-  
+    for ( auto& expr : ptr->get_expr_not_var_elements_array() )
+    {
+    	par_ptr.push_back ( expr );
+    }
+
     /*
      * Constraint (pointer) to return.
      * It is initialized with the parameters of the token, i.e., the
@@ -225,8 +243,7 @@ CudaGenerator::get_constraint ( UTokenPtr tkn_ptr )
     	{
         	fzn_constraint = 
             FZNConstraintFactory::get_fzn_constraint_shr_ptr( constraint_name,
-                                                              var_ptr,
-                                                              params_vec );
+                                                              var_ptr, par_ptr );
     	}
     	catch ( NvdException& e )
     	{
@@ -242,7 +259,7 @@ CudaGenerator::get_constraint ( UTokenPtr tkn_ptr )
 	else
 	{
 		GlobalConstraintPtr glb_constraint = glb_constraint_register.get_global_constraint ( constraint_name );
-		glb_constraint->setup ( var_ptr, params_vec );
+		glb_constraint->setup ( var_ptr, par_ptr );
 		if ( solver_params != nullptr )
 		{
 			glb_constraint->set_propagator_class ( solver_params->constraint_get_propagator_class () );

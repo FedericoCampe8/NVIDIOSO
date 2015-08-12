@@ -76,9 +76,9 @@ IntNe::setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) {
   // Consistency checking in order to avoid more than one setup
   if ( (_var_x != nullptr) || (_arguments.size() > 0) ) return;
   
-  if ( vars.size() == 0 ) {
-    
-    // Consistency check on args
+  if ( vars.size() == 0 ) 
+  {  
+    // Sanity check
     if ( args.size() != 2 )
       throw NvdException ( (_dbg + "wrong number of arguments (missing 2)").c_str() );
     
@@ -86,24 +86,29 @@ IntNe::setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) {
     _arguments.push_back( atoi ( args[ 0 ].c_str() ) );
     _arguments.push_back( atoi ( args[ 1 ].c_str() ) );
   }
-  else if ( vars.size() == 1 ) {
-    
+  else if ( vars.size() == 1 ) 
+  { 
     _var_x =
     std::dynamic_pointer_cast<IntVariable>( vars[ 0 ] );
     
-    // Consistency check on pointers
+    // Sanity check on pointers
     if ( _var_x == nullptr )
-      throw NvdException ( (_dbg + "x variable is NULL").c_str() );
+    {
+    	throw NvdException ( (_dbg + "x variable is NULL").c_str() );
+    }
     
-    // Consistency check on args
+    // Sanity check on args
     if ( args.size() != 1 )
-      throw NvdException ( (_dbg + "wrong number of arguments (missing 1)").c_str() );
+    {
+    	throw NvdException ( (_dbg + "wrong number of arguments (missing 1)").c_str() );
+    }
     
     // Set scope size ang arguments list
     _scope_size = 1;
     _arguments.push_back( atoi ( args[ 0 ].c_str() ) );
   }
-  else if ( vars.size() == 2 ) {
+  else if ( vars.size() == 2 ) 
+  {
     
     _var_x =
     std::dynamic_pointer_cast<IntVariable>( vars[ 0 ] );
@@ -111,7 +116,7 @@ IntNe::setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) {
     _var_y =
     std::dynamic_pointer_cast<IntVariable>( vars[ 1 ] );
     
-    // Consistency check on pointers
+    // Sanity check on pointers
     if ( _var_x == nullptr )
       throw NvdException ( (_dbg + "x variable is NULL").c_str() );
     
@@ -124,8 +129,9 @@ IntNe::setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) {
 }//setup
 
 const std::vector<VariablePtr>
-IntNe::scope () const {
-  // Return the constraint's scope
+IntNe::scope () const 
+{
+  // Return constraint's scope
   std::vector<VariablePtr> scope;
   if ( _var_x != nullptr ) scope.push_back ( _var_x );
   if ( _var_y != nullptr ) scope.push_back ( _var_y );
@@ -147,7 +153,8 @@ IntNe::consistency () {
   
   // 1 FD variable: if not singleton, propagate.
   if ( _scope_size == 1 ) {
-    if ( !_var_x->is_singleton() ) {
+    if ( !_var_x->is_singleton() ) 
+    {
       _var_x->subtract( _arguments[ 0 ] );
     }
     return;
@@ -172,41 +179,51 @@ IntNe::consistency () {
 
 //! It checks if x != y
 bool
-IntNe::satisfied ()  {
+IntNe::satisfied () 
+{
 
-  // No FD variables, just check the integers values
-  if ( _scope_size == 0 ) {
-    return _arguments[ 0 ] != _arguments[ 1 ];
-  }
+  	// No FD variables, just check the integers values
+  	if ( _scope_size == 0 ) 
+  	{
+    	return _arguments[ 0 ] != _arguments[ 1 ];
+  	}
+  	
+  	// 1 FD variable, if singleton check
+  	if ( (_scope_size == 1) &&
+         _var_x->is_singleton() ) 
+	{
+    	return _arguments[ 0 ] != _var_x->min ();
+  	}
   
-  // 1 FD variable, if singleton check
-  if ( (_scope_size == 1) &&
-        _var_x->is_singleton() ) {
-    return _arguments[ 0 ] != _var_x->min ();
-  }
+  	// 2 FD variables, if singleton check
+  	if ( (_scope_size == 2) &&
+       	 (_var_x->is_singleton()) &&
+       	 (_var_y->is_singleton()) ) 
+    {
+    	return _var_x->min () != _var_y->min ();
+  	}
   
-  // 2 FD variables, if singleton check
-  if ( (_scope_size == 2) &&
-       (_var_x->is_singleton()) &&
-       (_var_y->is_singleton()) ) {
-    return _var_x->min () !=
-           _var_y->min ();
-  }
+	/*
+   	 * Check if a domain is empty.
+   	 * If it is the case: failed propagation.
+   	 */
+   	if ( _scope_size == 1 && _var_x->is_empty () )
+	{
+    	return false;
+    }
+    
+  	if ( (_scope_size == 2) && 
+       	 (_var_x->is_empty () || _var_y->is_empty () ) )
+	{
+    	return false;
+    }
   
-  /*
-   * Check if a domain is empty.
-   * If it is the case: failed propagation.
-   */
-  if ( _var_x->is_empty () ||
-       _var_y->is_empty () )
-    return false;
-  
-  /*
-   * Other cases: there is not enough information
-   * to state whether the constraint is satisfied or not.
-   * Return true.
-   */
-  return true;
+  	/*
+   	 * Other cases: there is not enough information
+   	 * to state whether the constraint is satisfied or not.
+   	 * Return true.
+   	 */
+  	return true;
 }//satisfied
 
 //! Prints the semantic of this constraint

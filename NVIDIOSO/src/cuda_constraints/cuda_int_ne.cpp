@@ -88,27 +88,35 @@ CudaIntNe::satisfied ()
     }
   
     // 2 FD variables, if singleton check
-    if ( is_singleton ( X_VAR ) && is_singleton ( Y_VAR ) ) 
+    if ( NUM_ARGS == 0 ) 
     {
-        if ( get_min ( X_VAR ) != get_min ( Y_VAR ) )
-        {
-        	return true;
+    	if ( is_singleton ( X_VAR ) && is_singleton ( Y_VAR ) )
+    	{ 
+        	if ( get_min ( X_VAR ) != get_min ( Y_VAR ) )
+        	{
+        		return true;
+        	}
+        	GET_VAR_EVT(X_VAR) = FAL_EVT;
+        	GET_VAR_EVT(Y_VAR) = FAL_EVT;
+        	return false;
         }
-        GET_VAR_EVT(X_VAR) = FAL_EVT;
-        GET_VAR_EVT(Y_VAR) = FAL_EVT;
-        return false;
+        
+        if ( is_empty ( X_VAR ) || is_empty ( Y_VAR ) )
+    	{
+    		GET_VAR_EVT(X_VAR) = FAL_EVT;
+        	GET_VAR_EVT(Y_VAR) = FAL_EVT;
+        	return false;
+    	}
     }
-  
-    /*
-     * Check if a domain is empty.
-     * If it is the case: failed propagation.
-     */
-    if ( is_empty ( X_VAR ) || is_empty ( Y_VAR ) )
+  	
+  	if ( NUM_ARGS == 1 ) 
     {
-    	GET_VAR_EVT(X_VAR) = FAL_EVT;
-        GET_VAR_EVT(Y_VAR) = FAL_EVT;
-        return false;
-    }
+    	if ( is_empty ( X_VAR ) )
+    	{
+    		GET_VAR_EVT(X_VAR) = FAL_EVT;
+        	return false;
+    	}
+  	}
     
     /*
      * Other cases: there is not enough information

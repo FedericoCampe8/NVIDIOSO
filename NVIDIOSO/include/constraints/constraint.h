@@ -3,7 +3,7 @@
 //  NVIDIOSO
 //
 //  Created by Federico Campeotto on 08/07/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 //  This class represents the interface/abstract class for all constraints.
 //  Defines how to construct a constraint, impose, check satisiability,
@@ -95,6 +95,29 @@ protected:
    */
   std::vector<int> _arguments;
   
+  //! IDs for shared arguments lookup
+  std::vector< std::string > _shared_argument_ids;
+  
+  /**
+   * Pointer to a map of auxiliary arguments.
+   * This pointer can be either NULL or pointing to some external map
+   * containing arguments shared between many constraints.
+   * For example, the pointer can point to a table stored in the model and
+   * used by table or array constraints.
+   * @note This pointer is used to reduce the amount of memory allocated  
+   *       for each constraint when constraints use some external data structure
+   *       which is shared among many constraints.
+   */
+  std::unordered_map < std::string, std::vector<int> >* _shared_arguments;
+  
+  /**
+   * Get shared array given index 0th, 1st, 2nd, ... 
+   * @param idx index of the shared array to retrieve.
+   * @return pointer to the shared (vector) array of arguments.
+   * @note by default it returns the first (0th) array.
+   */
+   const std::vector<int>& get_shared_arguments ( size_t idx = 0 );
+  
   /**
    * Default constructor.
    * It creates a new instance of a null constraint with a
@@ -143,20 +166,20 @@ public:
   	//! Get the weight of this constraint.
   	int get_weight () const;
   
-  /**
-   * Set the consistency level for this
-   * constraints. Different consistency
-   * levels are implemented with different algorithms
-   * and may require different computational times.
-   */
-  void set_consistency_level ( ConsistencyType con_type );
+  	/**
+   	 * Set the consistency level for this
+   	 * constraints. Different consistency
+   	 * levels are implemented with different algorithms
+   	 * and may require different computational times.
+   	 */
+  	void set_consistency_level ( ConsistencyType con_type );
   
-  /**
-   * Increse current weight.
-   * @param weight the weight to add to the current weight
-   *        (default: 1).
-   */
-  void increase_weight ( int weight = 1 );
+  	/**
+   	 * Increse current weight.
+   	 * @param weight the weight to add to the current weight
+   	 *        (default: 1).
+   	 */
+  	void increase_weight ( int weight = 1 );
   
   /**
    * Decrease current weight.
@@ -194,6 +217,9 @@ public:
    * a given constraint.
    */
   const std::vector<EventType>& events () const;
+  
+  //! Set pointer to shared arguments
+  void set_shared_arguments ( std::unordered_map < std::string, std::vector<int> > * ptr );
   
   /**
    * It returns the list of auxiliary arguments 

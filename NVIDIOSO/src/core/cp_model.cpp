@@ -1,9 +1,9 @@
 //
 //  cp_model.cpp
-//  NVIDIOSO
+//  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 08/07/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 #include "cp_model.h"
@@ -54,6 +54,12 @@ void
 CPModel::add_constraint ( ConstraintPtr cpt ) 
 {
 	if( cpt == nullptr ) return;
+	
+	// Set shared arguments
+	if ( _auxiliary_info.size () > 0 )
+	{
+		cpt->set_shared_arguments ( &_auxiliary_info );
+	}
   	_constraints.push_back ( cpt );
 }//add_constraint
 

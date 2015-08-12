@@ -11,11 +11,12 @@
 using namespace std;
 
 Constraint::Constraint () :
-_global      ( false ),
-_number_id   ( -1 ),
-_str_id      ( "-1" ),
-_weight      ( 0 ),
-_consistency ( ConsistencyType::BOUND_C ){
+	_global      ( false ),
+	_number_id   ( -1 ),
+	_str_id      ( "-1" ),
+	_weight      ( 0 ),
+	_consistency ( ConsistencyType::BOUND_C ),
+	_shared_arguments ( nullptr ) {
   _unique_id  = glb_id_gen->get_int_id();
   _dbg = ( "Constraint - " );
 }//Constraint
@@ -118,6 +119,30 @@ Constraint::scope () const
   // Return the constraint's scope
   return _scope;
 }//scope
+
+void 
+Constraint::set_shared_arguments ( std::unordered_map < std::string, std::vector<int> > * ptr )
+{
+	_shared_arguments = ptr;
+}//set_shared_arguments
+
+const std::vector<int>&
+Constraint::get_shared_arguments ( size_t idx )
+{
+	// Sanity checks
+	assert ( _shared_arguments != nullptr );
+	assert ( _shared_argument_ids.size() > idx );
+	
+	auto it = _shared_arguments->find ( _shared_argument_ids [ idx ] );
+	if ( it != _shared_arguments->end() )
+	{
+		return (it->second);
+	}
+	else
+	{
+		throw NvdException ( (_dbg + "get_shared_arguments: shared argument not found for id " + _shared_argument_ids [ idx ] ).c_str() );
+	}
+}//get_shared_arguments
 
 const std::vector<int>&
 Constraint::arguments () const {

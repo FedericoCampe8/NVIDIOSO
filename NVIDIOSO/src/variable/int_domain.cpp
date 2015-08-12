@@ -32,6 +32,7 @@ IntDomain::is_singleton () const
 	{
   		assert( get_size() == 1 );
   	}
+  	
   	return ( lower_bound() == upper_bound() );
 }//is_singleton
 
