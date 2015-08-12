@@ -262,7 +262,7 @@ CudaGenerator::get_constraint ( UTokenPtr tkn_ptr )
 		glb_constraint->setup ( var_ptr, par_ptr );
 		if ( solver_params != nullptr )
 		{
-			glb_constraint->set_propagator_class ( solver_params->constraint_get_propagator_class () );
+			glb_constraint->set_consistency_level ( solver_params->constraint_get_propagator_class () );
 		}
 		if ( ptr->is_soft () )
     	{

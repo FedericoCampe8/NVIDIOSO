@@ -28,27 +28,11 @@
 class GlobalConstraint;
 typedef std::shared_ptr<GlobalConstraint> GlobalConstraintPtr;
 
-/**
- * Propagation algorithm type:
- * - Naive: standard propagation, naive algorithms;
- * - Bound: propagates only on bounds;
- * - Full:  smart algorithms for full propagation.
- */
-enum class PropagatorType {
-  NAIVE,
-  BOUND,
-  FULL,
-  OTHER
-};
-
 class GlobalConstraint : public Constraint {
 protected:
   
   //! Scope size
   int _scope_size;
-  
-  //! Propagator algorithms type
-  PropagatorType _propagator_type;
   
   //! Array of (base/global) constraints involved in this global constraint
   std::vector<Constraint *> _sub_constraint;
@@ -88,24 +72,6 @@ protected:
 public:
   
   virtual ~GlobalConstraint();
-  
-  //! Set the type of propagator algorithm to use for consistency
-  void set_propagator_class ( PropagatorType t );
-  
-  /**
-   * Set the type of propagator algorithm to use for consistency.
-   * @param t string identifying the type of propagator to use.
-   *        t can be of the following strings:
-   *        - "naive"
-   *        - "bound"
-   *        - "full"
-   * @note if t doesn't match any of the above strings, this function
-   *       sets "naive" as default propagator algorithm to use.
-   */
-  void set_propagator_class ( std::string t );
-  
-  //! Get type of propagator. It may be used for some statistics.
-  PropagatorType get_propagator_class () const;
   
   //! Number of blocks of threads needed for parallel implementation
   std::size_t get_num_blocks () const;

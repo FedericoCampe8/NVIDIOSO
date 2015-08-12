@@ -21,7 +21,14 @@
 class Constraint;
 typedef std::shared_ptr<Constraint> ConstraintPtr;
 
+/**
+ * Propagation algorithm for consistency type:
+ * - Naive: standard propagation, naive algorithms;
+ * - Bound: propagates only on bounds;
+ * - Domain:  smart algorithms for full propagation.
+ */
 enum class ConsistencyType {
+	NAIVE_C,
 	BOUND_C,
   	DOMAIN_C,
 	OTHER_C
@@ -173,7 +180,25 @@ public:
    	 * and may require different computational times.
    	 */
   	void set_consistency_level ( ConsistencyType con_type );
-  
+  	
+  	/**
+   	 * Set the consistency level for this
+   	 * constraints. Different consistency
+   	 * levels are implemented with different algorithms
+   	 * and may require different computational times.
+   	 * @param t string identifying the type of propagator to use.
+     *        t can be of the following strings:
+     *        - "naive"
+     *        - "bound"
+     *        - "domain/full"
+     * @note if t doesn't match any of the above strings, this function
+     *       sets "naive" as default propagator algorithm to use.
+   	 */
+  	void set_consistency_level ( std::string con_type );
+  	
+  	//! Get consistency level adopted. It may be used for some statistics.
+  	ConsistencyType get_consistency_level () const;
+  	
   	/**
    	 * Increse current weight.
    	 * @param weight the weight to add to the current weight

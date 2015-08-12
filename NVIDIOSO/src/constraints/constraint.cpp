@@ -89,9 +89,37 @@ Constraint::decrease_weight ( int weight ) {
 }//decrease_weight
 
 void
-Constraint::set_consistency_level ( ConsistencyType con_type ) {
-  _consistency = con_type;
+Constraint::set_consistency_level ( ConsistencyType con_type ) 
+{
+	_consistency = con_type;
 }//set_consistency_level
+
+void
+Constraint::set_consistency_level ( std::string t ) 
+{
+	if ( t == "naive" )
+	{
+		_consistency = ConsistencyType::NAIVE_C;
+	}
+	else if ( t == "bound" )
+	{
+		_consistency = ConsistencyType::BOUND_C;
+	}
+	else if ( t == "domain" || t == "full" )
+	{
+		_consistency = ConsistencyType::DOMAIN_C;
+	}
+	else 
+	{
+		_consistency = ConsistencyType::NAIVE_C;
+	}
+}//set_consistency_level
+
+ConsistencyType 
+Constraint::get_consistency_level () const
+{
+	return _consistency;
+}//set_propagator_type
 
 size_t
 Constraint::get_scope_size () const {

@@ -13,7 +13,6 @@ GlobalConstraint::GlobalConstraint ( std::string name ) :
   	_global          = true;
   	_str_id          = name;
   	_dbg             = name + " - ";
-  	_propagator_type = PropagatorType::NAIVE;
   	_scope_size      = 0;
   	_num_blocks      = 1;
   	_num_threads     = 1;
@@ -40,39 +39,6 @@ GlobalConstraint::full_consistency ()
 {
 	throw NvdException ( (_dbg + "Constraint " + _str_id + " full consistency not yet implemented").c_str() );
 }//full_consistency
-
-void 
-GlobalConstraint::set_propagator_class ( PropagatorType t )
-{
-	_propagator_type = t;
-}//set_propagator_type
-
-void 
-GlobalConstraint::set_propagator_class( std::string t )
-{
-	if ( t == "naive" )
-	{
-		_propagator_type = PropagatorType::NAIVE;
-	}
-	else if ( t == "bound" )
-	{
-		_propagator_type = PropagatorType::BOUND;
-	}
-	else if ( t == "full" )
-	{
-		_propagator_type = PropagatorType::FULL;
-	}
-	else 
-	{
-		_propagator_type = PropagatorType::NAIVE;
-	}
-}//set_propagator_type
-
-PropagatorType 
-GlobalConstraint::get_propagator_class () const
-{
-	return _propagator_type;
-}//set_propagator_type
 
 size_t 
 GlobalConstraint::get_num_blocks () const
@@ -109,15 +75,15 @@ GlobalConstraint::attach_me_to_vars ()
 void
 GlobalConstraint::consistency () 
 {
-	switch ( _propagator_type )
+	switch ( _consistency )
   	{
-  		case PropagatorType::NAIVE:
+  		case ConsistencyType::NAIVE_C:
   			naive_consistency ();
   			break;
-  		case PropagatorType::BOUND:
+  		case ConsistencyType::BOUND_C:
   			bound_consistency ();
   			break;
-  		case PropagatorType::FULL:
+  		case ConsistencyType::DOMAIN_C:
   			full_consistency ();
   			break;
   		default:
@@ -149,15 +115,15 @@ GlobalConstraint::print () const
   	std::cout << "Scope size: " << get_scope_size() << "\n";
   	std::cout << "Weight:     " << get_weight ()     << "\n";
   	std::cout << "Propagator: ";
-  	switch ( _propagator_type )
+  	switch ( _consistency )
   	{
-  		case PropagatorType::NAIVE:
+  		case ConsistencyType::NAIVE_C:
   			std::cout << "Naive\n";
   			break;
-  		case PropagatorType::BOUND:
+  		case ConsistencyType::BOUND_C:
   			std::cout << "Bound\n";
   			break;
-  		case PropagatorType::FULL:
+  		case ConsistencyType::DOMAIN_C:
   			std::cout << "Full\n";
   			break;
   		default:
