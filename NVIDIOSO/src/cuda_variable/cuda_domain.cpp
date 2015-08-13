@@ -1,6 +1,6 @@
 //
 //  cuda_domain.cpp
-//  NVIDIOSO
+//  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 07/09/14.
 //  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
@@ -30,28 +30,35 @@ CudaDomain::allocated_bytes () const {
 }//get_allocated_bytes
 
 void
-CudaDomain::init_domain ( int min, int max ) {
-  
+CudaDomain::init_domain ( int min, int max ) 
+{
   // Return if domain has been already initialized
   if ( _domain != nullptr ) return;
   
   // Consistency check
   assert ( min <= max );
   
-  // Get proper size of domain
+  // Get domain's size
   int size;
   if ( ((min <= Domain::MIN_DOMAIN() + 1) && max > 0) ||
        ((max == Domain::MAX_DOMAIN()    ) && min < 0) ||
        ((max == Domain::MAX_DOMAIN() / 2) && (max == Domain::MIN_DOMAIN() / 2))
-      ) {
+      ) 
+  {
+  	LogMsg << _dbg + "Domain size too big! Size cut at " << 
+  	Domain::MAX_DOMAIN() << " elements." << std::endl;
     size = Domain::MAX_DOMAIN();
   }
-  else {
-    size = abs( max - min + 1 );
+  else 
+  {
+  	if ( min < 0 && max < 0 )  size = abs ( min ) - abs ( max ) + 1;
+  	if ( min < 0 && max >= 0 ) size = (max + 1) + abs ( min ); 
+    if ( min >= 0 )            size = abs( max - min + 1 );
   }
-  
+
   // Allocate domain according to its size
-  if ( min >= 0 &&  min <= VECTOR_MAX && size <= VECTOR_MAX ) {
+  if ( /* min >= 0 && min <= VECTOR_MAX &&*/ size <= VECTOR_MAX ) 
+  {
     _num_int_chunks      = num_chunks ( VECTOR_MAX );
     _num_allocated_bytes = MAX_STATUS_SIZE + ceil (1.0 * VECTOR_MAX / BITS_IN_BYTE);
     
@@ -61,58 +68,67 @@ CudaDomain::init_domain ( int min, int max ) {
 
     set_bit_representation ();
   }
-  else {
+  else 
+  {
     _num_allocated_bytes = MAX_BYTES_SIZE;
     _num_int_chunks      = MAX_DOMAIN_VALUES;
     
     // Create domains representations
     _domain = new int [ _num_allocated_bytes / sizeof( int ) ];
     
-    if ( size <= VECTOR_MAX ) {
+    if ( size <= VECTOR_MAX ) 
+    {
       vector < pair < int, int > > bounds_list;
       bounds_list.push_back( make_pair( min, max ) );
       _concrete_domain = make_shared<CudaConcreteBitmapList>( _num_allocated_bytes, bounds_list);
       set_bitlist_representation ();
     }
-    else {
+    else 
+    {
       _concrete_domain = make_shared<CudaConcreteDomainList>( _num_allocated_bytes, min, max );
       set_list_representation ();
     }
   }
-  
+
   // Set bounds & domain's size
   _domain[ LB_IDX  () ] = min;
   _domain[ UB_IDX  () ] = max;
   _domain[ DSZ_IDX () ] = _concrete_domain->size();
   
   // Set initial events
-  if ( _domain[ LB_IDX() ] == _domain[ UB_IDX() ] ) {
+  if ( _domain[ LB_IDX() ] == _domain[ UB_IDX() ] ) 
+  {
     event_to_int ( EventType::SINGLETON_EVT );
   }
-  else {
+  else 
+  {
     event_to_int ( EventType::NO_EVT );
   }
 }//init_domain
 
 //! Get the domain's lower bound
 int
-CudaDomain::lower_bound () const {
-  return _domain[ LB_IDX() ];
+CudaDomain::lower_bound () const 
+{
+	return _domain[ LB_IDX() ];
 }//lower_bound
 
 //! Get the domain's upper bound
 int
-CudaDomain::upper_bound () const {
-  return _domain[ UB_IDX() ];
+CudaDomain::upper_bound () const 
+{
+	return _domain[ UB_IDX() ];
 }//upper_bound
 
 bool
-CudaDomain::contains ( int value ) const {
-  return _concrete_domain->contains( value );
+CudaDomain::contains ( int value ) const 
+{
+	return _concrete_domain->contains( value );
 }//contains
 
 DomainPtr
-CudaDomain::clone_impl () const {
+CudaDomain::clone_impl () const 
+{
   //@todo
   return ( shared_ptr<CudaDomain> ( new CudaDomain ( *this ) ) );
 }//clone_impl
@@ -141,7 +157,8 @@ CudaDomain::set_bit_representation () {
 }//set_bit_representation
 
 void
-CudaDomain::set_bitlist_representation ( int num_list ) {
+CudaDomain::set_bitlist_representation ( int num_list ) 
+{
   _domain[ REP_IDX() ] = num_list;
 }//set_bit_representation
 
@@ -152,7 +169,8 @@ CudaDomain::set_list_representation ( int num_list ) {
 }//set_bit_representation
 
 CudaDomainRepresenation
-CudaDomain::get_representation () const {
+CudaDomain::get_representation () const 
+{
   if ( _domain[ REP_IDX() ] < 0 ) {
     return CudaDomainRepresenation::BITMAP_LIST;
   }

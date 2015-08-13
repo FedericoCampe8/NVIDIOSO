@@ -68,10 +68,10 @@ public:
   virtual ~CudaConcreteDomain ();
   
   //! Returns lower bound
-  int lower_bound () const;
+  int lower_bound () const override;
   
   //! Returns upper bound
-  int upper_bound () const;
+  int upper_bound () const override;
   
   /**
    * Get the number of allocated

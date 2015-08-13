@@ -121,6 +121,19 @@ Constraint::get_consistency_level () const
 	return _consistency;
 }//set_propagator_type
 
+void 
+Constraint::set_var2subscript_mapping ( std::vector<int>& v )
+{
+	_var2subscription_map = v;
+}//set_var2subscript_mapping
+
+bool 
+Constraint::is_variable_at_index ( int idx ) const
+{
+	assert ( idx >= 0 && idx < _var2subscription_map.size () );
+	return _var2subscription_map [ idx ] == 1;
+}//is_variable_at_index
+
 size_t
 Constraint::get_scope_size () const {
   return scope().size();

@@ -194,23 +194,23 @@ TokenVar::get_range ( std::string token_str ) const
 	}
 	
 	std::size_t start = found - 1;
-	while ( start > 0 && (token_str [ start ] >= '0' && token_str [ start ] <= '9' ) )
+	while ( start > 0 && ((token_str [ start ] >= '0' && token_str [ start ] <= '9' ) || (token_str [ start ] == '-')) )
 	{
 		start--;
 	}
 	// Start is either 0 or a non valid char
-	if ( !(token_str [ start ] >= '0' && token_str [ start ] <= '9') )
+	if ( !((token_str [ start ] >= '0' && token_str [ start ] <= '9') || (token_str [ start ] == '-'))  )
 	{
 		start++;
 	}
-	
+	 
 	std::size_t end = found + 2;
-	while ( end < token_str.size() -1 && (token_str [ end ] >= '0' && token_str [ end ] <= '9' ) )
+	while ( end < token_str.size() && ((token_str [ end ] >= '0' && token_str [ end ] <= '9' ) || (token_str [ end ] == '-')) )
 	{
 		end++;
 	}
 	// End is either the last digit or a non valid digit
-	if ( !(token_str [ end ] >= '0' && token_str [ end ] <= '9') )
+	if ( !((token_str [ end ] >= '0' && token_str [ end ] <= '9') || (token_str [ end ] == '-')) )
 	{
 		end--;
 	}
@@ -218,10 +218,13 @@ TokenVar::get_range ( std::string token_str ) const
 	token_str.assign ( token_str.begin() + start,  token_str.begin() + end + 1 );
 	
 	bool lower_set = false;
+	bool lower_neg = false, upper_neg = false;
 	int lower_bound = 0, upper_bound = 0;
 	for ( auto& x : token_str )
 	{
-		if ( x != '.' && !lower_set )
+		if ( x == '-' && !lower_set ) lower_neg = true;
+		if ( x == '-' &&  lower_set ) upper_neg = true;
+		if ( x != '.' && !lower_set && x != '-' )
 		{
 			lower_bound = lower_bound * 10 + static_cast<int> ( x - '0' );
 		}
@@ -229,12 +232,15 @@ TokenVar::get_range ( std::string token_str ) const
 		{
 			lower_set = true;
 		}
-		else
+		else if ( x != '-' )
 		{
 			upper_bound = upper_bound * 10 + static_cast<int> ( x - '0' );
 		}
 	}
 	
+	if ( lower_neg ) lower_bound *= -1;
+	if ( upper_neg ) upper_bound *= -1;
+
 	range.first  = lower_bound;
 	range.second = upper_bound;
     return range;

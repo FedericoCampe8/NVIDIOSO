@@ -226,6 +226,25 @@ CudaGenerator::get_constraint ( UTokenPtr tkn_ptr )
         }
 	}
     
+    bool is_digit;
+    std::vector<int> var_position_mapping;
+    for ( auto& expr : ptr->get_expr_array() )
+    {
+    	is_digit = true;
+    	for ( auto& c : expr )
+    	{
+    		if ( c != '-' && !(c >= '0' && c <= '9') )
+    		{
+    			is_digit = false;
+    			break;	
+    		}
+    	}
+    	if ( is_digit )
+    		var_position_mapping.push_back ( 0 );
+    	else
+    		var_position_mapping.push_back ( 1 );
+    }
+    
     for ( auto& expr : ptr->get_expr_not_var_elements_array() )
     {
     	par_ptr.push_back ( expr );
@@ -254,6 +273,10 @@ CudaGenerator::get_constraint ( UTokenPtr tkn_ptr )
     	{
     		fzn_constraint->increase_weight ();
     	}
+    	
+    	// Set position of variables in the constraint as defined from input model
+    	fzn_constraint->set_var2subscript_mapping ( var_position_mapping );
+    	
     	return fzn_constraint;
 	}
 	else
@@ -268,6 +291,9 @@ CudaGenerator::get_constraint ( UTokenPtr tkn_ptr )
     	{
     		glb_constraint->increase_weight ();
     	}
+    	
+    	// Set position of variables in the constraint as defined from input model
+    	glb_constraint->set_var2subscript_mapping ( var_position_mapping );
     	
 		return glb_constraint;
 	}

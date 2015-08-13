@@ -120,6 +120,12 @@ public:
                    int rep, int min, int max, int dsz ) override;
   
   
+  //! Returns lower bound
+  int lower_bound () const override;
+  
+  //! Returns upper bound
+  int upper_bound () const override;
+  
   //! It returns the current size of the domain.
   unsigned int size () const;
   

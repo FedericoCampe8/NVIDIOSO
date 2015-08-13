@@ -88,6 +88,15 @@ protected:
   std::vector<EventType> _trigger_events;
   
   /**
+   * Vector storing the relative positions of the variables
+   * and arguments in the constraint as declared in the
+   * input model.
+   * @note _var2subscription_map[i] == 0 if at index i there is an argument,
+   *       _var2subscription_map[i] == 1 if at index i there is a variable.
+   */
+   std::vector<int> _var2subscription_map;
+  
+  /**
    * It represents the array of variables into the 
    * scope of this constraints.
    * For example:
@@ -212,6 +221,20 @@ public:
    *        (default: 1).
    */
   void decrease_weight ( int weight = 1 );
+  
+	/**
+   	 * Set array containing the relative positions of the variables
+   	 * and auxiliary arguments as declared in the input model.
+   	 * @param v a vector of 0/1 where 0 corresponds to an argument,
+   	 *        and 1 to a variable.
+   	 */
+  	void set_var2subscript_mapping ( std::vector<int>& v );
+  	
+  	/**
+  	 * Return True if at index idx the constraint is declared with a variable.
+  	 * Return False otherwise.
+  	 */
+  	bool is_variable_at_index ( int idx ) const;
   
   /**
    * Get the size of the scope of this constraint,

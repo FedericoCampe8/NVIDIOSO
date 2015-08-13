@@ -1,9 +1,9 @@
 //
 //  simple_solution_manager.cpp
-//  NVIDIOSO
+//  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 09/08/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 #include "simple_solution_manager.h"

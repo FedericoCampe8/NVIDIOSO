@@ -159,8 +159,8 @@ SimpleHeuristic::get_choice_variable ( int index )
 
 
 int
-SimpleHeuristic::get_choice_value () {
-  
+SimpleHeuristic::get_choice_value () 
+{  
   // Consistency check
   if ( (_current_index < 0) ||
        (_current_index >= _fd_variables.size()) ) {

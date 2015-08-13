@@ -3,7 +3,7 @@
 //  NVIDIOSO
 //
 //  Created by Federico Campeotto on 09/07/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 #include "int_domain.h"
@@ -59,9 +59,11 @@ IntDomain::get_domain_status () const {
 
 string
 IntDomain::get_string_representation () const {
-  string domain_str = "";
-  for ( int i = lower_bound(); i <= upper_bound(); i++ ) {
-    if ( contains ( i ) ) {
+  string domain_str{};
+  for ( int i = lower_bound (); i <= upper_bound (); i++ ) 
+  {
+    if ( contains ( i ) ) 
+    {
       ostringstream convert;
       convert << i;
       domain_str += convert.str();

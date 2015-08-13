@@ -2,8 +2,8 @@
 //  cuda_concrete_domain.cpp
 //  NVIDIOSO
 //
-//  Created by Federico Campeotto on 15/07/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Created by Federico Campeotto on 07/15/14.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 #include "cuda_concrete_domain.h"
@@ -33,26 +33,29 @@ CudaConcreteDomain::~CudaConcreteDomain () {
   free( _concrete_domain );
 }//~CudaConcreteDomain
 
-
 int
-CudaConcreteDomain::lower_bound () const {
-  return _lower_bound;
+CudaConcreteDomain::lower_bound () const 
+{
+	return _lower_bound;
 }//lower_bound
 
 //! Returns upper bound
 int
-CudaConcreteDomain::upper_bound () const {
-  return _upper_bound;
+CudaConcreteDomain::upper_bound () const 
+{
+	return _upper_bound;
 }//upper_bound
 
 int
-CudaConcreteDomain::get_num_chunks () const {
-  return _num_chunks;
+CudaConcreteDomain::get_num_chunks () const 
+{
+	return _num_chunks;
 }//get_num_chunks
 
 size_t
-CudaConcreteDomain::allocated_bytes () const {
-  return ( get_num_chunks () * sizeof( int ) );
+CudaConcreteDomain::allocated_bytes () const 
+{
+	return ( get_num_chunks () * sizeof( int ) );
 }//get_alloc_bytes
 
 void

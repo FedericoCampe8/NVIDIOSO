@@ -155,7 +155,7 @@ CPStore::init_model ()
     }
   
     // Constraint store
-    LogMsg << _dbg + "add a constraint store to the model" << std::endl;
+    LogMsg << _dbg + "add constraint store to the model" << std::endl;
     try
     {
         _cp_model->add_constraint_store( generator->get_store ( nullptr ) );

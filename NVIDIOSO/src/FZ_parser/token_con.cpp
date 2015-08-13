@@ -199,6 +199,7 @@ TokenCon::set_token ( std::string& token_str )
   	{
   		add_expr ( expression );
   	}
+  	
   	return true;
 }//set_token
 
@@ -230,8 +231,9 @@ TokenCon::get_con_id () const {
 }//get_con_id
 
 void 
-TokenCon::add_expr ( string expr ) {
-  _exprs.push_back( expr );
+TokenCon::add_expr ( string expr ) 
+{
+	_exprs.push_back( expr );
 }//add_expr
 
 int
@@ -246,7 +248,8 @@ TokenCon::get_expr ( int idx ) const {
 }//get_expr
 
 const std::vector<std::string>
-TokenCon::get_expr_array () {
+TokenCon::get_expr_array () 
+{
   return _exprs;
 }//get_expr_array
 
@@ -336,7 +339,8 @@ TokenCon::get_expr_var_elements_array () {
 }//get_expr_var_elements_array
 
 const std::vector<std::string>
-TokenCon::get_expr_not_var_elements_array () {
+TokenCon::get_expr_not_var_elements_array () 
+{
   vector<string> all_elements = get_expr_elements_array ();
   vector<string> all_variable = get_expr_var_elements_array ();
   vector<string> all_non_vars;
