@@ -128,7 +128,7 @@ Constraint::set_var2subscript_mapping ( std::vector<int>& v )
 }//set_var2subscript_mapping
 
 bool 
-Constraint::is_variable_at_index ( int idx ) const
+Constraint::is_variable_at ( int idx ) const
 {
 	assert ( idx >= 0 && idx < _var2subscription_map.size () );
 	return _var2subscription_map [ idx ] == 1;

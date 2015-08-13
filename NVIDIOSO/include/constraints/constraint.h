@@ -234,7 +234,7 @@ public:
   	 * Return True if at index idx the constraint is declared with a variable.
   	 * Return False otherwise.
   	 */
-  	bool is_variable_at_index ( int idx ) const;
+  	bool is_variable_at ( int idx ) const;
   
   /**
    * Get the size of the scope of this constraint,
