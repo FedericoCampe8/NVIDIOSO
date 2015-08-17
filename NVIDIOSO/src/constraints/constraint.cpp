@@ -58,7 +58,6 @@ Constraint::is_unary () const
 	return (get_scope_size() == 1);
 }//is_unary
 
-
 bool
 Constraint::is_global () const 
 {
@@ -135,18 +134,27 @@ Constraint::is_variable_at ( int idx ) const
 }//is_variable_at_index
 
 size_t
-Constraint::get_scope_size () const {
+Constraint::get_scope_size () const 
+{
   return scope().size();
 }//get_scope_size
 
 size_t
-Constraint::get_arguments_size () const {
+Constraint::get_arguments_size () const 
+{
   return _arguments.size ();
 }//get_arguments_size
 
 void
-Constraint::set_event ( EventType event ) {
-  _trigger_events.push_back ( event );
+Constraint::set_event ( EventType event ) 
+{
+	_trigger_events.push_back ( event );
+}//set_events
+
+void
+Constraint::unset_event () 
+{
+	_trigger_events.clear ();
 }//set_events
 
 const std::vector<EventType>&

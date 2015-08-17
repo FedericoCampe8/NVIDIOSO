@@ -34,14 +34,20 @@ namespace CudaConstraintFactory {
      * @param size number of constraints stored in constraint_description
      * @param domain_index indeces of the "beginning" of each variable's domain
      * @param domain_states array containing all domains
+     * @param constraint_aux_info pointer to the array of auxiliary information 
+     *        needed in order to propagate constraints (e.g., tables, arrays, etc.).   
      */
     __global__ void
     cuda_constrain_factory (  int* constraint_description, size_t size,
-                              int* domain_index, uint* domain_states )
+                              int* domain_index, uint* domain_states, 
+                              int* constraint_aux_info = nullptr )
     {
         // Allocate memory for pointers to constraint instancs
         G_DEV_CONSTRAINTS_ARRAY = (CudaConstraint**) malloc ( size * sizeof ( CudaConstraint* ) );
-
+		
+		// Allocate memory for auxiliary information such as tables and arrays
+		G_DEV_AUX_INFO_ARRAY = constraint_aux_info;
+		
         // Instantiate constriants on device
         int index = 0;
         int c_id;

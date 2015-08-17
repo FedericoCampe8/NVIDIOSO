@@ -70,8 +70,8 @@ CudaDomain::init_domain ( int min, int max )
   }
   else 
   {
+  	_num_int_chunks      = MAX_DOMAIN_VALUES;
     _num_allocated_bytes = MAX_BYTES_SIZE;
-    _num_int_chunks      = MAX_DOMAIN_VALUES;
     
     // Create domains representations
     _domain = new int [ _num_allocated_bytes / sizeof( int ) ];
@@ -80,12 +80,12 @@ CudaDomain::init_domain ( int min, int max )
     {
       vector < pair < int, int > > bounds_list;
       bounds_list.push_back( make_pair( min, max ) );
-      _concrete_domain = make_shared<CudaConcreteBitmapList>( _num_allocated_bytes, bounds_list);
+      _concrete_domain = make_shared<CudaConcreteBitmapList>( _num_allocated_bytes - MAX_STATUS_SIZE, bounds_list);
       set_bitlist_representation ();
     }
     else 
     {
-      _concrete_domain = make_shared<CudaConcreteDomainList>( _num_allocated_bytes, min, max );
+      _concrete_domain = make_shared<CudaConcreteDomainList>( _num_allocated_bytes - MAX_STATUS_SIZE, min, max );
       set_list_representation ();
     }
   }
@@ -198,18 +198,24 @@ CudaDomain::reset_event () {
 }//reset_event
 
 void
-CudaDomain::set_domain_status ( void * concrete_domain ) {
-  if ( concrete_domain == nullptr ) {
-    throw NvdException("Can't set new concrete domain.");
-  }
+CudaDomain::set_domain_status ( void * concrete_domain ) 
+{
+	// Sanity check
+	if ( concrete_domain == nullptr ) 
+	{
+    	throw NvdException("Can't set new concrete domain.");
+  	}
   
-  memcpy( _domain, concrete_domain, allocated_bytes() );
-  int * const dom_ptr = (int *) concrete_domain;
-  _concrete_domain->set_domain ( (void *) &dom_ptr[ BIT_IDX() ],  
-                            	_domain[ REP_IDX() ],
-                            	_domain[ LB_IDX()  ],
-                                _domain[ UB_IDX()  ],
-                            	_domain[ DSZ_IDX() ] );                     	
+  	// Copy the whole domain into a raw array of memory
+  	memcpy( _domain, concrete_domain, allocated_bytes() );
+  	int * const dom_ptr = (int *) concrete_domain;
+  	
+  	// Set domain and parameters
+  	_concrete_domain->set_domain ( (void *) &dom_ptr[ BIT_IDX() ],  
+                            		_domain[ REP_IDX() ],
+                            		_domain[ LB_IDX()  ],
+                                	_domain[ UB_IDX()  ],
+                            		_domain[ DSZ_IDX() ] );                     	
 }//set_domain_status
 
 size_t
@@ -224,28 +230,33 @@ CudaDomain::get_domain_status () const {
 }//get_domain_status
 
 const int *
-CudaDomain::get_concrete_domain () const {
+CudaDomain::get_concrete_domain () const 
+{ 
+	/*
+	 * Copy the actual status of the domain.
+	 * @note allocated_bytes() returns the number of bytes allocated
+	 *       only for _concrete_domain. 
+	 */
+  	memcpy( (void *) &_domain[ BIT_IDX() ],
+          	(void *) _concrete_domain->get_representation(),
+          	_concrete_domain->allocated_bytes() ); 
+          	
+  	/*
+   	 * Set every parameter with the most recent values.
+   	 * @note event already set at this time.
+	 */
+  	_domain[ REP_IDX() ] = _concrete_domain->get_id_representation ();
+  	_domain[ LB_IDX()  ] = _concrete_domain->lower_bound ();
+  	_domain[ UB_IDX()  ] = _concrete_domain->upper_bound ();
+  	_domain[ DSZ_IDX() ] = _concrete_domain->size();
 
-  // Copy the actual status of the domain
-  memcpy( (void *) &_domain[ BIT_IDX() ],
-          (void *) _concrete_domain->get_representation(),
-          _concrete_domain->allocated_bytes() );
-  
-  /*
-   * Set every parameter with the most recent values.
-   * @note event already set at this time.
-   */
-  _domain[ REP_IDX() ] = _concrete_domain->get_id_representation ();
-  _domain[ LB_IDX()  ] = _concrete_domain->lower_bound ();
-  _domain[ UB_IDX()  ] = _concrete_domain->upper_bound ();
-  _domain[ DSZ_IDX() ] = _concrete_domain->size();
-
-  return _domain;
+	return _domain;
 }//get_concrete_domain
 
 size_t
-CudaDomain::get_size () const {
-  return ( (int) _domain[ DSZ_IDX() ] );
+CudaDomain::get_size () const 
+{
+	return ( (int) _domain[ DSZ_IDX() ] );
 }//get_size
 
 void
@@ -262,7 +273,7 @@ CudaDomain::shrink ( int min, int max ) {
     return;
   }
   
-  // Domain failure: out or range
+  // Domain failure: out of range
   if ( _domain[ UB_IDX() ] < min || _domain[ LB_IDX() ] > max ) {
     event_to_int ( EventType::FAIL_EVT );
     return;
@@ -314,8 +325,9 @@ CudaDomain::shrink ( int min, int max ) {
    * if the sum of elements is <= VECTOR_MAX ->
    * switch representation to bitmap list.
    */
-  if ( _domain [ DSZ_IDX() ] <= VECTOR_MAX ) {
-    switch_list_to_bitmaplist ();
+  if ( _domain [ DSZ_IDX() ] <= VECTOR_MAX ) 
+  {
+	switch_list_to_bitmaplist ();
   }
   
   _domain[ REP_IDX() ] = _concrete_domain->get_id_representation();
@@ -352,7 +364,7 @@ CudaDomain::switch_list_to_bitmaplist () {
   make_shared<CudaConcreteBitmapList>( _num_allocated_bytes, pairs );
   
   set_bitlist_representation ( (int) pairs.size() );
-}//switch_list_to_bitmap
+}//switch_list_to_bitmaplist
 
 bool
 CudaDomain::set_singleton ( int value ) {
@@ -372,15 +384,18 @@ CudaDomain::set_singleton ( int value ) {
 }//set_singleton
 
 bool
-CudaDomain::subtract ( int value ) {
+CudaDomain::subtract ( int value ) 
+{
   
-  if ( _concrete_domain->contains( value ) ) {
-    // Subtract the current value
+  if ( _concrete_domain->contains( value ) ) 
+  {
+	// Subtract the current value
     _concrete_domain->subtract ( value );
     
     // Check for events on domain.
     // Empty domain
-    if ( _concrete_domain->is_empty () ) {
+    if ( _concrete_domain->is_empty () ) 
+    {
       _domain [ DSZ_IDX() ] =  0;
       _domain [ LB_IDX() ]  =  1;
       _domain [ UB_IDX() ]  = -1;
@@ -389,7 +404,8 @@ CudaDomain::subtract ( int value ) {
     }
     
     // Singleton domain
-    if ( _concrete_domain->is_singleton () ) {
+    if ( _concrete_domain->is_singleton () ) 
+    {
       _domain [ LB_IDX() ]  = _concrete_domain->get_singleton ();
       _domain [ UB_IDX() ]  = _concrete_domain->get_singleton ();
       _domain [ DSZ_IDX() ] = 1;
@@ -398,18 +414,21 @@ CudaDomain::subtract ( int value ) {
     }
     
     // Change on bounds
-    if ( value == _domain [ LB_IDX() ] ) {
+    if ( value == _domain [ LB_IDX() ] ) 
+    {
       _domain [ LB_IDX() ]  = _concrete_domain->lower_bound ();
       _domain [ DSZ_IDX() ] = _concrete_domain->size();
       _domain [ EVT_IDX() ] = static_cast<int>( EventType::MIN_EVT );
       
     }
-    else if ( value == _domain [ UB_IDX () ] ) {
-      _domain [ LB_IDX() ]  = _concrete_domain->upper_bound ();
+    else if ( value == _domain [ UB_IDX () ] ) 
+    {
+      _domain [ UB_IDX() ]  = _concrete_domain->upper_bound ();
       _domain [ DSZ_IDX() ] = _concrete_domain->size();
       _domain [ EVT_IDX() ] = static_cast<int>( EventType::MAX_EVT );
     }
-    else {
+    else 
+    {
       _domain [ LB_IDX() ]  = _concrete_domain->lower_bound ();
       _domain [ UB_IDX() ]  = _concrete_domain->upper_bound ();
       _domain [ DSZ_IDX() ] -= 1;
@@ -421,8 +440,9 @@ CudaDomain::subtract ( int value ) {
      * if the sum of elements is <= VECTOR_MAX ->
      * switch representation to bitmap list.
      */
-    if ( _domain [ DSZ_IDX() ] <= VECTOR_MAX ) {
-      switch_list_to_bitmaplist ();
+    if ( _domain [ DSZ_IDX() ] <= VECTOR_MAX ) 
+    {
+    	switch_list_to_bitmaplist ();
     }
     
     _domain[ REP_IDX() ] = _concrete_domain->get_id_representation();

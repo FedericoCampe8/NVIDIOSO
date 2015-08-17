@@ -1,9 +1,9 @@
 //
 //  cuda_concrete_bitmaplist.h
-//  NVIDIOSO
+//  iNVIDIOSO
 //
-//  Created by Federico Campeotto on 17/07/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Created by Federico Campeotto on 07/17/14.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 //  This class is the concrete implementation of the
 //  cuda_concrete_domain considering list of bitmaps

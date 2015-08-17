@@ -16,6 +16,10 @@
 
 class CudaConcreteDomainBitmap : public CudaConcreteDomain { 
 private:
+	
+  //! Offset used to shift domain to 0..VECTOR_MAX
+  int _offset;	
+
   /**
    * Initial lower bound
    * @note this bound is used to check consistecy on

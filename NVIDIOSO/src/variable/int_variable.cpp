@@ -58,8 +58,9 @@ IntVariable::set_domain_type ( DomainType  dt ) {
 }//set_domain
 
 size_t
-IntVariable::get_size () const {
-  return _domain_ptr->get_size();
+IntVariable::get_size () const 
+{
+	return _domain_ptr->get_size();
 }//get_size
 
 bool
@@ -68,8 +69,9 @@ IntVariable::is_singleton () const {
 }//is_singleton
 
 bool
-IntVariable::is_empty () const {
-  return (get_size() == 0);
+IntVariable::is_empty () const 
+{
+	return (get_size() == 0);
 }//is_empty
 
 int
@@ -90,10 +92,11 @@ IntVariable::shrink ( int min, int max )
 }//shrink
 
 bool
-IntVariable::subtract ( int val ) {
-  bool result = _domain_ptr->subtract ( val );
-  notify_observers ();
-  return result;
+IntVariable::subtract ( int val ) 
+{
+	bool result = _domain_ptr->subtract ( val );
+  	notify_observers ();
+  	return result;
 }//subtract
 
 void

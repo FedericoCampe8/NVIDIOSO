@@ -236,7 +236,7 @@ DepthFirstSearch::labeling ()
   if ( _solution_manager == nullptr ) {
     throw NvdException( (_dbg + "No Solution Listener").c_str() );
   }
-  
+
   /*
    * Initial consistency on constraints into the store.
    * @note Exit asap if the problem is unsatisfiable and
@@ -270,9 +270,9 @@ DepthFirstSearch::labeling ()
     	 *       The following labeling will notify the backtrack manager which 
     	 *       will store a modified domain (i.e., the singleton) without storing
     	 *       the actual domain of the labeled variable.
-    	 */
+    	 */ 
     	_backtrack_manager->force_storage (); 
-    	
+    	  
     	// Start exploring the search tree from level 0
 		search_consistent = label( 0 );
     }
@@ -312,7 +312,7 @@ bool
 DepthFirstSearch::label( int var_idx ) 
 {
   if ( search_out() ) return false;
-  
+
   Variable * var;
   int value = 0;
   bool consistent;
@@ -327,7 +327,7 @@ DepthFirstSearch::label( int var_idx )
   }
   
   consistent = _store->consistency ();
-  
+
   if ( _time_watcher )
   {
     statistics.stopwatch_and_add ( Statistics::TIMING::FILTERING );
@@ -385,7 +385,7 @@ DepthFirstSearch::label( int var_idx )
       {
     	LogMsg << _dbg << "-- Label = " << value << " -- " << endl;
 	  }
-
+	
       /*
        * Here it comes the actual labeling.
        * @note care must be taken for non int variables (e.g. set, float).

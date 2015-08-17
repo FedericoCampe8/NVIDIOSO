@@ -23,6 +23,7 @@ GlobalConstraintRegister& glb_constraint_register = GlobalConstraintRegister::ge
 CudaGenerator::CudaGenerator () :
     _dbg( "CudaGenerator - " )
 {
+	_obj_var = nullptr;
 	LogMsg << _dbg + "Instantiate a model generator" << endl;
 }//CudaGenerator
 
@@ -176,7 +177,13 @@ CudaGenerator::get_variable ( UTokenPtr tkn_ptr )
   
     // Store the string id of the current variable in the lookup table.
     _var_lookup_table [ var_ptr->get_str_id() ] = var_ptr;
-  
+	
+	// Store obj var
+	if ( ptr->is_objective_var () )
+    {
+		_obj_var = var_ptr;
+	}
+	
     return var_ptr;
 }//get_variable
 
@@ -312,11 +319,55 @@ CudaGenerator::get_search_engine ( UTokenPtr tkn_ptr )
         return nullptr;
     }
     
+    TokenSol * ptr = static_cast<TokenSol *> ( tkn_ptr.get() );
+    
+    //Sanity check
+    assert ( ptr != nullptr );
+    
     // Variables to label
     vector< Variable * > variables;
-    for ( auto var : _var_lookup_table )
+    
+    std::string label_choice = ptr->get_label_choice ();
+    std::vector< std::string > vars_to_label = ptr->get_var_to_label();
+    if ( label_choice != "" )
     {
-        variables.push_back ( (var.second).get() );
+    	for ( auto var : _var_lookup_table )
+    	{
+    		std::string var_in_array{};
+    		std::size_t found = var.first.find ( "[" );
+    		if ( found != std::string::npos )
+    		{
+    			var_in_array = var.first.substr ( 0, found );
+    		}
+    		
+    		if ( var.first == label_choice || var_in_array == label_choice )
+    		{
+        		variables.push_back ( (var.second).get() );
+        	}
+    	}
+    }
+    else if ( vars_to_label.size() != 0 )
+    {
+    	for ( auto var : vars_to_label )
+    	{
+    		auto it = _var_lookup_table.find ( var );
+    		if ( it != _var_lookup_table.end () )
+    		{
+    			variables.push_back ( (it->second).get() );
+    		}
+    	}
+    }
+    else
+    {
+    	for ( auto var : _var_lookup_table )
+    	{	
+    		// Do not label objective variable
+    		if ( _obj_var != nullptr && var.first == _obj_var->get_str_id () )
+    		{
+    			continue;
+    		}
+        	variables.push_back ( (var.second).get() );
+    	}
     }
   
     struct  SortingFunction
@@ -329,8 +380,7 @@ CudaGenerator::get_search_engine ( UTokenPtr tkn_ptr )
   
     // Get search engine according to the input model
     SearchEnginePtr engine =
-        FZNSearchFactory::get_fzn_search_shr_ptr ( variables,
-                                                   static_cast<TokenSol * >(tkn_ptr.get()) );
+        FZNSearchFactory::get_fzn_search_shr_ptr ( variables, ptr );
     variables.clear ();
 
     // Set solver parameters

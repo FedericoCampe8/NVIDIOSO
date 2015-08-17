@@ -1,17 +1,21 @@
 //
 //  cuda_concrete_list.h
-//  NVIDIOSO
+//  iNVIDIOSO
 //
-//  Created by Federico Campeotto on 15/07/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Created by Federico Campeotto on 07/15/14.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 //  This class is the concrete implementation of the
 //  cuda_concrete_domain considering list of pairs
 //  {min, max} of contiguous domain's elements.
-//  @note This class does not use an actual list data structure.
-//        Instead, it uses a domain bitmap representation.
+//  @note This class does not use a list data structure.
+//        Instead, it uses an array of bits read as pairs of bounds.
 //        This is done in order to write C code that could be used
 //        later on CUDA kernels.
+//  @note The number of pairs actually stored into the bitmap list is saved
+//        into the "_num_pairs" member. 
+//        _concrete_domain will store _num_pairs pairs of bounds at positions
+//        2*i and 2*i + 1, where 0 <= i < _num_pairs.
 //
 
 #ifndef NVIDIOSO_cuda_concrete_list_h
@@ -48,8 +52,29 @@ protected:
    * i.e., sum of the elements on each 
    * pair of bounds in the list.
    */
-  unsigned int _domain_size;
+  std::size_t _domain_size;
   
+  /**
+   * Get number of elements within a given pair of bounds.
+   * @param idx index of the pair of bounds to consider.
+   * @return number of elements in the between the pair of bounds.
+   */
+  int get_elements_in_bound ( int idx );
+  
+  //! Return number of elements in [min, max]
+  size_t get_size_from_values ( int min, int max );
+   
+  /**
+   * Get size of domain calculated as sum of elements between each
+   * pair of bounds in the range (lower_pair, upper_pair).
+   * @param lower_pair index of the pair from where to start counting
+   * @param upper_pair index of the pair where to stop counting
+   * @return number of elements between the two pairs of bounds.
+   * @note The number of elements returned by this function represents
+   *       a number of elements which are not currently contained in this domain.
+   */
+   size_t get_size_from_bounds_btw ( int lower_pair, int upper_pair );
+   
   /**
    * Find the index of the pair containing val.
    * @param val to be searched in the list of pairs.
@@ -97,7 +122,7 @@ public:
                     int rep, int min, int max, int dsz ) override;
   
   //! It returns the current size of the domain.
-  unsigned int size () const;
+  unsigned int size () const override;
   
   /**
 	 * It updates the domain to have values only within min/max.

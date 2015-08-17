@@ -20,6 +20,9 @@ extern GlobalConstraintRegister& glb_constraint_register;
 class CudaGenerator : public ModelGenerator {
 private:
 
+	//! Objective variable if any
+	VariablePtr _obj_var;
+	
 	//! This hash table is used to link (string) ids to aux arrays.
     std::unordered_set<std::string>  _arr_lookup_table;
     

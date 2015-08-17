@@ -39,8 +39,8 @@ protected:
   
   /*
    * === Information for parallel implementation (following CUDA model) ===
-   * The following members are not needed for sequential implemenation.
-   * However, they can be used, as information, for a parallel
+   * Following members are not needed for sequential implementation.
+   * However, they can be used as information for a parallel
    * implementation of this global constraint.
    * ======================================================================
    */

@@ -1,6 +1,6 @@
 //
 //  cuda_concrete_bitmap.cpp
-//  NVIDIOSO
+//  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 07/15/14.
 //  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
@@ -11,24 +11,32 @@
 
 CudaConcreteDomainBitmap::CudaConcreteDomainBitmap ( size_t size ) :
 CudaConcreteDomain ( size ) {
-  _dbg = "CudaConcreteDomainBitmap - ";
+	_dbg = "CudaConcreteDomainBitmap - ";
   
-  // Initialize bitmap
-  for ( int i = 0; i < _num_chunks; i++ ) 
-  {
-    _concrete_domain[ i ] = 0xffffffff;
-  }
+  	assert ( sizeof(int) == 4 );
+  	
+  	// Initialize bitmap
+  	for ( int i = 0; i < _num_chunks; i++ ) 
+  	{
+    	_concrete_domain[ i ] = 0xffffffff;
+    	/*
+    	 * @note use the following
+    	 *			uint base_value{};
+    	 *			_concrete_domain[ i ] = ~base_value;
+    	 *       to avoid issues with 64 bit integers.
+    	 */
+  	}
   
-  // All valid bits
-  _num_valid_bits = _num_chunks * BITS_IN_CHUNK;
+  	// All valid bits
+  	_num_valid_bits = _num_chunks * BITS_IN_CHUNK;
   
-  // Set current lower/upper bounds
-  _lower_bound = 0;
-  _upper_bound = _num_valid_bits - 1;
+  	// Set current lower/upper bounds
+  	_lower_bound = 0;
+  	_upper_bound = _num_valid_bits - 1;
 
-  // Set initial lower/upper bounds
-  _init_lower_bound = _lower_bound;
-  _init_upper_bound = _upper_bound;
+  	// Set initial lower/upper bounds
+  	_init_lower_bound = _lower_bound;
+  	_init_upper_bound = _upper_bound;
 }//CudaConcreteDomainBitmap
 
 CudaConcreteDomainBitmap::CudaConcreteDomainBitmap ( size_t size, int min, int max ) :
@@ -45,9 +53,20 @@ CudaConcreteDomainBitmap::CudaConcreteDomainBitmap ( size_t size, int min, int m
   	if ( _init_lower_bound >= min && _init_upper_bound <= max ) return;
   
   	// Both are within allowed bounds
+  	_offset           = 0;
   	_init_lower_bound = min;
   	_init_upper_bound = max;
 
+	// Set offset 
+	if ( _init_lower_bound < 0 )
+	{
+		_offset = abs ( _init_lower_bound );
+	}
+	else if ( _init_lower_bound > VECTOR_MAX )
+	{
+		_offset = -_init_lower_bound;
+	}
+	
   	// Shrink domain
   	shrink ( min, max );
 }//CudaConcreteDomainBitmap
@@ -55,12 +74,12 @@ CudaConcreteDomainBitmap::CudaConcreteDomainBitmap ( size_t size, int min, int m
 void
 CudaConcreteDomainBitmap::set_domain ( void * const domain, int rep, int min, int max, int dsz ) 
 {
-  CudaConcreteDomain::set_domain( domain, rep, min, max, dsz );
-  /*
-   * Set also the current size counting the number of valid bits since 
-   * the size is retrieved from _num_valid_bits.
-   */
-   _num_valid_bits = dsz;
+	CudaConcreteDomain::set_domain( domain, rep, min, max, dsz );
+  	/*
+   	 * Set also the current size counting the number of valid bits since 
+   	 * the size is retrieved from _num_valid_bits.
+   	 */
+   	_num_valid_bits = dsz;
 }//set_domain
 
 unsigned int
@@ -72,22 +91,14 @@ CudaConcreteDomainBitmap::size () const
 int
 CudaConcreteDomainBitmap::lower_bound () const 
 {
-	if ( _init_lower_bound < 0 )
-  	{
-  		return _lower_bound - abs ( _init_lower_bound ); 
-  	}
-	return _lower_bound;
+	return _lower_bound - _offset;
 }//lower_bound
 
 //! Returns upper bound
 int
 CudaConcreteDomainBitmap::upper_bound () const 
 {
-	if ( _init_lower_bound < 0 )
-  	{
-  		return _upper_bound - abs ( _init_lower_bound ); 
-  	}
-	return _upper_bound;
+	return _upper_bound - _offset;
 }//upper_bound
 
 void
@@ -99,19 +110,16 @@ CudaConcreteDomainBitmap::shrink ( int min, int max )
     	flush_domain ();
     	return;
   	}
-  	
-  	if ( _init_lower_bound < 0 ) 
-  	{
-  		min += abs ( _init_lower_bound );
-  		max += abs ( _init_lower_bound );
-  	}
+
+  	min += _offset;
+  	max += _offset;
   	
   	// Check min/max value consistency
   	if ( min == _lower_bound && max == _upper_bound ) return;
   
   	// Return if no chages in the domain
   	if ( (min <= _lower_bound) && (max >= _upper_bound) ) return;
-  
+
   	// Set min/max w.r.t. the current bounds
   	if ( (min < _lower_bound) && (max < _upper_bound) )
   	{
@@ -157,24 +165,24 @@ CudaConcreteDomainBitmap::shrink ( int min, int max )
   	_lower_bound    = min;
   	_upper_bound    = max;
   	_num_valid_bits = num_bits;
-  
+
   	// Check whether the domain is empty after shrinking it
   	if ( _num_valid_bits == 0 ) set_empty ();
-}//shrink
+}//shrink 
 
 void
 CudaConcreteDomainBitmap::subtract ( int value ) 
-{
-	if ( _init_lower_bound < 0 ) value += abs ( _init_lower_bound );
-	
+{ 
+	value += _offset;
+
   	// Sanity check
   	if ( value < _lower_bound || value > _upper_bound ) return;
   
   	// Find the chunk and the position of the bit within the chunk
   	int chunk = IDX_CHUNK ( value );
   	chunk = _num_chunks - 1 - chunk;
-  	if ( !CudaBitUtils::get_bit( _concrete_domain[ chunk ], IDX_BIT( value ) ) )
-    	return;
+  	if ( !CudaBitUtils::get_bit( _concrete_domain[ chunk ], IDX_BIT( value ) ) ) 
+  		return;
   
   	_concrete_domain[ chunk ] = CudaBitUtils::clear_bit( _concrete_domain[ chunk ], IDX_BIT( value ) );
   
@@ -187,9 +195,10 @@ CudaConcreteDomainBitmap::subtract ( int value )
     	set_empty ();
     	return;
   	}
-
+ 
   	//Check for singleton
-  	if ( _num_valid_bits == 1 ) {
+  	if ( _num_valid_bits == 1 ) 
+  	{
     	if ( _lower_bound == value ) 
     	{
       		_lower_bound = _upper_bound;
@@ -207,11 +216,11 @@ CudaConcreteDomainBitmap::subtract ( int value )
     	while ( true ) 
     	{
       		value++;
-      	if ( contains ( value ) ) 
-      	{
-        	_lower_bound = value;
-        	return;
-      	}
+      		if ( contains ( value - _offset ) ) 
+      		{
+        		_lower_bound = value;
+        		return;
+      		}
     	}
   	}
   
@@ -220,7 +229,7 @@ CudaConcreteDomainBitmap::subtract ( int value )
     	while ( true ) 
     	{
       		value--;
-      		if ( contains( value ) ) 
+      		if ( contains( value - _offset ) ) 
       		{
         		_upper_bound = value;
         		return;
@@ -232,29 +241,26 @@ CudaConcreteDomainBitmap::subtract ( int value )
 void
 CudaConcreteDomainBitmap::in_min ( int min ) 
 {
-	if ( _init_lower_bound < 0 ) 
-		min += abs ( _init_lower_bound );
+	min += _offset;
 		
 	if ( min <= _lower_bound ) return;
-  	shrink ( min, _upper_bound );
+  	shrink ( min - _offset, _upper_bound + _offset );
 }//in_min
 
 void
 CudaConcreteDomainBitmap::in_max ( int max ) 
 {
-	if ( _init_lower_bound < 0 ) 
-		max += abs ( _init_lower_bound );
-		
+	max += _offset;
+
 	if ( max >= _upper_bound ) return;
-  	shrink ( _lower_bound, max );
+  	shrink ( _lower_bound + _offset, max - _offset );
 }//in_max
 
 void
 CudaConcreteDomainBitmap::add ( int value ) 
 {
-	if ( _init_lower_bound < 0 ) 
-		value += abs ( _init_lower_bound );
-	
+	value += _offset;
+
 	// Sanity check
   	if ( value < _init_lower_bound ) value = _init_lower_bound;
   	if ( value > _init_upper_bound ) value = _init_upper_bound;
@@ -282,11 +288,8 @@ CudaConcreteDomainBitmap::add ( int value )
 void
 CudaConcreteDomainBitmap::add ( int min, int max ) 
 {
-	if ( _init_lower_bound < 0 ) 
-	{
-		min += abs ( _init_lower_bound );
-		max += abs ( _init_lower_bound );
-	}
+	min += _offset;
+	max += _offset;
 	
   	// Sanity check
   	if ( min < _init_lower_bound ) min = _init_lower_bound;
@@ -299,8 +302,7 @@ CudaConcreteDomainBitmap::add ( int min, int max )
 bool
 CudaConcreteDomainBitmap::contains ( int value ) const 
 {
-	if ( _init_lower_bound < 0 ) 
-		value += abs ( _init_lower_bound );
+	value += _offset;
 	
 	int chunk = IDX_CHUNK ( value );
   	chunk = _num_chunks - 1 - chunk;
@@ -321,18 +323,14 @@ CudaConcreteDomainBitmap::get_singleton () const
     	throw NvdException ( (_dbg + "Domain not singleton").c_str() );
   	}
   	
-  	if ( _init_lower_bound < 0 )
-  	{
-  		return _lower_bound - abs ( _init_lower_bound ); 
-  	}
-  	return _lower_bound;
+  	return _lower_bound - _offset;
 }//get_singleton
 
 int
 CudaConcreteDomainBitmap::get_id_representation () const 
 {
 	return 0;
-}
+}//get_id_representation
 
 void
 CudaConcreteDomainBitmap::print () const 

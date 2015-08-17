@@ -38,6 +38,7 @@ CudaCPModel::~CudaCPModel ()
   	logger.cuda_handle_error ( cudaFree( _d_domain_index ) );
   	logger.cuda_handle_error ( cudaFree( _d_domain_states_aux ) );
   	logger.cuda_handle_error ( cudaFree( d_constraint_description ) );
+  	logger.cuda_handle_error ( cudaFree( d_constraint_aux_info ) );
 #endif
 
 }//~CudaCPModel 
@@ -274,15 +275,31 @@ CudaCPModel::alloc_constraints ()
       return false;
   }
   
+  // Allocate and copy auxiliary information on device
+  size_t aux_info_size = 0;
+  for ( auto& elem: _auxiliary_info )
+  {
+	aux_info_size += elem.second.size();
+  }
+  
+  if ( logger.cuda_handle_error ( cudaMalloc ((void**)&d_constraint_aux_info,
+                                               aux_info_size * sizeof (int) ) ) ) 
+  {
+    return false;
+  }
+  
   LogMsg << _dbg + "Instantiate constraints on device" << std::endl;
 
-// Create constraints on device
-  CudaConstraintFactory::cuda_constrain_factory<<<1, 1>>> ( 
-      d_constraint_description, 
-      _constraints.size(),
-      _d_domain_index,
-      _d_domain_states );
+	// Instantiate constraints on device
+  	CudaConstraintFactory::cuda_constrain_factory<<<1, 1>>> 
+  	( 
+		d_constraint_description, 
+    	_constraints.size(),
+    	_d_domain_index,
+    	_d_domain_states 
+ 	);
   
+  // Sync. point
   cudaDeviceSynchronize ();
   
 #endif
@@ -301,20 +318,22 @@ CudaCPModel::upload_device_state ()
 
 #if CUDAON
 
-  int idx = 0;
-  for ( auto var : _variables ) 
-  { 
-      memcpy ( &_h_domain_states[idx], (uint*)( (var->domain_iterator)->get_domain_status() ).second,
-               ( (var->domain_iterator)->get_domain_status() ).first );
+	int idx = 0;
+  	for ( auto var : _variables ) 
+  	{ 
+		// Copy on _h_domain_states domains of all variables (i.e., current search status)
+      	memcpy ( &_h_domain_states[idx], 
+      		   	 (uint*)( (var->domain_iterator)->get_domain_status() ).second,
+               	 (var->domain_iterator->get_domain_status()).first );
       
-      idx += ( (var->domain_iterator)->get_domain_status() ).first / sizeof(int); 
-  }
-  if ( logger.cuda_handle_error ( cudaMemcpy (_d_domain_states, &_h_domain_states[ 0 ],
-                                              _domain_state_size, cudaMemcpyHostToDevice ) ) ) 
-  {
-      string err = _dbg + "Error updating device from host.\n";
-      throw NvdException ( err.c_str(), __FILE__, __LINE__ );
-  }
+      	idx += ( (var->domain_iterator)->get_domain_status() ).first / sizeof(int); 
+  	}
+  	if ( logger.cuda_handle_error ( cudaMemcpy (_d_domain_states, &_h_domain_states[ 0 ],
+                                              	_domain_state_size, cudaMemcpyHostToDevice ) ) ) 
+  	{
+      	string err = _dbg + "Error updating device from host.\n";
+      	throw NvdException ( err.c_str(), __FILE__, __LINE__ );
+  	}
   
 #endif
 

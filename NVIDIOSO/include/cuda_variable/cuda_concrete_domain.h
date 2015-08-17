@@ -1,9 +1,9 @@
 //
 //  CudaConcreteDomain.h
-//  NVIDIOSO
+//  iNVIDIOSO
 //
-//  Created by Federico Campeotto on 15/07/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Created by Federico Campeotto on 07/15/14.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 //  This class is an abstract class that implements the interface
 //  of a ConcreteDomain for a CUDA implementation.
@@ -37,7 +37,7 @@ protected:
    * @note actual internal representation of domain.
    */
   int * _concrete_domain;
-  
+   
   /**
    * Flush domain: reduces its domain size to zero by
    * flushing all values in the internal domain's representation.
@@ -107,16 +107,15 @@ public:
                     int rep, int min, int max, int dsz ) override;
   
   /**
-	 * It returns a void pointer to an object representing the
+   * It returns a void pointer to an object representing the
    * current representation of the domain (e.g., bitmap).
-	 * @return void pointer to the concrete domain representation.
-	 */
+   * @return void pointer to the concrete domain representation.
+   */
    const void * get_representation () const override;
   
   /**
    * Returns the current CUDA concrete domain's representation.
-   * @return an integer id indicating the current representation of 
-   *         this domain.
+   * @return an integer id indicating the current representation of this domain.
    */
   virtual int get_id_representation () const = 0;
 };

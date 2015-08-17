@@ -102,15 +102,16 @@ CudaCPModelSimple::upload_device_state ()
 
 #if CUDAON
 
-    int idx = 0, value;
+    int idx = 0, value, dom_rep;
     bool singleton;
     const uint * var_domain;
     for ( auto var : _variables )
     {	
         var_domain = static_cast<const uint *> ( ( (var->domain_iterator)->get_domain_status() ).second );
         singleton  = ( var_domain [ LB ] ==  var_domain [ UB ] );
-        value      = var_domain [ LB ];
-
+        value      = var_domain [ LB  ];
+		dom_rep    = var_domain [ REP ];
+		
         // Differentiate between Boolean domains and standard domains
         if ( _bool_var_lookup.find ( var->get_id() ) != _bool_var_lookup.end () )
         {
@@ -131,6 +132,16 @@ CudaCPModelSimple::upload_device_state ()
         {
             memcpy ( &_h_domain_states [ idx ], (uint*)( (var->domain_iterator)->get_domain_status() ).second,
                    ( (var->domain_iterator)->get_domain_status() ).first );
+        	
+        	/*
+        	 * Set bound representation if different from bit representation
+        	 * Used only one pair of bounds on CUDA.
+        	 */
+        	if ( dom_rep != BIT_REP )
+        	{
+        		_h_domain_states [ idx + REP ] = BND_REP;
+        	}
+        	
             if ( singleton )
             {
                 _h_domain_states [ idx ] = SNG_EVT;

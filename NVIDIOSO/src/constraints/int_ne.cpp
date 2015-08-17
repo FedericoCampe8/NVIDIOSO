@@ -164,14 +164,15 @@ IntNe::consistency () {
    * 2 FD variables: if one is singleton,
    * propagate on the other.
    */
-  if ( _scope_size == 2 ) {
-    if ( (_var_x->is_singleton()) &&
-         (!_var_y->is_singleton()) ) {
-      _var_y->subtract( _var_x->min () );
+  if ( _scope_size == 2 ) 
+  {
+	if ( (_var_x->is_singleton()) && (!_var_y->is_singleton()) ) 
+    {
+    	_var_y->subtract( _var_x->min () );
     }
-    else if ( (_var_y->is_singleton()) &&
-              (!_var_x->is_singleton()) ) {
-      _var_x->subtract( _var_y->min () );
+    else if ( (_var_y->is_singleton()) && (!_var_x->is_singleton()) ) 
+    {
+    	_var_x->subtract( _var_y->min () );
     }
     return;
   }
@@ -196,7 +197,7 @@ IntNe::satisfied ()
   	}
   
   	// 2 FD variables, if singleton check
-  	if ( (_scope_size == 2) &&
+  	if ( (_scope_size == 2) 	  &&
        	 (_var_x->is_singleton()) &&
        	 (_var_y->is_singleton()) ) 
     {
@@ -212,12 +213,11 @@ IntNe::satisfied ()
     	return false;
     }
     
-  	if ( (_scope_size == 2) && 
-       	 (_var_x->is_empty () || _var_y->is_empty () ) )
-	{
+  	if ( (_scope_size == 2) && (_var_x->is_empty () || _var_y->is_empty () ) )
+	{	
     	return false;
     }
-  
+
   	/*
    	 * Other cases: there is not enough information
    	 * to state whether the constraint is satisfied or not.

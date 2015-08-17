@@ -1,9 +1,9 @@
 //
 //  indomain_max_metric.cpp
-//  NVIDIOSO
+//  iNVIDIOSO
 //
-//  Created by Federico Campeotto on 11/08/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Created by Federico Campeotto on 08/11/14.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 #include "indomain_max_metric.h"
@@ -14,7 +14,8 @@ InDomainMax::InDomainMax () {
 }//InDomainMin
 
 int
-InDomainMax::metric_value ( Variable * var ) {
+InDomainMax::metric_value ( Variable * var ) 
+{
   return (var->domain_iterator)->max_val ();
 }//metric_value
 

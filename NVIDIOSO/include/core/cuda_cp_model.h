@@ -47,7 +47,7 @@ protected:
   size_t _domain_state_size;
   
   //! Domain (begin) index on device
-  int  *  _d_domain_index;
+  int * _d_domain_index;
   
   /**
    * Information related to constraints:
@@ -59,6 +59,9 @@ protected:
    * 6 - list of auxiliary arguments
    */
   int* d_constraint_description;
+  
+  //! Auxiliary information needed by constraints (e.g., table, array, etc.)
+  int* d_constraint_aux_info;
   
   //! Map from var id on host to var id on device
   std::map<int, int> _cuda_var_lookup;

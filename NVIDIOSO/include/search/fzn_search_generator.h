@@ -24,12 +24,16 @@ public:
   /**
    * Get the right instance of FlatZinc search method
    * according to its type described by the input string.
-   * @param variables a vector of pointers to all the variables in the model.
+   * @param variables a vector of pointers to all the variables to label.
    * @param search_tkn reference to a search token in order to
    *        define the right instance of search engine.
    */
   static  SearchEnginePtr get_fzn_search_shr_ptr ( std::vector< Variable * > variables,
-                                                   TokenSol * search_tkn ) {
+                                                   TokenSol * search_tkn ) 
+  {
+  	  // Sanity check
+  	  assert ( search_tkn != nullptr );
+  	  
       // Create a new search engine to set up
       SearchEnginePtr engine = std::make_shared<DepthFirstSearch> ();
     
@@ -46,7 +50,7 @@ public:
           std::string str_err = "Error in var goal settings\n";
           throw NvdException ( str_err.c_str(), __FILE__, __LINE__ );
       }
-      LogMsg << "Search Engine - Goal variable set: " + var_goal << std::endl;
+      //LogMsg << "Search Engine - Goal variable set: " + var_goal << std::endl;
     
       std::string solve_goal = search_tkn->get_solve_goal ();
       if ( solve_goal != "satisfy" )
@@ -66,11 +70,19 @@ public:
       LogMsg << "Search Engine - Search choice set: " + search_choice << std::endl;
       
       std::string label_choice = search_tkn->get_label_choice ();
-      if ( var_goal != "" )
+      if ( label_choice != "" )
       {
-          LogMsg << "Search on subset of variabls not yet implemented: " + label_choice << std::endl;
+          LogMsg << "Search Engine - Search labeling performed on variable: " << label_choice << std::endl;
       }
-      LogMsg << "Search Engine - Search labeling performed on all variables" << std::endl;
+      
+      std::vector< std::string > vars_to_label = search_tkn->get_var_to_label();
+      if ( vars_to_label.size() != 0 )
+      {
+      	LogMsg << "Search Engine - Search labeling performed on variables: " << std::endl;
+      	for ( auto& s: vars_to_label )
+      		LogMsg << s << " ";
+      	LogMsg << std::endl;
+      }
 
       // Set variable selection heuristic
       std::string variable_choice = search_tkn->get_variable_choice();

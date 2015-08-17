@@ -218,6 +218,7 @@ TokenSol::set_solve_params( string& annotation )
 		std::string str_vars = annotation.substr ( par_found + 1, com_found - par_found - 1 );
 		_label_choice = str_vars;
 	}
+	
 	return true;
 }//set_solve_goal
 

@@ -255,10 +255,11 @@ public:
    * Set an event as triggering event for re-evaluation of this constraint.
    * @param event the event that will trigger the re-evaluation of this constriant.
    * @note default: CHANGE_EVT.
-   * @note different constraints should specilize this method
-   *       with the appropriate list of events.
    */
   virtual void set_event ( EventType event = EventType::CHANGE_EVT );
+  
+  //! Unset all events triggering the re-evaluation of the constraint.
+  virtual void unset_event ();
   
   /**
    * It returns the list of events that trigger

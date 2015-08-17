@@ -1,9 +1,9 @@
 //
 //  cuda_concrete_bitmaplist.cpp
-//  NVIDIOSO
+//  iNVIDIOSO
 //
-//  Created by Federico Campeotto on 17/07/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Created by Federico Campeotto on 07/17/14.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 #include "cuda_concrete_bitmaplist.h"
@@ -53,38 +53,42 @@ CudaConcreteDomainBitmap ( size ) {
     add ( x.first , x.second );
 }//CudaConcreteBitmapList
 
-void CudaConcreteBitmapList::set_domain ( void * const domain,
-                                          int rep, int min, int max, int dsz ) {
-  CudaConcreteDomainBitmap::set_domain( domain, rep, min, max, dsz );
-  _domain_size = dsz;
-  _num_bitmaps = rep * -1;
+void CudaConcreteBitmapList::set_domain ( void * const domain, int rep, int min, int max, int dsz ) 
+{
+	CudaConcreteDomainBitmap::set_domain( domain, rep, min, max, dsz );
+  	_domain_size = dsz;
+  	_num_bitmaps = rep * -1;
 }//set_domain
 
 unsigned int
-CudaConcreteBitmapList::size () const {
-  return _domain_size;
+CudaConcreteBitmapList::size () const 
+{
+	return _domain_size;
 }//size
 
 int
-CudaConcreteBitmapList::pair_to_idx ( int i ) const {
-  return i * (2 + _bitmap_size);
+CudaConcreteBitmapList::pair_to_idx ( int i ) const 
+{
+	return i * (2 + _bitmap_size);
 }//pair_to_idx
 
 int
-CudaConcreteBitmapList::find_pair ( int val ) const {
+CudaConcreteBitmapList::find_pair ( int val ) const 
+{  
+	// Sanity check
+  	if ( val < _init_lower_bound || val > _init_upper_bound ) return -1;
   
-  // Consistency check
-  if ( val < _init_lower_bound || val > _init_upper_bound ) return -1;
-  
-  int idx;
-  for ( int pair_idx = 0; pair_idx < _num_bitmaps; pair_idx++ ) {
-    idx = pair_to_idx ( pair_idx );
-    if ( (val >= _concrete_domain[ idx     ]) &&
-        (val <= _concrete_domain[ idx + 1 ]) ) {
-      return  pair_idx;
-    }
-  }
-  return -1;
+  	int idx;
+  	for ( int pair_idx = 0; pair_idx < _num_bitmaps; pair_idx++ ) 
+  	{
+    	idx = pair_to_idx ( pair_idx );
+    	if ( (val >= _concrete_domain[ idx     ]) &&
+        	 (val <= _concrete_domain[ idx + 1 ]) ) 
+        {
+      		return  pair_idx;
+    	}
+  	}
+  	return -1;
 }//find_bitmap
 
 int

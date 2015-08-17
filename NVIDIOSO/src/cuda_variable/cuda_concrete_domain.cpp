@@ -71,13 +71,14 @@ CudaConcreteDomain::set_empty () {
 }//empty_domain
 
 bool
-CudaConcreteDomain::is_empty () const {
-  return _upper_bound < _lower_bound;
+CudaConcreteDomain::is_empty () const 
+{
+	return _upper_bound < _lower_bound;
 }//is_empty
 
 void
-CudaConcreteDomain::set_domain ( void * const domain,
-                                 int rep, int min, int max, int dsz ) {
+CudaConcreteDomain::set_domain ( void * const domain, int rep, int min, int max, int dsz ) 
+{
   _lower_bound = min;
   _upper_bound = max;
   memcpy( _concrete_domain, domain, allocated_bytes() );
