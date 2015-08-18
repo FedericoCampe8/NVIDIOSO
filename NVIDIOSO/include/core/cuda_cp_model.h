@@ -60,9 +60,6 @@ protected:
    */
   int* d_constraint_description;
   
-  //! Auxiliary information needed by constraints (e.g., table, array, etc.)
-  int* d_constraint_aux_info;
-  
   //! Map from var id on host to var id on device
   std::map<int, int> _cuda_var_lookup;
   

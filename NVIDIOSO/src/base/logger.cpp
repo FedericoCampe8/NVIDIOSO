@@ -119,7 +119,7 @@ Logger::error ( std::string err, const char* file, const int line ) {
 bool
 Logger::cuda_handle_error ( cudaError_t err  ) {
   if ( _verbose && (err != cudaSuccess) )
-    cout << cudaGetErrorString( err ) << ".\n";
+    cout << "CUDA ERROR:\t" << cudaGetErrorString( err ) << ".\n";
   if (err != cudaSuccess) return true;
   return false;
 }//error
@@ -127,7 +127,7 @@ Logger::cuda_handle_error ( cudaError_t err  ) {
 bool
 Logger::cuda_handle_error ( cudaError_t err, const char *file ) {
   if ( _verbose && (err != cudaSuccess) )
-    cerr << cudaGetErrorString( err ) << " - At " << file << ".\n";
+    cerr << "CUDA ERROR:\t" << cudaGetErrorString( err ) << " - At " << file << ".\n";
   
   if (err != cudaSuccess) return true;
   return false;
@@ -136,7 +136,7 @@ Logger::cuda_handle_error ( cudaError_t err, const char *file ) {
 bool
 Logger::cuda_handle_error ( cudaError_t err, const char *file, const int line ) {
   if ( _verbose && (err != cudaSuccess) )
-    cerr << cudaGetErrorString( err ) << " - At " << file << ", line " << line << ".\n";
+    cerr << "CUDA ERROR:\t" << cudaGetErrorString( err ) << " - At " << file << ", line " << line << ".\n";
   
   if (err != cudaSuccess) return true;
   return false;

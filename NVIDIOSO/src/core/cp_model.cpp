@@ -76,7 +76,8 @@ CPModel::add_search_engine ( SearchEnginePtr spt )
   assert( spt != nullptr );
   _search_engine = spt;
   
-  if ( _store != nullptr ) {
+  if ( _store != nullptr ) 
+  {
     _search_engine->set_store( _store );
   }
 }//add_search_engine
@@ -93,7 +94,8 @@ CPModel::add_constraint_store ( ConstraintStorePtr store )
   assert( store != nullptr );
   _store = store;
   
-  if ( _search_engine != nullptr ) {
+  if ( _search_engine != nullptr ) 
+  {
     _search_engine->set_store( _store );
   }
 }//add_constraint_store

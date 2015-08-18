@@ -67,7 +67,7 @@ CudaPropUtils::cuda_consistency_1bKc ( size_t * constraint_queue, size_t constra
   	int c_idx        = constraint_queue [ warp_idx_std ];
 	
 	// Local shared memory
-  	uint * local_shared = &shared_status [ (threadIdx.x / WARP_SIZE) * shared_status_size ];
+  	uint * local_shared = &shared_status [ (threadIdx.x / WARP_SIZE) * shared_array_size ];
   
   	if ( warp_idx_std < constraint_queue_size )
   	{

@@ -1,9 +1,9 @@
 //
 //  main.cpp
-//  NVIDIOSO
+//  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 26/06/14.
-//  Copyright (c) 2014-2015 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 #include "globals.h"
@@ -14,7 +14,7 @@
 int main( int argc, char * argv[] )
 {
   	std::string dbg = "Main - ";
-  
+
   	/***************************************
    	 *         INIT DATA/READ INPUT        *
    	 ***************************************/

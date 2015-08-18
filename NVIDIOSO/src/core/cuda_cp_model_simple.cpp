@@ -51,7 +51,7 @@ CudaCPModelSimple::alloc_variables ()
         }
     	_cuda_var_lookup[ var->get_id() ] = var_id++;
     }
-    
+    	
     // Allocate space on host and device
     _h_domain_states = (uint*) malloc ( _domain_state_size );
     if ( logger.cuda_handle_error ( cudaMalloc( (void**)&_d_domain_states, _domain_state_size ) ) ) 

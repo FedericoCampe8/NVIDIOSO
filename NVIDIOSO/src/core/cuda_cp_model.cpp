@@ -38,7 +38,6 @@ CudaCPModel::~CudaCPModel ()
   	logger.cuda_handle_error ( cudaFree( _d_domain_index ) );
   	logger.cuda_handle_error ( cudaFree( _d_domain_states_aux ) );
   	logger.cuda_handle_error ( cudaFree( d_constraint_description ) );
-  	logger.cuda_handle_error ( cudaFree( d_constraint_aux_info ) );
 #endif
 
 }//~CudaCPModel 
@@ -273,19 +272,6 @@ CudaCPModel::alloc_constraints ()
                                               cudaMemcpyHostToDevice ) ) ) 
   {
       return false;
-  }
-  
-  // Allocate and copy auxiliary information on device
-  size_t aux_info_size = 0;
-  for ( auto& elem: _auxiliary_info )
-  {
-	aux_info_size += elem.second.size();
-  }
-  
-  if ( logger.cuda_handle_error ( cudaMalloc ((void**)&d_constraint_aux_info,
-                                               aux_info_size * sizeof (int) ) ) ) 
-  {
-    return false;
   }
   
   LogMsg << _dbg + "Instantiate constraints on device" << std::endl;

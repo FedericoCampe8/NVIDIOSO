@@ -327,6 +327,7 @@ CudaGenerator::get_search_engine ( UTokenPtr tkn_ptr )
     // Variables to label
     vector< Variable * > variables;
     
+    // Check whether there is (are) a specific variable(s) to label
     std::string label_choice = ptr->get_label_choice ();
     std::vector< std::string > vars_to_label = ptr->get_var_to_label();
     if ( label_choice != "" )
@@ -335,7 +336,7 @@ CudaGenerator::get_search_engine ( UTokenPtr tkn_ptr )
     	{
     		std::string var_in_array{};
     		std::size_t found = var.first.find ( "[" );
-    		if ( found != std::string::npos )
+    		if ( found != std::string::npos ) 
     		{
     			var_in_array = var.first.substr ( 0, found );
     		}
