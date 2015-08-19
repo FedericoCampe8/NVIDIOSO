@@ -747,7 +747,7 @@ CudaConstraint::shrink ( int var, int smin, int smax, int ref )
             return;
         }
         
-        if ( _working_status [ var ][ REP ] == 0 )
+        if ( _working_status [ var ][ REP ] == BIT_REP )
         {// Bitmap representation for domain
         
             int chunk_min = smin / BITS_IN_CHUNK;
@@ -780,25 +780,10 @@ CudaConstraint::shrink ( int var, int smin, int smax, int ref )
             _working_status[ var ][ DSZ ] = num_bits;
             lower_bound = (smin < lower_bound) ? lower_bound : smin;
             upper_bound = (smax > upper_bound) ? upper_bound : smax;
-            while ( true ) 
-            {
-      			if ( contains ( var, lower_bound ) ) 
-      			{
-        			_working_status[ var ][ LB ]  = lower_bound;
-					break;
-  				}
-  				lower_bound++;
-    		}
-    		while ( true ) 
-            {
-      			if ( contains ( var, upper_bound ) ) 
-      			{
-    				_working_status[ var ][ UB ]  = upper_bound;
-					break;
-				}
-				upper_bound--;
-			}
             
+            while ( !contains ( var, lower_bound ) ) lower_bound++;
+    		while ( !contains ( var, upper_bound ) ) upper_bound--;
+            	
             _working_status[ var ][ LB ]  = lower_bound;
             _working_status[ var ][ UB ]  = upper_bound;
             _working_status[ var ][ EVT ] = CHG_EVT;

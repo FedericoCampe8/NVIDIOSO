@@ -4,7 +4,7 @@
 //
 //  Created by Federico Campeotto on 07/07/14.
 
-//	Modified by Luca Foschiani on 08/14/15 (foschiani01@gmail.com).
+//  Modified by Luca Foschiani on 08/14/15 (foschiani01@gmail.com).
 //  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 //  Constraint x + y = z

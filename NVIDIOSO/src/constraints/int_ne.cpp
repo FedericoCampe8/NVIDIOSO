@@ -182,7 +182,6 @@ IntNe::consistency () {
 bool
 IntNe::satisfied () 
 {
-
   	// No FD variables, just check the integers values
   	if ( _scope_size == 0 ) 
   	{

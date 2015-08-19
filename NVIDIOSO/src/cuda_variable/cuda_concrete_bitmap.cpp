@@ -80,6 +80,8 @@ CudaConcreteDomainBitmap::set_domain ( void * const domain, int rep, int min, in
    	 * the size is retrieved from _num_valid_bits.
    	 */
    	_num_valid_bits = dsz;
+   	_lower_bound += _offset;
+   	_upper_bound += _offset;
 }//set_domain
 
 unsigned int
@@ -162,6 +164,12 @@ CudaConcreteDomainBitmap::shrink ( int min, int max )
     	num_bits += CudaBitUtils::num_1bit( (uint) _concrete_domain[ lower_idx ] );
   	}
  
+ 	// Set new lower/upper bounds
+ 	if ( _num_valid_bits > 0 )
+ 	{
+ 		while ( !contains ( min - _offset ) ) min++;
+    	while ( !contains ( max - _offset ) ) max--;
+ 	}
   	_lower_bound    = min;
   	_upper_bound    = max;
   	_num_valid_bits = num_bits;
@@ -172,7 +180,7 @@ CudaConcreteDomainBitmap::shrink ( int min, int max )
 
 void
 CudaConcreteDomainBitmap::subtract ( int value ) 
-{ 
+{
 	value += _offset;
 
   	// Sanity check
@@ -213,28 +221,14 @@ CudaConcreteDomainBitmap::subtract ( int value )
   	// Set new lower/upper bound
   	if ( value == _lower_bound ) 
   	{
-    	while ( true ) 
-    	{
-      		value++;
-      		if ( contains ( value - _offset ) ) 
-      		{
-        		_lower_bound = value;
-        		return;
-      		}
-    	}
+    	while ( !contains ( value - _offset ) ) value++;
+    	_lower_bound = value;
   	}
   
   	if ( value == _upper_bound ) 
   	{
-    	while ( true ) 
-    	{
-      		value--;
-      		if ( contains( value - _offset ) ) 
-      		{
-        		_upper_bound = value;
-        		return;
-      		}
-   	 	}
+    	while ( !contains( value - _offset ) ) value--;
+   	 	_upper_bound = value;
   	}
 }//subtract
 

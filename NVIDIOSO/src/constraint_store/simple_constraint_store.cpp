@@ -29,9 +29,16 @@ SimpleConstraintStore::~SimpleConstraintStore () {
 }//~SimpleConstraintStore
 
 void
-SimpleConstraintStore::fail () {
+SimpleConstraintStore::fail () 
+{
   _failure = true;
 }//fail
+
+bool 
+SimpleConstraintStore::is_consistency_failed ()
+{
+	return _failure == true;
+}//is_consistency_failed
 
 void
 SimpleConstraintStore::handle_failure () {
@@ -125,8 +132,9 @@ bool
 SimpleConstraintStore::consistency () {
   
   // Check for some failure happened somewhere else
-  if ( _failure ) {
-    handle_failure ();
+  if ( _failure ) 
+  {
+	handle_failure ();
     return false;
   }
 
@@ -142,12 +150,17 @@ SimpleConstraintStore::consistency () {
       {
           _constraint_to_reevaluate->consistency ();
       }
-    
+      
       _number_of_propagations++;
-
-      if ( _satisfiability_check )
-      {
-          succeed = _constraint_to_reevaluate->satisfied ();
+		
+	  /*
+	   * @note consistency failed check is not necessary but it is used here
+	   *       to avoid useless satisfiability checks.
+	   */
+	  succeed &= !is_consistency_failed();
+      if ( _satisfiability_check && succeed )
+      { 
+          succeed &= _constraint_to_reevaluate->satisfied ();
           if ( !succeed ) break;
       }
   }//while
@@ -160,7 +173,7 @@ SimpleConstraintStore::consistency () {
   
   if ( !succeed )
   {
-      clear_queue ();
+      handle_failure ();
       return false;
   }
   

@@ -87,7 +87,7 @@ CudaVariable::set_state () {
 
 void
 CudaVariable::print_domain () const {
-  cout << "V_" << _id << ": ";
+  cout << "V_" << _id << " (" << get_str_id () << "): ";
   static_cast<CudaDomain *>(_domain_ptr.get())->print_domain();
 }//print_domain
 

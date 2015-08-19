@@ -260,15 +260,18 @@ CudaDomain::get_size () const
 }//get_size
 
 void
-CudaDomain::set_bounds ( int min, int max ) {
-  shrink ( min, max );
+CudaDomain::set_bounds ( int min, int max ) 
+{
+	shrink ( min, max );
 }//set_bounds
 
 void
-CudaDomain::shrink ( int min, int max ) {
-  
+CudaDomain::shrink ( int min, int max ) 
+{
+
   // Domain failure: non valid min/max
-  if ( max < min ) {
+  if ( max < min ) 
+  {
     event_to_int ( EventType::FAIL_EVT );
     return;
   }
@@ -280,14 +283,17 @@ CudaDomain::shrink ( int min, int max ) {
   }
   
   // Trying to enlarge domain has no effect
-  if ( (min <= _domain[ LB_IDX() ]) && (max >= _domain[ UB_IDX() ]) ) {
-    return;
+  if ( (min <= _domain[ LB_IDX() ]) && (max >= _domain[ UB_IDX() ]) ) 
+  {
+	return;
   }
   
   // Set bounds on domain's internal representation
-  try {
+  try 
+  {
     _concrete_domain->shrink( min, max );
-  } catch ( NvdException & e ) {
+  } catch ( NvdException & e ) 
+  {
     e.what();
     return;
   }
@@ -315,11 +321,12 @@ CudaDomain::shrink ( int min, int max ) {
   }
   
   // Shrink modifies the current bounds: bound event
-  if ( new_size < _domain [ DSZ_IDX() ] ) {
+  if ( new_size < _domain [ DSZ_IDX() ] ) 
+  {
     _domain [ DSZ_IDX() ] = new_size;
     _domain [ EVT_IDX() ] = static_cast<int>( EventType::BOUNDS_EVT ); 
   }
-  
+
   /*
    * Check new domain size:
    * if the sum of elements is <= VECTOR_MAX ->
@@ -386,7 +393,6 @@ CudaDomain::set_singleton ( int value ) {
 bool
 CudaDomain::subtract ( int value ) 
 {
-  
   if ( _concrete_domain->contains( value ) ) 
   {
 	// Subtract the current value
@@ -419,7 +425,6 @@ CudaDomain::subtract ( int value )
       _domain [ LB_IDX() ]  = _concrete_domain->lower_bound ();
       _domain [ DSZ_IDX() ] = _concrete_domain->size();
       _domain [ EVT_IDX() ] = static_cast<int>( EventType::MIN_EVT );
-      
     }
     else if ( value == _domain [ UB_IDX () ] ) 
     {
@@ -472,17 +477,20 @@ CudaDomain::add_element ( int n ) {
 }//add_element
 
 void
-CudaDomain::in_min ( int min ) {
-  set_bounds ( min, _domain [ UB_IDX() ] );
+CudaDomain::in_min ( int min ) 
+{
+	set_bounds ( min, _domain [ UB_IDX() ] );
 }//in_min
 
 void
-CudaDomain::in_max ( int max ) {
-  set_bounds ( _domain [ LB_IDX() ], max );
+CudaDomain::in_max ( int max ) 
+{
+	set_bounds ( _domain [ LB_IDX() ], max );
 }//in_max
 
 void
-CudaDomain::print () const {
+CudaDomain::print () const 
+{
   cout << "- CudaDomain:\n";
   cout << "EVT:\t";
   switch ( _domain[ EVT_IDX() ] ) {
@@ -534,7 +542,8 @@ CudaDomain::print () const {
 }//print
 
 void
-CudaDomain::print_domain () const {
+CudaDomain::print_domain () const 
+{
   cout << "|| ";
   for ( int i = 0; i < BIT_IDX(); i++ ) 
   {

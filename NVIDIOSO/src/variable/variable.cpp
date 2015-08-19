@@ -151,7 +151,7 @@ Variable::notify_store ()
   
   /*
    * If there is a fail event, then
-   * notify store to stop re-evaluating constraints
+   * notify constraint store to stop re-evaluating constraints
    * as soon as possible.
    */
   if ( event == EventType::FAIL_EVT ) 

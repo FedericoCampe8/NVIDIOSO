@@ -64,6 +64,9 @@ protected:
      * some operations on this constraint store.
      */
     bool _failure;
+    
+    //! Return True if propagation is failed according to _failure
+    bool is_consistency_failed ();
   
     //! Handle a failure state
     virtual void handle_failure ();
