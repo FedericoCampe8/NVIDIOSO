@@ -64,7 +64,7 @@ protected:
   
   /**
    * It specifies the string id of the constraint.
-   * If it is null, then the string id is created from string
+   * If NULL, then the string id is created from string
    * associated for the constraint type and the _number_id
    * of the constraint.
    */
@@ -127,14 +127,6 @@ protected:
   std::unordered_map < std::string, std::vector<int> >* _shared_arguments;
   
   /**
-   * Get shared array given index 0th, 1st, 2nd, ... 
-   * @param idx index of the shared array to retrieve.
-   * @return pointer to the shared (vector) array of arguments.
-   * @note by default it returns the first (0th) array.
-   */
-   const std::vector<int>& get_shared_arguments ( size_t idx = 0 );
-  
-  /**
    * Default constructor.
    * It creates a new instance of a null constraint with a
    * new unique id.
@@ -149,6 +141,7 @@ protected:
   virtual ConstraintPtr get_this_shared_ptr ();
   
 public:
+
   	virtual ~Constraint ();
   
   	//! Get unique (global) id of this constraint.
@@ -215,12 +208,12 @@ public:
    	 */
   	void increase_weight ( int weight = 1 );
   
-  /**
-   * Decrease current weight.
-   * @param weight the weight to decrease from the current weight
-   *        (default: 1).
-   */
-  void decrease_weight ( int weight = 1 );
+  	/**
+   	 * Decrease current weight.
+   	 * @param weight the weight to decrease from the current weight
+   	 *        (default: 1).
+   	 */
+  	void decrease_weight ( int weight = 1 );
   
 	/**
    	 * Set array containing the relative positions of the variables
@@ -270,6 +263,17 @@ public:
   //! Set pointer to shared arguments
   void set_shared_arguments ( std::unordered_map < std::string, std::vector<int> > * ptr );
   
+  //! Number of shared arguments
+  int get_number_shared_arguments () const;
+  
+  /**
+   * Get shared array given index 0th, 1st, 2nd, ... 
+   * @param idx index of the shared array to retrieve.
+   * @return pointer to the shared (vector) array of arguments.
+   * @note by default it returns the first (0th) array.
+   */
+   const std::vector<int>& get_shared_arguments ( size_t idx = 0 );
+   
   /**
    * It returns the list of auxiliary arguments 
    * of a given constraint.

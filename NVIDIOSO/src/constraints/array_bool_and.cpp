@@ -3,24 +3,20 @@
 //  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 07/07/15.
-//  Copyright (c) 2014-2015 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 #include "array_bool_and.h"
 
-ArrayBoolAnd::ArrayBoolAnd () :
-FZNConstraint ( ARRAY_BOOL_AND ) {
+ArrayBoolAnd::ArrayBoolAnd ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::ARRAY_BOOL_AND );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntNe
-
-ArrayBoolAnd::ArrayBoolAnd ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
- ArrayBoolAnd () {
-  setup ( vars, args );
-}//IntNe
+}//ArrayBoolAnd
 
 ArrayBoolAnd::~ArrayBoolAnd () {}
 
@@ -53,7 +49,7 @@ ArrayBoolAnd::satisfied ()
 void
 ArrayBoolAnd::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

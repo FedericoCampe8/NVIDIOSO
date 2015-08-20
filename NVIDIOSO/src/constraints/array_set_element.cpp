@@ -8,19 +8,15 @@
 
 #include "array_set_element.h"
 
-ArraySetElement::ArraySetElement () :
-FZNConstraint ( ARRAY_SET_ELEMENT ) {
+ArraySetElement::ArraySetElement ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::ARRAY_SET_ELEMENT );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntNe
-
-ArraySetElement::ArraySetElement ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-ArraySetElement () {
-  setup ( vars, args );
-}//IntNe
+}//ArraySetElement
 
 ArraySetElement::~ArraySetElement () {}
 
@@ -53,7 +49,7 @@ ArraySetElement::satisfied ()
 void
 ArraySetElement::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

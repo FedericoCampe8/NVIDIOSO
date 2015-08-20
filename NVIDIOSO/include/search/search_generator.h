@@ -2,14 +2,14 @@
 //  fzn_search_generator.h
 //  NVIDIOSO
 //
-//  Created by Federico Campeotto on 10/08/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Created by Federico Campeotto on 08/10/14.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 //  Factory class for search method according to FlatZinc the specifications.
 //
 
-#ifndef __NVIDIOSO__fzn_search_generator__
-#define __NVIDIOSO__fzn_search_generator__
+#ifndef __NVIDIOSO__search_generator__
+#define __NVIDIOSO__search_generator__
 
 #include "globals.h"
 #include "depth_first_search.h"
@@ -18,7 +18,7 @@
 #include "simple_solution_manager.h"
 #include "simple_backtrack_manager.h"
 
-class FZNSearchFactory {
+class SearchFactory {
 public:
   
   /**
@@ -28,8 +28,7 @@ public:
    * @param search_tkn reference to a search token in order to
    *        define the right instance of search engine.
    */
-  static  SearchEnginePtr get_fzn_search_shr_ptr ( std::vector< Variable * > variables,
-                                                   TokenSol * search_tkn ) 
+  static  SearchEnginePtr get_search_shr_ptr ( std::vector< Variable * > variables, TokenSol * search_tkn ) 
   {
   	  // Sanity check
   	  assert ( search_tkn != nullptr );
@@ -212,4 +211,4 @@ public:
   }
 };
 
-#endif /* defined(__NVIDIOSO__fzn_search_generator__) */
+#endif /* defined(__NVIDIOSO__search_generator__) */

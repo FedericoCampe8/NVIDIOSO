@@ -1,5 +1,5 @@
 //
-//  fzn_constraint.cpp
+//  global_constraint_register.cpp
 //  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 07/31/15.
@@ -15,10 +15,10 @@ using namespace std;
 // -------------- POSTERs FUNCTIONs FOR GLOBAL CONSTRAINTS -------------- //
 // ---------------------------------------------------------------------- //
 
-GlobalConstraint*  p_alldifferent ( string constraint_name ) 
+GlobalConstraint*  p_alldifferent ( string& constraint_name ) 
 {
 	return new Alldifferent ( constraint_name );
-}//poster_alldifferent
+}//p_alldifferent
 
 // ---------------------------------------------------------------------- //
 // ---------------------------------------------------------------------- //
@@ -31,23 +31,23 @@ GlobalConstraintRegister::~GlobalConstraintRegister () {
 }//~GlobalConstraintRegister
 
 void 
-GlobalConstraintRegister::add ( std::string name, poster p )
+GlobalConstraintRegister::add ( std::string name, glb_poster p )
 {
 	_register [ name ] = p;
 }//add
 
 GlobalConstraintPtr 
-GlobalConstraintRegister::get_global_constraint ( std::string glb_constraint_name )
+GlobalConstraintRegister::get_global_constraint ( std::string& glb_constraint_name )
 {
 	auto it = _register.find ( glb_constraint_name );
 	if ( it == _register.end () )
 	{
+		LogMsg << "GlobalConstraintRegister::get_global_constraint - " << glb_constraint_name << " not found." << endl;
 		return nullptr;
 	}
 	
 	// Create a new global constraint using the poster
-	GlobalConstraintPtr glb_c = 
-	make_shared<GlobalConstraint>( *(_register [ glb_constraint_name ] ( glb_constraint_name )) );
+	GlobalConstraintPtr glb_c = shared_ptr<GlobalConstraint> ( _register [ glb_constraint_name ] ( glb_constraint_name ) );
 	
 	// Return the global constraint instance
 	return glb_c;

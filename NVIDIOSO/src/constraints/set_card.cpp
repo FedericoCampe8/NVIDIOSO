@@ -8,18 +8,14 @@
 
 #include "set_card.h"
 
-SetCard::SetCard () :
-FZNConstraint ( SET_CARD ) {
+SetCard::SetCard ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::SET_CARD );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//SetCard
-
-SetCard::SetCard ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-SetCard () {
-  setup ( vars, args );
 }//SetCard
 
 SetCard::~SetCard () {}
@@ -53,7 +49,7 @@ SetCard::satisfied ()
 void
 SetCard::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

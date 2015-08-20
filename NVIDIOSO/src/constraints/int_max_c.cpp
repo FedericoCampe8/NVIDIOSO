@@ -8,18 +8,14 @@
 
 #include "int_max_c.h"
 
-IntMaxC::IntMaxC () :
-FZNConstraint ( INT_MAX_C ) {
+IntMaxC::IntMaxC ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::INT_MAX_C );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntMaxC
-
-IntMaxC::IntMaxC ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-IntMaxC () {
-  setup ( vars, args );
 }//IntMaxC
 
 IntMaxC::~IntMaxC () {}
@@ -53,7 +49,7 @@ IntMaxC::satisfied ()
 void
 IntMaxC::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

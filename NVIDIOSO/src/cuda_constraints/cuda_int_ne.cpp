@@ -1,9 +1,9 @@
 //
 //  cuda_int_ne.cpp
-//  NVIDIOSO
+//  iNVIDIOSO
 //
-//  Created by Federico Campeotto on 03/12/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Created by Federico Campeotto on 12/03/14.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 #include <stdio.h>
@@ -18,7 +18,7 @@ CudaConstraint ( n_id, n_vars, n_args, vars, args, domain_idx, domain_states ) {
 }//CudaIntNe
 
 __device__ CudaIntNe::~CudaIntNe () {
-}
+}//~CudaIntNe
 
 __device__ void
 CudaIntNe::consistency ( int ref )

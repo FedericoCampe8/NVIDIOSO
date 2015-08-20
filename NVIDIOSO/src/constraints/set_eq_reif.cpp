@@ -8,18 +8,14 @@
 
 #include "set_eq_reif.h"
 
-SetEqReif::SetEqReif () :
-FZNConstraint ( SET_EQ_REIF ) {
+SetEqReif::SetEqReif ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::SET_EQ_REIF );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//SetEqReif
-
-SetEqReif::SetEqReif ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-SetEqReif () {
-  setup ( vars, args );
 }//SetEqReif
 
 SetEqReif::~SetEqReif () {}
@@ -53,7 +49,7 @@ SetEqReif::satisfied ()
 void
 SetEqReif::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

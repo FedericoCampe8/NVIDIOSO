@@ -8,18 +8,14 @@
 
 #include "set_subset_reif.h"
 
-SetSubsetReif::SetSubsetReif () :
-FZNConstraint ( SET_SUBSET_REIF ) {
+SetSubsetReif::SetSubsetReif ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::SET_SUBSET_REIF );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//SetSubsetReif
-
-SetSubsetReif::SetSubsetReif ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-SetSubsetReif () {
-  setup ( vars, args );
 }//SetSubsetReif
 
 SetSubsetReif::~SetSubsetReif () {}
@@ -53,7 +49,7 @@ SetSubsetReif::satisfied ()
 void
 SetSubsetReif::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

@@ -12,10 +12,10 @@
 #ifndef __NVIDIOSO__set_sym_diff__
 #define __NVIDIOSO__set_sym_diff__
 
-#include "fzn_constraint.h"
+#include "base_constraint.h"
 #include "int_variable.h"
 
-class SetSymDiff : public FZNConstraint {  
+class SetSymDiff : public BaseConstraint {  
 public:
     /**
      * Basic constructor.
@@ -23,17 +23,9 @@ public:
      *       call the setup method to setup the variables
      *       and parameters needed by this constraint.
      */
-    SetSymDiff ();
+    SetSymDiff ( std::string& constraint_name );
 
     ~SetSymDiff ();
-
-    /**
-     * Basic constructor.
-     * @note this constructor implicitly calls the setup
-     *       method to setup variables and arguments for
-     *       this constraint.
-     */
-    SetSymDiff ( std::vector<VariablePtr> vars, std::vector<std::string> args );
 
     //! Setup method, see fzn_constraint.h
     void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) override;

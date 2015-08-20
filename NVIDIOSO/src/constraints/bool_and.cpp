@@ -8,19 +8,15 @@
 
 #include "bool_and.h"
 
-BoolAnd::BoolAnd () :
-FZNConstraint ( BOOL_AND ) {
+BoolAnd::BoolAnd ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::BOOL_AND );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntNe
-
-BoolAnd::BoolAnd ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-BoolAnd () {
-  setup ( vars, args );
-}//IntNe
+}//BoolAnd
 
 BoolAnd::~BoolAnd () {}
 
@@ -53,7 +49,7 @@ BoolAnd::satisfied ()
 void
 BoolAnd::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

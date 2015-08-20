@@ -11,10 +11,10 @@
 #ifndef __NVIDIOSO__int_lin_eq__
 #define __NVIDIOSO__int_lin_eq__
 
-#include "fzn_constraint.h"
+#include "base_constraint.h"
 #include "int_variable.h"
 
-class IntLinEq : public FZNConstraint {
+class IntLinEq : public BaseConstraint {
 private:
   //! array [int] of int
   std::vector<int> _as;
@@ -39,15 +39,7 @@ public:
    *       call the setup method to setup the variables
    *       and parameters needed by this constraint.
    */
-  IntLinEq ();
-  
-  /**
-   * Basic constructor.
-   * @note this constructor implicitly calls the setup
-   *       method to setup variables and arguments for
-   *       this constraint.
-   */
-  IntLinEq ( std::vector<VariablePtr> vars, std::vector<std::string> args );
+  IntLinEq ( std::string& constraint_name );
   
   ~IntLinEq();
   

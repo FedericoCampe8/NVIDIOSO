@@ -10,19 +10,15 @@
 
 using namespace std;
 
-IntLinEq::IntLinEq () :
-FZNConstraint ( INT_LIN_EQ ) {
+IntLinEq::IntLinEq ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::INT_LIN_EQ );
   
 	// Set the event that trigger this constraint
   	set_event( EventType::SINGLETON_EVT );
   	set_event( EventType::MIN_EVT );
   	set_event( EventType::MAX_EVT );
   	set_event( EventType::BOUNDS_EVT );
-}//IntLinEq
-
-IntLinEq::IntLinEq ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-IntLinEq () {
-	setup( vars, args );
 }//IntLinEq
 
 IntLinEq::~IntLinEq () {
@@ -152,7 +148,7 @@ IntLinEq::all_ground ()
 void
 IntLinEq::print_semantic () const 
 {
-  	FZNConstraint::print_semantic();
+  	BaseConstraint::print_semantic();
   	std::cout << "Sum_{i \\in 1..n}: as[i].bs[i] = c ";
   	std::cout << "where n is the common length of as and bs\n";
   	std::cout << "int_lin_eq(array [int] of int: as, array [int] of var int: bs, int:c)\n";

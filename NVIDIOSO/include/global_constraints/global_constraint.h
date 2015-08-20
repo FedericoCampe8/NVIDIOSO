@@ -28,11 +28,20 @@
 class GlobalConstraint;
 typedef std::shared_ptr<GlobalConstraint> GlobalConstraintPtr;
 
+enum class GlobalConstraintType
+{
+  ALLDIFFERENT            = 0,
+  OTHER                   = 1
+};
+
 class GlobalConstraint : public Constraint {
 protected:
   
   //! Scope size
   int _scope_size;
+  
+  //! Constraint type
+  GlobalConstraintType _global_constraint_type;
   
   //! Array of (base/global) constraints involved in this global constraint
   std::vector<Constraint *> _sub_constraint;
@@ -54,11 +63,8 @@ protected:
   //! Size in bytes of (local) memory required (e.g., shared memory)
   std::size_t _local_memory;
   
-  /**
-   * Base constructor.
-   * @param name the name of the global constraint.
-   */
-  GlobalConstraint ( std::string name );
+  //! Set global constraint type (default GlobalConstraintType::OTHER)
+  void set_global_constraint_type ( GlobalConstraintType gbl_t );
   
   //! Naive consistency algorithm
   virtual void naive_consistency ();
@@ -69,9 +75,18 @@ protected:
   //! Full consistency algorithm
   virtual void full_consistency ();
   
+  /**
+   * Base constructor.
+   * @param name the name of the global constraint.
+   */
+  GlobalConstraint ( std::string name );
+  
 public:
   
   virtual ~GlobalConstraint();
+  
+  //! Get global constraint type
+  GlobalConstraintType get_global_constraint_type () const;
   
   //! Number of blocks of threads needed for parallel implementation
   std::size_t get_num_blocks () const;

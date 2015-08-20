@@ -8,18 +8,14 @@
 
 #include "array_bool_or.h"
 
-ArrayBoolOr::ArrayBoolOr () :
-FZNConstraint ( ARRAY_BOOL_OR ) {
+ArrayBoolOr::ArrayBoolOr ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::ARRAY_BOOL_OR );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntNe
-
-ArrayBoolOr::ArrayBoolOr ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-ArrayBoolOr () {
-  setup ( vars, args );
 }//IntNe
 
 ArrayBoolOr::~ArrayBoolOr () {}
@@ -53,7 +49,7 @@ ArrayBoolOr::satisfied ()
 void
 ArrayBoolOr::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

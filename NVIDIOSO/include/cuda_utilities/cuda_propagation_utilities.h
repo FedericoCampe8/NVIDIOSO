@@ -14,6 +14,7 @@
 #include "cuda_constraint_macro.h"
 
 #define G_DEV_CONSTRAINTS_ARRAY g_dev_constraints
+#define G_DEV_GLB_CONSTRAINTS_ARRAY g_dev_glb_constraints
 
 #if CUDAON
 
@@ -25,6 +26,9 @@
  */
 class CudaConstraint;
 extern __device__ CudaConstraint** g_dev_constraints;
+
+class CudaGlobalConstraint;
+extern __device__ CudaConstraint** g_dev_glb_constraints;
 
 /**
  * Boolean array used to synchronize blocks withing a kernel.

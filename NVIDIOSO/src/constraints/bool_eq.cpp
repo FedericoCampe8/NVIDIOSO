@@ -8,19 +8,15 @@
 
 #include "bool_eq.h"
 
-BoolEq::BoolEq () :
-FZNConstraint ( BOOL_EQ ) {
+BoolEq::BoolEq ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::BOOL_EQ );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntNe
-
-BoolEq::BoolEq ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-BoolEq () {
-  setup ( vars, args );
-}//IntNe
+}//BoolEq
 
 BoolEq::~BoolEq () {}
 
@@ -53,7 +49,7 @@ BoolEq::satisfied ()
 void
 BoolEq::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

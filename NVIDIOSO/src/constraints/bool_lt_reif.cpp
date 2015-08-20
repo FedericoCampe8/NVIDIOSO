@@ -8,19 +8,15 @@
 
 #include "bool_lt_reif.h"
 
-BoolLtReif::BoolLtReif () :
-FZNConstraint ( BOOL_LE_REIF ) {
+BoolLtReif::BoolLtReif ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::BOOL_LT_REIF );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntNe
-
-BoolLtReif::BoolLtReif ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-BoolLtReif () {
-  setup ( vars, args );
-}//IntNe
+}//BoolLtReif
 
 BoolLtReif::~BoolLtReif () {}
 
@@ -53,7 +49,7 @@ BoolLtReif::satisfied ()
 void
 BoolLtReif::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

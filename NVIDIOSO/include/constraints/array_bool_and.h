@@ -3,7 +3,7 @@
 //  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 07/07/14.
-//  Copyright (c) 2014-2015 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 //  Constraint 
 //  Domain consistency is used.
@@ -12,10 +12,10 @@
 #ifndef __NVIDIOSO__array_bool_and__
 #define __NVIDIOSO__array_bool_and__
 
-#include "fzn_constraint.h"
+#include "base_constraint.h"
 #include "int_variable.h"
 
-class ArrayBoolAnd : public FZNConstraint {  
+class ArrayBoolAnd : public BaseConstraint {  
 public:
     /**
      * Basic constructor.
@@ -23,17 +23,9 @@ public:
      *       call the setup method to setup the variables
      *       and parameters needed by this constraint.
      */
-    ArrayBoolAnd ();
+    ArrayBoolAnd ( std::string& constraint_name );
 
     ~ArrayBoolAnd ();
-    
-    /**
-     * Basic constructor.
-     * @note this constructor implicitly calls the setup
-     *       method to setup variables and arguments for
-     *       this constraint.
-     */
-    ArrayBoolAnd ( std::vector<VariablePtr> vars, std::vector<std::string> args );
 
     //! Setup method, see fzn_constraint.h
     void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) override;

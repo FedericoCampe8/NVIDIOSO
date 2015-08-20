@@ -24,6 +24,8 @@ OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CUDA_UT
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(PARSER)/*.cpp))
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(FZN_PARSER)/*.cpp))
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(SEARCH)/*.cpp))
+OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(LOCAL_SEARCH)/*.cpp))
+OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CUDA_LOCAL_SEARCH)/*.cpp))
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(EXCEPTION)/*.cpp))
 
 HEADERS = $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(BASE)/*.cpp))
@@ -40,6 +42,8 @@ HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CORE)/*
 HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(PARSER)/*.cpp))
 HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(FZN_PARSER)/*.cpp))
 HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(SEARCH)/*.cpp))
+HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(LOCAL_SEARCH)/*.cpp))
+HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CUDA_LOCAL_SEARCH)/*.cpp))
 HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(EXCEPTION)/*.cpp))
 
 # ---------------------------------------------------------------------
@@ -68,6 +72,8 @@ INCLDIRS += -I$(PRG_PATH)/$(NVIDIOSO_INC)/$(PARSER)
 INCLDIRS += -I$(PRG_PATH)/$(NVIDIOSO_INC)/$(FZN_PARSER)
 INCLDIRS += -I$(PRG_PATH)/$(NVIDIOSO_INC)/$(CUDA_UTILITIES)
 INCLDIRS += -I$(PRG_PATH)/$(NVIDIOSO_INC)/$(SEARCH)
+INCLDIRS += -I$(PRG_PATH)/$(NVIDIOSO_INC)/$(LOCAL_SEARCH)
+INCLDIRS += -I$(PRG_PATH)/$(NVIDIOSO_INC)/$(CUDA_LOCAL_SEARCH)
 INCLDIRS += -I$(PRG_PATH)/$(NVIDIOSO_INC)/$(EXCEPTION)
 
 ## Compiler Flags

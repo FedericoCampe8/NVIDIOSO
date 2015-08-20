@@ -15,6 +15,9 @@ GlobalConstraint ( constraint_name ) {
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   set_event( EventType::CHANGE_EVT );
+  
+  // Set constraint type
+  set_global_constraint_type ( GlobalConstraintType::ALLDIFFERENT );
 }//Alldifferent
 
 Alldifferent::~Alldifferent () {

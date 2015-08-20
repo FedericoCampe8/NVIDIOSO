@@ -8,18 +8,14 @@
 
 #include "set_in_reif.h"
 
-SetInReif::SetInReif () :
-FZNConstraint ( SET_IN_REIF ) {
+SetInReif::SetInReif ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::SET_IN_REIF );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//SetInReif
-
-SetInReif::SetInReif ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-SetInReif () {
-  setup ( vars, args );
 }//SetInReif
 
 SetInReif::~SetInReif () {}
@@ -53,7 +49,7 @@ SetInReif::satisfied ()
 void
 SetInReif::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

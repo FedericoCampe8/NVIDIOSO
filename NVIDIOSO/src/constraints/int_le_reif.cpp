@@ -8,18 +8,14 @@
 
 #include "int_le_reif.h"
 
-IntLeReif::IntLeReif () :
-FZNConstraint ( INT_LE_REIF ) {
+IntLeReif::IntLeReif ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::INT_LE_REIF );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntLeReif
-
-IntLeReif::IntLeReif ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-IntLeReif () {
-  setup ( vars, args );
 }//IntLeReif
 
 IntLeReif::~IntLeReif () {}
@@ -53,7 +49,7 @@ IntLeReif::satisfied ()
 void
 IntLeReif::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

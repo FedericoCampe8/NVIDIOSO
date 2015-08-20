@@ -8,18 +8,14 @@
 
 #include "set_lt.h"
 
-SetLt::SetLt () :
-FZNConstraint ( SET_LT ) {
+SetLt::SetLt ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::SET_LT );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//SetLt
-
-SetLt::SetLt ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-SetLt () {
-  setup ( vars, args );
 }//SetLt
 
 SetLt::~SetLt () {}
@@ -53,7 +49,7 @@ SetLt::satisfied ()
 void
 SetLt::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

@@ -12,10 +12,10 @@
 #ifndef __NVIDIOSO__set_subset_reif__
 #define __NVIDIOSO__set_subset_reif__
 
-#include "fzn_constraint.h"
+#include "base_constraint.h"
 #include "int_variable.h"
 
-class SetSubsetReif : public FZNConstraint {  
+class SetSubsetReif : public BaseConstraint {  
 public:
     /**
      * Basic constructor.
@@ -23,17 +23,9 @@ public:
      *       call the setup method to setup the variables
      *       and parameters needed by this constraint.
      */
-    SetSubsetReif ();
+    SetSubsetReif ( std::string& constraint_name );
 
     ~SetSubsetReif ();
-
-    /**
-     * Basic constructor.
-     * @note this constructor implicitly calls the setup
-     *       method to setup variables and arguments for
-     *       this constraint.
-     */
-    SetSubsetReif ( std::vector<VariablePtr> vars, std::vector<std::string> args );
 
     //! Setup method, see fzn_constraint.h
     void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) override;

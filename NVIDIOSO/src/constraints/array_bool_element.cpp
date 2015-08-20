@@ -8,8 +8,9 @@
 
 #include "array_bool_element.h"
 
-ArrayBoolElement::ArrayBoolElement () :
-FZNConstraint ( ARRAY_BOOL_ELEMENT ) {
+ArrayBoolElement::ArrayBoolElement ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::ARRAY_BOOL_ELEMENT );
 	_ground_var_int = false;
 	
   	/*
@@ -17,11 +18,6 @@ FZNConstraint ( ARRAY_BOOL_ELEMENT ) {
    	 * @note if no event is set, this constraint will never be re-evaluated.
    	 */
   	set_event( EventType::SINGLETON_EVT );
-}//ArrayBoolElement
-
-ArrayBoolElement::ArrayBoolElement ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-ArrayBoolElement () {
-  setup ( vars, args );
 }//ArrayBoolElement
 
 ArrayBoolElement::~ArrayBoolElement () {}
@@ -272,7 +268,7 @@ ArrayBoolElement::satisfied ()
 void
 ArrayBoolElement::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
     std::cout << "b in [1..n], as[b] = c\n";
   	std::cout << "array_bool_element(var int: b, array [int] of bool: as, var bool: c)\n";
 }//print_semantic

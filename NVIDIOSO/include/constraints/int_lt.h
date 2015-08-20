@@ -11,10 +11,10 @@
 #ifndef __NVIDIOSO__int_lt__
 #define __NVIDIOSO__int_lt__
 
-#include "fzn_constraint.h"
+#include "base_constraint.h"
 #include "int_variable.h"
 
-class IntLt : public FZNConstraint {
+class IntLt : public BaseConstraint {
 private:
   IntVariablePtr _var_x = nullptr;
   IntVariablePtr _var_y = nullptr;
@@ -26,49 +26,7 @@ public:
    *       call the setup method to setup the variables
    *       and parameters needed by this constraint.
    */
-  IntLt ();
-  
-  /**
-   * Basic constructor.
-   * @note this constructor implicitly calls the setup
-   *       method to setup variables and arguments for
-   *       this constraint.
-   */
-  IntLt ( std::vector<VariablePtr> vars, std::vector<std::string> args );
-  
-  /**
-   * Basic constructor: it checks if x != y.
-   * @param x an integer value.
-   * @param y an integer value.
-   */
-  IntLt ( int x, int y );
-  
-  /**
-   * Constructor.
-   * @param x (pointer to) a FD variable.
-   * @param y an integer value.
-   * @note It subtracts the value y from
-   *       the domain of the variable x if
-   *       x has a domain defined on integers.
-   */
-  IntLt ( IntVariablePtr x, int y );
-  
-  /**
-   * Constructor.
-   * @param x an integer value.
-   * @param y (pointer to) a FD variable.
-   * @note It subtracts the value x from
-   *       the domain of the variable y if
-   *       y has a domain defined on integers.
-   */
-  IntLt ( int x, IntVariablePtr y );
-  
-  /**
-   * Constructor.
-   * @param x (pointer to) a FD variable.
-   * @param y (pointer to) a FD variable.
-   */
-  IntLt ( IntVariablePtr x, IntVariablePtr y );
+  IntLt ( std::string& constraint_name );
   
   //! Setup method, see fzn_constraint.h
   void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) override;

@@ -175,6 +175,12 @@ Constraint::set_shared_arguments ( std::unordered_map < std::string, std::vector
 	_shared_arguments = ptr;
 }//set_shared_arguments
 
+int 
+Constraint::get_number_shared_arguments () const
+{
+	return _shared_argument_ids.size();
+}//get_number_shared_arguments
+
 const std::vector<int>&
 Constraint::get_shared_arguments ( size_t idx )
 {
@@ -194,7 +200,8 @@ Constraint::get_shared_arguments ( size_t idx )
 }//get_shared_arguments
 
 const std::vector<int>&
-Constraint::arguments () const {
+Constraint::arguments () const 
+{
   return _arguments;
 }//arguments
 

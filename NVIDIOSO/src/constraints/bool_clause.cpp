@@ -8,19 +8,15 @@
 
 #include "bool_clause.h"
 
-BoolClause::BoolClause () :
-FZNConstraint ( BOOL_CLAUSE ) {
+BoolClause::BoolClause ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::BOOL_CLAUSE );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntNe
-
-BoolClause::BoolClause ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-BoolClause () {
-  setup ( vars, args );
-}//IntNe
+}//BoolClause
 
 BoolClause::~BoolClause () {}
 
@@ -53,7 +49,7 @@ BoolClause::satisfied ()
 void
 BoolClause::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

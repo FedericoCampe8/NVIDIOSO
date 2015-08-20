@@ -12,10 +12,10 @@
 #ifndef __NVIDIOSO__int_lin_le_reif__
 #define __NVIDIOSO__int_lin_le_reif__
 
-#include "fzn_constraint.h"
+#include "base_constraint.h"
 #include "int_variable.h"
 
-class IntLinLeReif : public FZNConstraint {  
+class IntLinLeReif : public BaseConstraint {  
 public:
     /**
      * Basic constructor.
@@ -23,17 +23,9 @@ public:
      *       call the setup method to setup the variables
      *       and parameters needed by this constraint.
      */
-    IntLinLeReif ();
+    IntLinLeReif ( std::string& constraint_name );
 
     ~IntLinLeReif ();
-
-    /**
-     * Basic constructor.
-     * @note this constructor implicitly calls the setup
-     *       method to setup variables and arguments for
-     *       this constraint.
-     */
-    IntLinLeReif ( std::vector<VariablePtr> vars, std::vector<std::string> args );
 
     //! Setup method, see fzn_constraint.h
     void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) override;

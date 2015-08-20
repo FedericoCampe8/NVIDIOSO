@@ -1,5 +1,5 @@
 //
-//  fzn_constraint.h
+//  base_constraint.h
 //  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 28/07/14.
@@ -29,12 +29,12 @@
 //        the constraint, than the constraint is trivially satisfied.
 //
 
-#ifndef __NVIDIOSO__fzn_constraint__
-#define __NVIDIOSO__fzn_constraint__
+#ifndef __NVIDIOSO__base_constraint__
+#define __NVIDIOSO__base_constraint__
 
 #include "constraint.h"
 
-enum class FZNConstraintType
+enum class BaseConstraintType
 {
   ARRAY_BOOL_AND          = 0,
   ARRAY_BOOL_ELEMENT      = 1,
@@ -132,14 +132,17 @@ enum class FZNConstraintType
   OTHER                   = 93
 };
 
-class FZNConstraint : public Constraint {
+class BaseConstraint : public Constraint {
 protected:
   
   //! FlatZinc constraint type
-  FZNConstraintType _constraint_type;
+  BaseConstraintType _base_constraint_type;
   
   //! Scope size
   int _scope_size;
+  
+  //! Set base constraint type (default BaseConstraintType::OTHER )
+  void set_base_constraint_type ( BaseConstraintType bse_t );
   
   /**
    * Base constructor.
@@ -152,130 +155,11 @@ protected:
    *       need to be defined in terms of variables in their scope
    *       and, if needed, auxiliary parameters.
    */
-  FZNConstraint ( std::string name );
+  BaseConstraint ( std::string name );
   
 public:
-  static const std::string ARRAY_BOOL_AND;
-  static const std::string ARRAY_BOOL_ELEMENT;
-  static const std::string ARRAY_BOOL_OR;
-  static const std::string ARRAY_FLOAT_ELEMENT;
-  static const std::string ARRAY_INT_ELEMENT;
-  static const std::string ARRAY_SET_ELEMENT;
-  static const std::string ARRAY_VAR_BOOL_ELEMENT;
-  static const std::string ARRAY_VAR_FLOAT_ELEMENT;
-  static const std::string ARRAY_VAR_INT_ELEMENT;
-  static const std::string ARRAY_VAR_SET_ELEMENT;
-  static const std::string BOOL2INT;
-  static const std::string BOOL_AND;
-  static const std::string BOOL_CLAUSE;
-  static const std::string BOOL_EQ;
-  static const std::string BOOL_EQ_REIF;
-  static const std::string BOOL_LE;
-  static const std::string BOOL_LE_REIF;
-  static const std::string BOOL_LT;
-  static const std::string BOOL_LT_REIF;
-  static const std::string BOOL_NOT;
-  static const std::string BOOL_OR;
-  static const std::string BOOL_XOR;
-  static const std::string FLOAT_ABS;
-  static const std::string FLOAT_ACOS;
-  static const std::string FLOAT_ASIN;
-  static const std::string FLOAT_ATAN;
-  static const std::string FLOAT_COS;
-  static const std::string FLOAT_COSH;
-  static const std::string FLOAT_EXP;
-  static const std::string FLOAT_LN;
-  static const std::string FLOAT_LOG10;
-  static const std::string FLOAT_LOG2;
-  static const std::string FLOAT_SQRT;
-  static const std::string FLOAT_SIN;
-  static const std::string FLOAT_SINH;
-  static const std::string FLOAT_TAN;
-  static const std::string FLOAT_TANH;
-  static const std::string FLOAT_EQ;
-  static const std::string FLOAT_EQ_REIF;
-  static const std::string FLOAT_LE;
-  static const std::string FLOAT_LE_REIF;
-  static const std::string FLOAT_LIN_EQ;
-  static const std::string FLOAT_LIN_EQ_REIF;
-  static const std::string FLOAT_LIN_LE;
-  static const std::string FLOAT_LIN_LE_REIF;
-  static const std::string FLOAT_LIN_LT;
-  static const std::string FLOAT_LIN_LT_REIF;
-  static const std::string FLOAT_LIN_NE;
-  static const std::string FLOAT_LIN_NE_REIF;
-  static const std::string FLOAT_LT;
-  static const std::string FLOAT_LT_REIF;
-  static const std::string FLOAT_MAX;
-  static const std::string FLOAT_MIN;
-  static const std::string FLOAT_NE;
-  static const std::string FLOAT_NE_REIF;
-  static const std::string FLOAT_PLUS;
-  static const std::string INT_ABS;
-  static const std::string INT_DIV;
-  static const std::string INT_EQ;
-  static const std::string INT_EQ_REIF;
-  static const std::string INT_LE;
-  static const std::string INT_LE_REIF;
-  static const std::string INT_LIN_EQ;
-  static const std::string INT_LIN_EQ_REIF;
-  static const std::string INT_LIN_LE;
-  static const std::string INT_LIN_LE_REIF;
-  static const std::string INT_LIN_NE;
-  static const std::string INT_LIN_NE_REIF;
-  static const std::string INT_LT;
-  static const std::string INT_LT_REIF;
-  static const std::string INT_MAX_C;
-  static const std::string INT_MIN_C;
-  static const std::string INT_MOD;
-  static const std::string INT_NE;
-  static const std::string INT_NE_REIF;
-  static const std::string INT_PLUS;
-  static const std::string INT_TIMES;
-  static const std::string INT2FLOAT;
-  static const std::string SET_CARD;
-  static const std::string SET_DIFF;
-  static const std::string SET_EQ;
-  static const std::string SET_EQ_REIF;
-  static const std::string SET_IN;
-  static const std::string SET_IN_REIF;
-  static const std::string SET_INTERSECT;
-  static const std::string SET_LE;
-  static const std::string SET_LT;
-  static const std::string SET_NE;
-  static const std::string SET_NE_REIF;
-  static const std::string SET_SUBSET;
-  static const std::string SET_SUBSET_REIF;
-  static const std::string SET_SYMDIFF;
-  static const std::string SET_UNION;
-  static const std::string OTHER;
   
-  /**
-   * It converts a number_id name to the
-   * correspondent FZNConstraintType type.
-   * @param  number_id the number id of the FlatZinc constraint.
-   * @return the type of the FlatZinc constraint.
-   */
-  static FZNConstraintType int_to_type ( int number_id );
-  
-  /**
-   * It converts a FZNConstraintType to the
-   * correspondent integer type.
-   * @param  c_type the type of the FlatZinc constraint.
-   * @return the number_id correspondent to c_type.
-   */
-  static int type_to_int ( FZNConstraintType c_type );
-  
-  /**
-   * It converts a string representing the name of a constraint
-   * to a unique idetifier for the correspondent type
-   * of FlatZinc constraint.
-   * @param c_name name of a FlatZinc constraint.
-   * @return the number_id correspondent to name.
-   */
-  static int name_to_id ( std::string c_name );
-  
-  virtual ~FZNConstraint();
+  virtual ~BaseConstraint();
   
   /**
    * It sets the variables and the arguments for this constraint.
@@ -285,7 +169,7 @@ public:
    *        arguments needed by the constraint in order to ensure
    *        consistency.
    */
-  virtual void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) = 0;
+  virtual void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args );
   
   /**
    * It returns an integer value that can be used
@@ -297,6 +181,9 @@ public:
    *         this constraint is satisfied.
    */
   virtual int unsat_level () const override;
+  
+  //! Get base constraint type
+  BaseConstraintType get_base_constraint_type () const;
   
   /**
    * It attaches this constraint (observer) to the list of
@@ -335,4 +222,4 @@ public:
   void print_semantic () const override;
 };
 
-#endif /* defined(__NVIDIOSO__fzn_constraint__) */
+#endif /* defined(__NVIDIOSO__base_constraint__) */

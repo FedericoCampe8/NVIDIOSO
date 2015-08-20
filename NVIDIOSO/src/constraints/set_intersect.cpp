@@ -8,18 +8,14 @@
 
 #include "set_intersect.h"
 
-SetIntersect::SetIntersect () :
-FZNConstraint ( SET_INTERSECT ) {
+SetIntersect::SetIntersect ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::SET_INTERSECT );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//SetIntersect
-
-SetIntersect::SetIntersect ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-SetIntersect () {
-  setup ( vars, args );
 }//SetIntersect
 
 SetIntersect::~SetIntersect () {}
@@ -53,7 +49,7 @@ SetIntersect::satisfied ()
 void
 SetIntersect::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

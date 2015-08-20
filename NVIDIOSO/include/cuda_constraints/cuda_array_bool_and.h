@@ -44,6 +44,7 @@ public:
   
   //! Prints the semantic of this constraint
   __device__ void print () const;
+  
 #endif
   
 };

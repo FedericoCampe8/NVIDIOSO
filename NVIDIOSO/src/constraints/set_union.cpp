@@ -8,18 +8,14 @@
 
 #include "set_union.h"
 
-SetUnion::SetUnion () :
-FZNConstraint ( SET_UNION ) {
+SetUnion::SetUnion ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::SET_UNION );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//SetUnion
-
-SetUnion::SetUnion ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-SetUnion () {
-  setup ( vars, args );
 }//SetUnion
 
 SetUnion::~SetUnion () {}
@@ -53,7 +49,7 @@ SetUnion::satisfied ()
 void
 SetUnion::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

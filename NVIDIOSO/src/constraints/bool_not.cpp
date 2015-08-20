@@ -8,19 +8,15 @@
 
 #include "bool_not.h"
 
-BoolNot::BoolNot () :
-FZNConstraint ( BOOL_NOT ) {
+BoolNot::BoolNot ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::BOOL_NOT );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntNe
-
-BoolNot::BoolNot ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-BoolNot () {
-  setup ( vars, args );
-}//IntNe
+}//BoolNot
 
 BoolNot::~BoolNot () {}
 
@@ -53,7 +49,7 @@ BoolNot::satisfied ()
 void
 BoolNot::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

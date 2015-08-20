@@ -8,18 +8,14 @@
 
 #include "set_in.h"
 
-SetIn::SetIn () :
-FZNConstraint ( SET_IN ) {
+SetIn::SetIn ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::SET_IN );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//SetIn
-
-SetIn::SetIn ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-SetIn () {
-  setup ( vars, args );
 }//SetIn
 
 SetIn::~SetIn () {}
@@ -53,7 +49,7 @@ SetIn::satisfied ()
 void
 SetIn::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

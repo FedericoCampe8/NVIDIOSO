@@ -3,7 +3,7 @@
 //  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 07/07/15.
-//  Copyright (c) 2014-2015 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 //  Inclusion file to group all inclusions for cuda constraints.
 //

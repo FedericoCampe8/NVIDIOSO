@@ -2,7 +2,7 @@
 //  global_constraint.cpp
 //  iNVIDIOSO
 //
-//  Created by Federico Campeotto on 07/31/15.
+//  Created by Federico Campeotto on 31/07/15.
 //  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
@@ -17,10 +17,25 @@ GlobalConstraint::GlobalConstraint ( std::string name ) :
   	_num_blocks      = 1;
   	_num_threads     = 1;
   	_local_memory    = 0;
+  	_global_constraint_type = GlobalConstraintType::OTHER;
 }//GlobalConstraint
 
 GlobalConstraint::~GlobalConstraint () {
 }//~FZNConstraint
+
+void 
+GlobalConstraint::set_global_constraint_type ( GlobalConstraintType gbl_t )
+{
+	_global_constraint_type = gbl_t;
+}//set_global_constraint_type
+
+GlobalConstraintType 
+GlobalConstraint::get_global_constraint_type () const
+{
+	//Sanity check
+	assert ( _global_constraint_type != GlobalConstraintType::OTHER );
+	return _global_constraint_type;
+}//get_global_constraint_type
 
 void 
 GlobalConstraint::naive_consistency ()

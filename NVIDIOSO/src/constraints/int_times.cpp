@@ -2,32 +2,25 @@
 //  int_times.cpp
 //  iNVIDIOSO
 //
-//  Created by Federico Campeotto on 07/07/15.
+//  Created by Federico Campeotto on 07/07/14.
 //  Modified by Luca Foschiani on 08/18/15 (foschiani01@gmail.com).
-//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. 
+//	All rights reserved.
 //
-
 
 #include "int_times.h"
 
-IntTimes::IntTimes () :
-FZNConstraint ( INT_TIMES ) {
+IntTimes::IntTimes ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::INT_TIMES ); 
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   set_event( EventType::SINGLETON_EVT );
-
   set_event( EventType::MIN_EVT );
-
   set_event( EventType::MAX_EVT );
-
   set_event( EventType::BOUNDS_EVT );
-}//IntTimes
-
-IntTimes::IntTimes ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-IntTimes () {
-  setup ( vars, args );
 }//IntTimes
 
 void
@@ -212,9 +205,7 @@ IntTimes::consistency () {
                 _var_y->in_max ( bounds.second );
             }
 
-        } 
-        else 
-        {
+        } else {
 
             if ( !_var_x->is_singleton() ) {
 
@@ -271,10 +262,6 @@ IntTimes::consistency () {
     return;
 }//consistency
 
-/*
- * Returns the bounds of the domain
- * [d1..d2]*[e1..e2]
- */
 std::pair<int,int>
 IntTimes::mul_bounds ( int d1, int d2, int e1, int e2 ) {
 
@@ -317,10 +304,6 @@ IntTimes::mul_bounds ( int d1, int d2, int e1, int e2 ) {
     return std::make_pair ( l_bound, u_bound );
 }//mul_bounds
 
-/*
- * Returns the bounds of the domain
- * [d1..d2]/[e1..e2]
- */
 std::pair<int,int>
 IntTimes::div_bounds ( int d1, int d2, int e1, int e2 ) {
 
@@ -393,47 +376,43 @@ IntTimes::div_bounds ( int d1, int d2, int e1, int e2 ) {
 
 //! It checks if x * y = z
 bool
-IntTimes::satisfied () 
-{
+IntTimes::satisfied () {
+
     // No variables: check the int values
-    if ( _scope_size == 0 ) 
-    {
+    if ( _scope_size == 0 ) {
         return _arguments[ 0 ] * _arguments[ 1 ] == _arguments[ 2 ];
     }
 
     // One variable: if its domain is empty, failed propagation
-    if ( _scope_size == 1 && _var_x->is_empty() )
+    if ( _scope_size == 1 &&
+         _var_x->is_empty() )
         return false;
-        
     // One variable whose domain isn't empty: check if singleton
-    if ( _scope_size == 1 && _var_x->is_singleton() ) 
-    {
-        if ( is_variable_at( 0 )|| is_variable_at( 1 ) ) 
-        {
+    if ( _scope_size == 1 &&
+         _var_x->is_singleton() ) {
+        if ( is_variable_at( 0 )||
+             is_variable_at( 1 ) ) {
             return _var_x->min() * _arguments[ 0 ] == _arguments[ 1 ];
-        } 
-        else 
-        {
+        } else {
             return _arguments[ 0 ] * _arguments[ 1 ] == _var_x->min();
         }
     }
-	
+
     /*
      * Two variables: if the domain of either of them is empty,
      * failed propagation
      */
-    if ( _scope_size == 2 && (_var_x->is_empty() || _var_y->is_empty() ) )
+    if ( _scope_size == 2 &&
+         (_var_x->is_empty() ||
+          _var_y->is_empty() ) )
         return false;
-        
     // Two variables whose domain isn't empty: check if both are singletons
-    if ( _scope_size == 2 && _var_x->is_singleton() && _var_y->is_singleton() ) 
-    {
-        if ( !is_variable_at( 2 ) ) 
-        {
+    if ( _scope_size == 2 &&
+         _var_x->is_singleton() &&
+         _var_y->is_singleton() ) {
+        if ( !is_variable_at( 2 ) ) {
             return _var_x->min() * _var_y->min() == _arguments[ 0 ];
-        } 
-        else 
-        {
+        } else {
             return _arguments[ 0 ] * _var_x->min() == _var_y->min();
         }
     }
@@ -447,7 +426,6 @@ IntTimes::satisfied ()
           _var_y->is_empty() ||
           _var_z->is_empty() ) )
         return false;
-        
     // Three variables whose domain isn't empty: check if all are singletons
     if ( _scope_size == 3 &&
          _var_x->is_singleton() &&
@@ -455,7 +433,7 @@ IntTimes::satisfied ()
          _var_z->is_singleton() ) {
         return _var_x->min() * _var_y->min() == _var_z->min();
     }
-	
+
     /*
      * If there's not enough information to state whether
      * the constraint is satisfied or not, return true.
@@ -468,7 +446,7 @@ IntTimes::satisfied ()
 void
 IntTimes::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
     std::cout << "a * b = c\n";
     std::cout << "int_times(var int: a, var int: b, var int: c)\n";
 }//print_semantic

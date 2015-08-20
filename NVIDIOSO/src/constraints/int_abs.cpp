@@ -8,19 +8,15 @@
 
 #include "int_abs.h"
 
-IntAbs::IntAbs () :
-FZNConstraint ( INT_ABS ) {
+IntAbs::IntAbs ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::INT_ABS );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntNe
-
-IntAbs::IntAbs ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-IntAbs () {
-  setup ( vars, args );
-}//IntNe
+}//IntAbs
 
 IntAbs::~IntAbs () {}
 
@@ -53,7 +49,7 @@ IntAbs::satisfied ()
 void
 IntAbs::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

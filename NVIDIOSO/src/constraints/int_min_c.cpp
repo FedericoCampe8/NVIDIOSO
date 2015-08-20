@@ -8,19 +8,15 @@
 
 #include "int_min_c.h"
 
-IntMinC::IntMinC () :
-FZNConstraint ( INT_MIN_C ) {
+IntMinC::IntMinC ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::INT_MIN_C );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntNe
-
-IntMinC::IntMinC ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-IntMinC () {
-  setup ( vars, args );
-}//IntNe
+}//IntMinC
 
 IntMinC::~IntMinC () {}
 
@@ -53,7 +49,7 @@ IntMinC::satisfied ()
 void
 IntMinC::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

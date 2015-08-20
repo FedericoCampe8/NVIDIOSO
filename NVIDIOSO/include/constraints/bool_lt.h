@@ -12,10 +12,10 @@
 #ifndef __NVIDIOSO__bool_lt__
 #define __NVIDIOSO__bool_lt__
 
-#include "fzn_constraint.h"
+#include "base_constraint.h"
 #include "int_variable.h"
 
-class BoolLt : public FZNConstraint {  
+class BoolLt : public BaseConstraint {  
 public:
     /**
      * Basic constructor.
@@ -23,17 +23,9 @@ public:
      *       call the setup method to setup the variables
      *       and parameters needed by this constraint.
      */
-    BoolLt ();
+    BoolLt ( std::string& constraint_name );
 
     ~BoolLt ();
-
-    /**
-     * Basic constructor.
-     * @note this constructor implicitly calls the setup
-     *       method to setup variables and arguments for
-     *       this constraint.
-     */
-    BoolLt ( std::vector<VariablePtr> vars, std::vector<std::string> args );
 
     //! Setup method, see fzn_constraint.h
     void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) override;

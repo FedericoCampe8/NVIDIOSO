@@ -12,10 +12,10 @@
 #ifndef __NVIDIOSO__set_intersect__
 #define __NVIDIOSO__set_intersect__
 
-#include "fzn_constraint.h"
+#include "base_constraint.h"
 #include "int_variable.h"
 
-class SetIntersect : public FZNConstraint {  
+class SetIntersect : public BaseConstraint {  
 public:
     /**
      * Basic constructor.
@@ -23,17 +23,9 @@ public:
      *       call the setup method to setup the variables
      *       and parameters needed by this constraint.
      */
-    SetIntersect ();
+    SetIntersect ( std::string& constraint_name );
 
     ~SetIntersect ();
-
-    /**
-     * Basic constructor.
-     * @note this constructor implicitly calls the setup
-     *       method to setup variables and arguments for
-     *       this constraint.
-     */
-    SetIntersect ( std::vector<VariablePtr> vars, std::vector<std::string> args );
 
     //! Setup method, see fzn_constraint.h
     void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) override;

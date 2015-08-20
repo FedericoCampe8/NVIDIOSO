@@ -8,18 +8,14 @@
 
 #include "int_mod.h"
 
-IntMod::IntMod () :
-FZNConstraint ( INT_MOD ) {
+IntMod::IntMod ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::INT_MOD );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntMod
-
-IntMod::IntMod ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-IntMod () {
-  setup ( vars, args );
 }//IntMod
 
 IntMod::~IntMod () {}
@@ -53,7 +49,7 @@ IntMod::satisfied ()
 void
 IntMod::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

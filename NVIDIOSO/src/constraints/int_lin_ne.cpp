@@ -10,16 +10,12 @@
 
 using namespace std;
 
-IntLinNe::IntLinNe () :
-FZNConstraint ( INT_LIN_NE ) {
+IntLinNe::IntLinNe ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::INT_LIN_NE );
   
   // Set the event that trigger this constraint
   set_event( EventType::SINGLETON_EVT );
-}//IntLinNe
-
-IntLinNe::IntLinNe ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-IntLinNe () {
-  setup( vars, args );
 }//IntLinNe
 
 IntLinNe::~IntLinNe () {
@@ -131,7 +127,7 @@ IntLinNe::only_one_not_ground () {
 
 void
 IntLinNe::print_semantic () const {
-  FZNConstraint::print_semantic();
+  BaseConstraint::print_semantic();
   std::cout << "Sum_{i \\in 1..n}: as[i].bs[i] != c ";
   std::cout << "where n is the common length of as and bs\n";
   std::cout << "int_lin_ne(array [int] of int: as, array [int] of var int: bs, int:c)\n";

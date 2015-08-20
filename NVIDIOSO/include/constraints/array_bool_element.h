@@ -12,10 +12,10 @@
 #ifndef __NVIDIOSO__array_bool_element__
 #define __NVIDIOSO__array_bool_element__
 
-#include "fzn_constraint.h"
+#include "base_constraint.h"
 #include "int_variable.h"
 
-class ArrayBoolElement : public FZNConstraint {  
+class ArrayBoolElement : public BaseConstraint {  
 private:
 private:
 	//! States whether var int or var bool is ground when there is only 1 unassigned var
@@ -31,17 +31,9 @@ public:
      *       call the setup method to setup the variables
      *       and parameters needed by this constraint.
      */
-    ArrayBoolElement ();
+    ArrayBoolElement ( std::string& constraint_name );
 
     ~ArrayBoolElement ();
-
-    /**
-     * Basic constructor.
-     * @note this constructor implicitly calls the setup
-     *       method to setup variables and arguments for
-     *       this constraint.
-     */
-    ArrayBoolElement ( std::vector<VariablePtr> vars, std::vector<std::string> args );
 
     //! Setup method, see fzn_constraint.h
     void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) override;

@@ -1,9 +1,9 @@
 //
 //  cuda_model_generator.h
-//  NVIDIOSO
+//  iNVIDIOSO
 //
-//  Created by Federico Campeotto on 09/07/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Created by Federico Campeotto on 07/09/14.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 //  Generates the objects for the model w.r.t. to a CUDA implementation.
 //  It specializes the right data structures (e.g. domains) for CUDA.
@@ -13,8 +13,10 @@
 #define NVIDIOSO_cuda_model_generator_h
 
 #include "model_generator.h"
-#include "global_constraint_register.h"
 
+class BaseConstraintRegister;
+class GlobalConstraintRegister;
+extern BaseConstraintRegister&   bse_constraint_register;
 extern GlobalConstraintRegister& glb_constraint_register;
 
 class CudaGenerator : public ModelGenerator {

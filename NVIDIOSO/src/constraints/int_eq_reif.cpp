@@ -8,19 +8,15 @@
 
 #include "int_eq_reif.h"
 
-IntEqReif::IntEqReif () :
-FZNConstraint ( INT_EQ_REIF ) {
+IntEqReif::IntEqReif ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::INT_EQ_REIF );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntNe
-
-IntEqReif::IntEqReif ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-IntEqReif () {
-  setup ( vars, args );
-}//IntNe
+}//IntEqReif
 
 IntEqReif::~IntEqReif () {}
 
@@ -53,7 +49,7 @@ IntEqReif::satisfied ()
 void
 IntEqReif::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

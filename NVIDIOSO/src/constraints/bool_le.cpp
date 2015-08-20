@@ -8,19 +8,15 @@
 
 #include "bool_le.h"
 
-BoolLe::BoolLe () :
-FZNConstraint ( BOOL_LE ) {
+BoolLe::BoolLe ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::BOOL_LE );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntNe
-
-BoolLe::BoolLe ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-BoolLe () {
-  setup ( vars, args );
-}//IntNe
+}//BoolLe
 
 BoolLe::~BoolLe () {}
 
@@ -53,7 +49,7 @@ BoolLe::satisfied ()
 void
 BoolLe::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

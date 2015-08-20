@@ -29,28 +29,38 @@ protected:
   
   std::string _dbg;
   
-  //! Domain state on host
+  //! Domain states on host
   uint * _h_domain_states;
   
-  //! Domain state on device
+  /**
+   * Domain states on device.
+   * @note this array stores the current status of domains
+   *       on global memory on device.
+   */
   uint *  _d_domain_states;
   
   /**
    * Auxiliary array of domain states.
-   * @note by default this is not being allocated.
-   * @note used if some particular synchronization strategy on
-   *       the original array is required.
+   * @note by default this is initialized to NULL.
+   * @note this is used if some synchronization strategy on
+   *       the original array is required and, for example,
+   *       two arrays swapping their content are needed.
    */
    uint * _d_domain_states_aux;
   
   //! Size of (num. of bytes) all domains
   size_t _domain_state_size;
   
-  //! Domain (begin) index on device
+  /**
+   * Domain (begin) index on device.
+   * This array has an index for each variable allocated on device.
+   * If _d_domain_index [ i ] = k, then D^{V_i} starts at 
+   * _d_domain_states [ k ].
+   */
   int * _d_domain_index;
   
   /**
-   * Information related to constraints:
+   * Information related to base constraints:
    * 1 - Type of constraint
    * 2 - constraint's id
    * 3 - scope size
@@ -58,12 +68,52 @@ protected:
    * 5 - list of variables ids
    * 6 - list of auxiliary arguments
    */
-  int* d_constraint_description;
+  int* _d_base_constraint_description;
   
-  //! Map from var id on host to var id on device
+  /**
+   * Information related to global constraints:
+   * 1 - Type of constraint
+   * 2 - constraint's id
+   * 3 - scope size
+   * 4 - number of auxiliary arguments
+   * 5 - list of variables ids
+   * 6 - list of auxiliary arguments
+   */
+  int* _d_global_constraint_description;
+  
+  /**
+   * Additional information required by some constraints (e.g., table constraint).
+   * @note Information is stored in one single array of integers.
+   * @note All tables and arrays are serialized into this array. 
+   *       Each array/table starts with number of rows and number of columns as
+   *       stored in CPModel class from CudaGenerator.
+   */
+  int * _d_additional_constraint_parameters;
+  int * _d_additional_global_constraint_parameters;
+  
+  /**
+   * Indexes into _d_additional_constraint_info for each constraint
+   * to allocate on device.
+   * @note if -1, then the constraint does not have any additional parameter.
+   */
+  int * _d_additional_constraint_parameters_index;
+  int * _d_additional_global_constraint_parameters_index;
+  
+  /**
+   * Lookup table from var id on host to var id on device.
+   * For each variable id on host there is a corresponding variable id on device.
+   * This is done since var id on host may by any integer value while variable ids on device
+   * are sequential and correspond to the indexes on _map_vars_to_doms.
+   */
   std::map<int, int> _cuda_var_lookup;
   
-  //! Map from var on device to index of corresponding domains on device
+  /**
+   * Map from var on device to index of corresponding domains on device.
+   * This is used to copy indexes to _d_domain_index.
+   * Moreover, it is also used by the function dev_var_mapping function
+   * returning the indexes of the variables on device corresponding to a given 
+   * set of (host) variables ids.
+   */
   std::vector<int> _map_vars_to_doms;
   
   //! Allocate domains on device
@@ -72,12 +122,27 @@ protected:
   //! Allocate constraints on device
   virtual bool alloc_constraints ();
   
+  /*
+   * @note the following two function behave the same.
+   *       Both allocate and initialize constraint info on device.
+   *       There are two functions to allow the user to derive them
+   *       implementing new features only on one type of constraints 
+   *       (e.g., using different cuda streams on global constraints,
+   *        preserving the normal stream on base constraints).
+   */
+  // Allocate base constraints on device.
+  virtual bool alloc_base_constraints ();
+  
+  // Allocate global constraints on device.
+  virtual bool alloc_global_constraints ();
+  
 public:
+
   CudaCPModel ();
   ~CudaCPModel();
   
   //! Mapping between constraint ids and the constraints on device
-  std::unordered_map< size_t, size_t >constraint_mapping_h_d;
+  std::unordered_map< size_t, size_t > constraint_mapping_h_d;
   
   //! Get function for domain states
   uint * const get_dev_domain_states_ptr () const;

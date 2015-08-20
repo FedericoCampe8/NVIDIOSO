@@ -8,19 +8,15 @@
 
 #include "bool_or.h"
 
-BoolOr::BoolOr () :
-FZNConstraint ( BOOL_OR ) {
+BoolOr::BoolOr ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::BOOL_OR );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntNe
-
-BoolOr::BoolOr ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-BoolOr () {
-  setup ( vars, args );
-}//IntNe
+}//BoolOr
 
 BoolOr::~BoolOr () {}
 
@@ -53,7 +49,7 @@ BoolOr::satisfied ()
 void
 BoolOr::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

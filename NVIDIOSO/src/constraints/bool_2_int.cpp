@@ -8,18 +8,14 @@
 
 #include "bool_2_int.h"
 
-Bool2Int::Bool2Int () :
-FZNConstraint ( BOOL2INT ) {
+Bool2Int::Bool2Int ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::BOOL2INT );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//Bool2Int
-
-Bool2Int::Bool2Int ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-Bool2Int () {
-  setup ( vars, args );
 }//Bool2Int
 
 Bool2Int::~Bool2Int () {}
@@ -53,7 +49,7 @@ Bool2Int::satisfied ()
 void
 Bool2Int::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

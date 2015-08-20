@@ -2,7 +2,7 @@
 //  global_constraint_register.h
 //  iNVIDIOSO
 //
-//  Created by Federico Campeotto on 30/07/15.
+//  Created by Federico Campeotto on 07/30/15.
 //  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 //  This class implements a register for global constraints.
@@ -27,7 +27,7 @@
  * The register can be a singleton.
  * Then, parsing a constraint: Constraint * c = register.get ( "alldifferent" );
  * returns a COPY/CLONE of the "alldifferent" global constraint.
- * Then, c.set ( vars, args );
+ * Then, c.setup ( vars, args );
  */
 
 #ifndef __NVIDIOSO__global_constraint_register__
@@ -35,12 +35,12 @@
 
 #include "global_constraint.h"
 
-typedef GlobalConstraint* (*poster) ( std::string constraint_name );
+typedef GlobalConstraint* (*glb_poster) ( std::string& constraint_name );
 
 class GlobalConstraintRegister {
 private:
   
-	std::unordered_map<std::string, poster> _register;
+	std::unordered_map<std::string, glb_poster> _register;
   
   	/**
   	 * Add the poster (function to create the global constraint) p
@@ -48,7 +48,7 @@ private:
   	 * @param name name of the global constraint.
   	 * @param p poster, function to instantiate a new global constraint.
   	 */
-  	void add ( std::string name, poster p );
+  	void add ( std::string name, glb_poster p );
   	
   	//! Init function, fill the register (hash table) with posters
   	void fill_register ();
@@ -70,7 +70,7 @@ public:
   	}//get_instance
   	
   	//! Given the string name of the global constraint, return an instance of it
-  	GlobalConstraintPtr get_global_constraint ( std::string glb_constraint_name);
+  	GlobalConstraintPtr get_global_constraint ( std::string& glb_constraint_name );
   
 };
 

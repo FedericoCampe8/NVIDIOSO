@@ -8,18 +8,14 @@
 
 #include "set_diff.h"
 
-SetDiff::SetDiff () :
-FZNConstraint ( SET_DIFF ) {
+SetDiff::SetDiff ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::SET_DIFF );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//SetDiff
-
-SetDiff::SetDiff ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-SetDiff () {
-  setup ( vars, args );
 }//SetDiff
 
 SetDiff::~SetDiff () {}
@@ -53,7 +49,7 @@ SetDiff::satisfied ()
 void
 SetDiff::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

@@ -68,7 +68,20 @@ protected:
      *    int_eq ( x, 2 ) has 2 as auxiliary argument.
      */
     int* _args;
-  
+    
+    /**
+     * Array of additional parameters needed by the constraint
+     * in order to be propagated (e.g., table constraint).
+     * @note All additional parameters are serialized into this
+     *       array and each subarray begins with two values:
+     *       1 - Number of rows
+     *       2 - Number of columns
+     *       Therefore, 
+     *       an array of length n is | 1 | n | a_1 | a_2 | ... | a_n |,
+     *       an n*m matrix is | n | m | a_11 | a_12 | ... | a_nm |.
+     */
+  	 int* _additional_parameters;	
+  		
     /**
      * Mapping between indexes of vars in this constraint
      * as 0, 1, 2, ... and the corresponding indexes on the global array
@@ -243,7 +256,7 @@ public:
   
     //!Get the size of the auxiliary arguments of this constraint.
     __device__ size_t get_arguments_size () const;
-
+    
     /**
      * Copy status (domains) from global to shared memory.
      * @param shared_ptr pointer to the region of shared memory
@@ -286,6 +299,18 @@ public:
     __device__ void move_bit_status_from_shared ( uint * shared_ptr = nullptr, int d_size = MIXED_DOM, int ref = -1, uint* extern_status = nullptr, int thread_offset = 0 );
     
     /**
+	 * Set additional parameters array.
+	 * @param additional_parameters_ptr (void) pointer to the area on device
+	 *        storing all additional parameters needed by the constraint.
+	 * @note any additional parameter array needed by this constraint
+	 *       can be set using this method as long as it has the format
+	 *       | # rows | # columns | values |.
+	 * @note by default additional parameters array is a pointer pointing to NULL and
+	 *       additional_parameters_ptr is converted to a pointer to integer.
+	 */
+    __device__ virtual void set_additional_parameters ( void* additional_parameters_ptr );
+    
+    /**
      * It is a (most probably incomplete) consistency function which
      * removes the values from variable domains. Only values which
      * do not have any support in a solution space are removed.
@@ -308,6 +333,7 @@ public:
   
     //! Prints info.
     __device__ virtual void print () const = 0;
+    
 #endif
   
 };

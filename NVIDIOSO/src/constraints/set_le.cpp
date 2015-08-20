@@ -8,18 +8,14 @@
 
 #include "set_le.h"
 
-SetLe::SetLe () :
-FZNConstraint ( SET_LE ) {
+SetLe::SetLe ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::SET_LE );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//SetLe
-
-SetLe::SetLe ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-SetLe () {
-  setup ( vars, args );
 }//SetLe
 
 SetLe::~SetLe () {}
@@ -53,7 +49,7 @@ SetLe::satisfied ()
 void
 SetLe::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

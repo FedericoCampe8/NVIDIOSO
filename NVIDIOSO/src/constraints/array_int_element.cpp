@@ -8,18 +8,14 @@
 
 #include "array_int_element.h"
 
-ArrayIntElement::ArrayIntElement () :
-FZNConstraint ( INT_NE ) {
+ArrayIntElement::ArrayIntElement ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::ARRAY_INT_ELEMENT );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntNe
-
-ArrayIntElement::ArrayIntElement ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-ArrayIntElement () {
-  setup ( vars, args );
 }//IntNe
 
 ArrayIntElement::~ArrayIntElement () {}
@@ -53,7 +49,7 @@ ArrayIntElement::satisfied ()
 void
 ArrayIntElement::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

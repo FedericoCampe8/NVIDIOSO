@@ -8,18 +8,14 @@
 
 #include "set_subset.h"
 
-SetSubset::SetSubset () :
-FZNConstraint ( SET_SUBSET ) {
+SetSubset::SetSubset ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::SET_SUBSET );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//SetSubset
-
-SetSubset::SetSubset ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-SetSubset () {
-  setup ( vars, args );
 }//SetSubset
 
 SetSubset::~SetSubset () {}
@@ -53,7 +49,7 @@ SetSubset::satisfied ()
 void
 SetSubset::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

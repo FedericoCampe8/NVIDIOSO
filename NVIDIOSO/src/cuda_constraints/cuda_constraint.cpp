@@ -4,23 +4,24 @@
 //
 //  Created by Federico Campeotto on 12/02/14.
 //  Modified on 07/14/15.
-//  Copyright (c) 2014-2015 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 #include "cuda_constraint.h"
 
 #if CUDAON
+
 __device__
 CudaConstraint::CudaConstraint ( int n_id, int n_vars, int n_args,
                                  int* vars, int* args,
                                  int* domain_idx, uint* domain_states ) :
-	_unique_id   ( n_id ),
-	_weight      ( 0 ),
-	_scope_size  ( n_vars ),
-	_args_size   ( n_args ),
-	_vars        ( vars ),
-	_args        ( args ) {
-	
+	_unique_id   		   ( n_id ),
+	_weight      		   ( 0 ),
+	_scope_size  		   ( n_vars ),
+	_args_size   		   ( n_args ),
+	_vars        		   ( vars ),
+	_args        		   ( args ),
+	_additional_parameters ( nullptr ) {
 	// Alloc memory for_status, _working_status, and indexes lookup array
 	_status            = (uint**) malloc ( _scope_size * sizeof (uint*) );
   	_working_status    = (uint**) malloc ( _scope_size * sizeof (uint*) );
@@ -887,5 +888,11 @@ CudaConstraint::get_arguments_size () const
 {
 	return _args_size;
 }//get_arguments_size
+
+__device__ void 
+CudaConstraint::set_additional_parameters ( void* additional_parameters_ptr )
+{	
+	_additional_parameters = static_cast < int* >( additional_parameters_ptr );
+}//set_additional_parameters
 
 #endif

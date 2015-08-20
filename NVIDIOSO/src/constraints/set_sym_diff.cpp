@@ -8,18 +8,14 @@
 
 #include "set_sym_diff.h"
 
-SetSymDiff::SetSymDiff () :
-FZNConstraint ( SET_SYMDIFF ) {
+SetSymDiff::SetSymDiff ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::SET_SYMDIFF );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//SetSymDiff
-
-SetSymDiff::SetSymDiff ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-SetSymDiff () {
-  setup ( vars, args );
 }//SetSymDiff
 
 SetSymDiff::~SetSymDiff () {}
@@ -53,7 +49,7 @@ SetSymDiff::satisfied ()
 void
 SetSymDiff::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

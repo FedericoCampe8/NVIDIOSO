@@ -8,19 +8,15 @@
 
 #include "bool_lt.h"
 
-BoolLt::BoolLt () :
-FZNConstraint ( BOOL_LT ) {
+BoolLt::BoolLt ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::BOOL_LT );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntNe
-
-BoolLt::BoolLt ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-BoolLt () {
-  setup ( vars, args );
-}//IntNe
+}//BoolLt
 
 BoolLt::~BoolLt () {}
 
@@ -53,7 +49,7 @@ BoolLt::satisfied ()
 void
 BoolLt::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

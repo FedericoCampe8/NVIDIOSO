@@ -83,6 +83,7 @@ esac
 CC="g++"
 CUDAON="false"
 ARCHITECTURE=$(uname -m)
+ARCHITECTURE_ALL=$(uname -a)
 MACHINE_VAL="-m64"
 if [ $ARCHITECTURE != "x86_64" ]; then
     MACHINE_VAL="-m32"
@@ -135,6 +136,7 @@ SRC=src
 OBJ_FOLDER=("base constraints" "cuda_constraints" \
 "global_constraints" "cuda_global_constraints" "constraint_store" \
 "cuda_constraint_store" "parser" "FZ_parser" "core" "search exception" \
+"local_search" "cuda_local_search" \
 "cuda_utilities" "variable cuda_variable" )
 
 # Create install folder if default is used
@@ -180,11 +182,11 @@ CreateMakeInc
 
 # Continue installation using make.inc
 FILELOG="install_`date +%Y%m%d`.log"
-echo "====== iNVIDIOSO-1.0 Install ======" 1>$FILELOG
-echo "Architecture: $ARCHITECTURE" 1>>$FILELOG
+echo "====== iNVIDIOSO-1.0 Installation ======" > $FILELOG
+echo "Architecture: $ARCHITECTURE_ALL" >> $FILELOG
 
-make clean &>$FILELOG
-make &>$FILELOG &
+make clean 1>>$FILELOG
+make 1>>$FILELOG &
 
 MAKEBG=`echo $!`
 

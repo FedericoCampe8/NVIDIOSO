@@ -12,10 +12,10 @@
 #ifndef __NVIDIOSO__bool_xor__
 #define __NVIDIOSO__bool_xor__
 
-#include "fzn_constraint.h"
+#include "base_constraint.h"
 #include "int_variable.h"
 
-class BoolXor : public FZNConstraint {  
+class BoolXor : public BaseConstraint {  
 public:
     /**
      * Basic constructor.
@@ -23,17 +23,9 @@ public:
      *       call the setup method to setup the variables
      *       and parameters needed by this constraint.
      */
-    BoolXor ();
+    BoolXor ( std::string& constraint_name );
 
     ~BoolXor ();
-
-    /**
-     * Basic constructor.
-     * @note this constructor implicitly calls the setup
-     *       method to setup variables and arguments for
-     *       this constraint.
-     */
-    BoolXor ( std::vector<VariablePtr> vars, std::vector<std::string> args );
 
     //! Setup method, see fzn_constraint.h
     void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) override;

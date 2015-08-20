@@ -8,19 +8,15 @@
 
 #include "array_var_bool_element.h"
 
-ArrayVarBoolElement::ArrayVarBoolElement () :
-FZNConstraint ( ARRAY_VAR_BOOL_ELEMENT ) {
+ArrayVarBoolElement::ArrayVarBoolElement ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::ARRAY_VAR_BOOL_ELEMENT );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntNe
-
-ArrayVarBoolElement::ArrayVarBoolElement ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-ArrayVarBoolElement () {
-  setup ( vars, args );
-}//IntNe
+}//ArrayVarBoolElement
 
 ArrayVarBoolElement::~ArrayVarBoolElement () {}
 
@@ -53,7 +49,7 @@ ArrayVarBoolElement::satisfied ()
 void
 ArrayVarBoolElement::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

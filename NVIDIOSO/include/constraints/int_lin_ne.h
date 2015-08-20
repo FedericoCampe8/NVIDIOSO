@@ -13,10 +13,10 @@
 #ifndef __NVIDIOSO__int_lin_ne__
 #define __NVIDIOSO__int_lin_ne__
 
-#include "fzn_constraint.h"
+#include "base_constraint.h"
 #include "int_variable.h"
 
-class IntLinNe : public FZNConstraint {
+class IntLinNe : public BaseConstraint {
 private:
   //! array [int] of int
   std::vector<int> _as;
@@ -55,15 +55,7 @@ public:
    *       call the setup method to setup the variables
    *       and parameters needed by this constraint.
    */
-  IntLinNe ();
-  
-  /**
-   * Basic constructor.
-   * @note this constructor implicitly calls the setup
-   *       method to setup variables and arguments for
-   *       this constraint.
-   */
-  IntLinNe ( std::vector<VariablePtr> vars, std::vector<std::string> args );
+  IntLinNe ( std::string& constraint_name );
   
   ~IntLinNe();
   

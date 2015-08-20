@@ -8,19 +8,15 @@
 
 #include "bool_xor.h"
 
-BoolXor::BoolXor () :
-FZNConstraint ( BOOL_XOR ) {
+BoolXor::BoolXor ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::BOOL_XOR );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntNe
-
-BoolXor::BoolXor ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-BoolXor () {
-  setup ( vars, args );
-}//IntNe
+}//BoolXor
 
 BoolXor::~BoolXor () {}
 
@@ -53,7 +49,7 @@ BoolXor::satisfied ()
 void
 BoolXor::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

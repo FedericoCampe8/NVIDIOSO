@@ -12,10 +12,10 @@
 #ifndef __NVIDIOSO__int_abs__
 #define __NVIDIOSO__int_abs__
 
-#include "fzn_constraint.h"
+#include "base_constraint.h"
 #include "int_variable.h"
 
-class IntAbs : public FZNConstraint {  
+class IntAbs : public BaseConstraint {  
 public:
     /**
      * Basic constructor.
@@ -23,18 +23,10 @@ public:
      *       call the setup method to setup the variables
      *       and parameters needed by this constraint.
      */
-    IntAbs ();
+    IntAbs ( std::string& constraint_name );
 
     ~IntAbs ();
-
-    /**
-     * Basic constructor.
-     * @note this constructor implicitly calls the setup
-     *       method to setup variables and arguments for
-     *       this constraint.
-     */
-    IntAbs ( std::vector<VariablePtr> vars, std::vector<std::string> args );
-
+    
     //! Setup method, see fzn_constraint.h
     void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) override;
     

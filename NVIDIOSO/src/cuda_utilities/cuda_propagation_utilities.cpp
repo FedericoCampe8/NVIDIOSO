@@ -15,8 +15,11 @@ using uint = unsigned int;
 
 #if CUDAON
 
-// Array of global constraint
+// Global array of base constraint
 __device__ CudaConstraint** g_dev_constraints;
+
+// Global array of global constraint
+__device__ CudaConstraint** g_dev_glb_constraints;
 
 // Array for barrier synchronization
 __device__ bool* g_dev_synch_barrier;

@@ -8,19 +8,15 @@
 
 #include "int_div.h"
 
-IntDiv::IntDiv () :
-FZNConstraint ( INT_DIV ) {
+IntDiv::IntDiv ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::INT_DIV );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntNe
-
-IntDiv::IntDiv ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-IntDiv () {
-  setup ( vars, args );
-}//IntNe
+}//IntDiv
 
 IntDiv::~IntDiv () {}
 
@@ -53,7 +49,7 @@ IntDiv::satisfied ()
 void
 IntDiv::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

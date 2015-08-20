@@ -8,8 +8,9 @@
 
 #include "int_eq.h"
 
-IntEq::IntEq () :
-FZNConstraint ( INT_EQ ) {
+IntEq::IntEq ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::INT_EQ );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
@@ -18,59 +19,6 @@ FZNConstraint ( INT_EQ ) {
   set_event( EventType::MIN_EVT );
   set_event( EventType::MAX_EVT );
   set_event( EventType::BOUNDS_EVT );
-}//IntNe
-
-IntEq::IntEq ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-IntEq () {
-  setup ( vars, args );
-}//IntEq
-
-IntEq::IntEq ( int x, int y ) :
-FZNConstraint ( INT_EQ ) {
-  
-  /*
-   * Set x and y as arguments.
-   * @note no FD variables here: scope size equal
-   *       to 0 which is the default value.
-   */
-  _arguments.push_back( x );
-  _arguments.push_back( y );
-}//IntEq
-
-IntEq::IntEq ( IntVariablePtr x, int y ) :
-FZNConstraint ( INT_EQ ) {
-  
-  // Consistency check on pointers
-  if ( x == nullptr )
-    throw NvdException ( (_dbg + "x variable is NULL").c_str() );
-  
-  // Assign the FD variable to _var_x
-  _var_x = x;
-  
-  // Set the argument in the list of arguments
-  _arguments.push_back( y );
-  
-  // One FD variable: scope size = 1;
-  _scope_size = 1;
-}//IntEq
-
-IntEq::IntEq ( int x, IntVariablePtr y ) :
-IntEq ( y, x ) {
-}//IntEq
-
-IntEq::IntEq ( IntVariablePtr x, IntVariablePtr y ) :
-FZNConstraint ( INT_EQ ) {
-  
-  // Consistency check on pointers
-  if ( x == nullptr )
-    throw NvdException ( (_dbg + "x variable is NULL").c_str() );
-  if ( y == nullptr )
-    throw NvdException ( (_dbg + "y variable is NULL").c_str() );
-  
-  // Common case: 2 FD variables
-  _var_x = x;
-  _var_y = y;
-  _scope_size = 2;
 }//IntEq
 
 void
@@ -223,7 +171,7 @@ IntEq::satisfied ()  {
 //! Prints the semantic of this constraint
 void
 IntEq::print_semantic () const {
-  FZNConstraint::print_semantic();
+  BaseConstraint::print_semantic();
   std::cout << "a = b\n";
   std::cout << "int_eq(var int: a, var int:b)\n";
 }//print_semantic

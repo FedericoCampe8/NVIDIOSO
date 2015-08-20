@@ -8,19 +8,15 @@
 
 #include "array_var_int_element.h"
 
-ArrayVarIntElement::ArrayVarIntElement () :
-FZNConstraint ( ARRAY_VAR_INT_ELEMENT ) {
+ArrayVarIntElement::ArrayVarIntElement ( std::string& constraint_name ) :
+	BaseConstraint ( constraint_name ) {
+	set_base_constraint_type ( BaseConstraintType::ARRAY_VAR_INT_ELEMENT );
   /*
    * Set the event that trigger this constraint.
    * @note if no event is set, this constraint will never be re-evaluated.
    */
   //set_event( EventType::SINGLETON_EVT );
-}//IntNe
-
-ArrayVarIntElement::ArrayVarIntElement ( std::vector<VariablePtr> vars, std::vector<std::string> args ) :
-ArrayVarIntElement () {
-  setup ( vars, args );
-}//IntNe
+}//ArrayVarIntElement
 
 ArrayVarIntElement::~ArrayVarIntElement () {}
 
@@ -53,7 +49,7 @@ ArrayVarIntElement::satisfied ()
 void
 ArrayVarIntElement::print_semantic () const
 {
-    FZNConstraint::print_semantic ();
+    BaseConstraint::print_semantic ();
 }//print_semantic
 
 

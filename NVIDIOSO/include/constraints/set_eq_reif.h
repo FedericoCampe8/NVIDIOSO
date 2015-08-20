@@ -12,10 +12,10 @@
 #ifndef __NVIDIOSO__set_eq_reif__
 #define __NVIDIOSO__set_eq_reif__
 
-#include "fzn_constraint.h"
+#include "base_constraint.h"
 #include "int_variable.h"
 
-class SetEqReif : public FZNConstraint {  
+class SetEqReif : public BaseConstraint {  
 public:
     /**
      * Basic constructor.
@@ -23,17 +23,9 @@ public:
      *       call the setup method to setup the variables
      *       and parameters needed by this constraint.
      */
-    SetEqReif ();
+    SetEqReif ( std::string& constraint_name );
 
     ~SetEqReif ();
-
-    /**
-     * Basic constructor.
-     * @note this constructor implicitly calls the setup
-     *       method to setup variables and arguments for
-     *       this constraint.
-     */
-    SetEqReif ( std::vector<VariablePtr> vars, std::vector<std::string> args );
 
     //! Setup method, see fzn_constraint.h
     void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) override;

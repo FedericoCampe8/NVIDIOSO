@@ -14,10 +14,10 @@
 #ifndef __NVIDIOSO__int_plus__
 #define __NVIDIOSO__int_plus__
 
-#include "fzn_constraint.h"
+#include "base_constraint.h"
 #include "int_variable.h"
 
-class IntPlus : public FZNConstraint {
+class IntPlus : public BaseConstraint {
 
 private:
     
@@ -36,15 +36,7 @@ public:
      *       call the setup method to setup the variables
      *       and parameters needed by this constraint.
      */
-    IntPlus ();
-
-    /**
-     * Basic constructor.
-     * @note this constructor implicitly calls the setup
-     *       method to setup variables and arguments for
-     *       this constraint.
-     */
-    IntPlus ( std::vector<VariablePtr> vars, std::vector<std::string> args );
+    IntPlus ( std::string& constraint_name );
 
     //! Setup method, see fzn_constraint.h
     void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) override;

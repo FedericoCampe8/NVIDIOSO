@@ -12,10 +12,10 @@
 #ifndef __NVIDIOSO__bool_le_reif__
 #define __NVIDIOSO__bool_le_reif__
 
-#include "fzn_constraint.h"
+#include "base_constraint.h"
 #include "int_variable.h"
 
-class BoolLeReif : public FZNConstraint {  
+class BoolLeReif : public BaseConstraint {  
 public:
     /**
      * Basic constructor.
@@ -23,17 +23,9 @@ public:
      *       call the setup method to setup the variables
      *       and parameters needed by this constraint.
      */
-    BoolLeReif ();
+    BoolLeReif ( std::string& constraint_name );
 
     ~BoolLeReif ();
-
-    /**
-     * Basic constructor.
-     * @note this constructor implicitly calls the setup
-     *       method to setup variables and arguments for
-     *       this constraint.
-     */
-    BoolLeReif ( std::vector<VariablePtr> vars, std::vector<std::string> args );
 
     //! Setup method, see fzn_constraint.h
     void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) override;

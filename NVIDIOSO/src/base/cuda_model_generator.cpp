@@ -2,7 +2,7 @@
 //  cuda_model_generator.cpp
 //  iNVIDIOSO
 //
-//  Created by Federico Campeotto on 09/07/14.
+//  Created by Federico Campeotto on 07/09/14.
 //  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
@@ -12,17 +12,19 @@
 #include "token_arr.h"
 #include "token_con.h"
 #include "token_sol.h"
-#include "fzn_constraint_generator.h"
-#include "fzn_search_generator.h"
+#include "search_generator.h"
 #include "factory_cstore.h"
+#include "base_constraint_register.h"
+#include "global_constraint_register.h"
+
 
 using namespace std;
 
+BaseConstraintRegister&   bse_constraint_register = BaseConstraintRegister::get_instance ();
 GlobalConstraintRegister& glb_constraint_register = GlobalConstraintRegister::get_instance ();
 
 CudaGenerator::CudaGenerator () :
-    _dbg( "CudaGenerator - " )
-{
+    _dbg( "CudaGenerator - " ) {
 	_obj_var = nullptr;
 	LogMsg << _dbg + "Instantiate a model generator" << endl;
 }//CudaGenerator
@@ -264,32 +266,23 @@ CudaGenerator::get_constraint ( UTokenPtr tkn_ptr )
      */
 	if ( tkn_ptr->get_type() == TokenType::FD_CONSTRAINT )
 	{
-		ConstraintPtr fzn_constraint;
-		try
+		ConstraintPtr bse_constraint = bse_constraint_register.get_base_constraint ( constraint_name );
+		static_cast<BaseConstraint*> ((bse_constraint.get()))->setup ( var_ptr, par_ptr );
+		if ( ptr->is_soft () )
     	{
-        	fzn_constraint = 
-            FZNConstraintFactory::get_fzn_constraint_shr_ptr( constraint_name,
-                                                              var_ptr, par_ptr );
-    	}
-    	catch ( NvdException& e )
-    	{
-        	cout << e.what() << endl;
-        	throw;
-    	}
-    	if ( ptr->is_soft () )
-    	{
-    		fzn_constraint->increase_weight ();
+    		bse_constraint->increase_weight ();
     	}
     	
     	// Set position of variables in the constraint as defined from input model
-    	fzn_constraint->set_var2subscript_mapping ( var_position_mapping );
+    	bse_constraint->set_var2subscript_mapping ( var_position_mapping );
     	
-    	return fzn_constraint;
+    	return bse_constraint;
 	}
 	else
-	{
+	{// Global constraint
 		GlobalConstraintPtr glb_constraint = glb_constraint_register.get_global_constraint ( constraint_name );
 		glb_constraint->setup ( var_ptr, par_ptr );
+		
 		if ( solver_params != nullptr )
 		{
 			glb_constraint->set_consistency_level ( solver_params->constraint_get_propagator_class () );
@@ -380,8 +373,7 @@ CudaGenerator::get_search_engine ( UTokenPtr tkn_ptr )
     std::sort( variables.begin(), variables.end(), MySortingFunction );
   
     // Get search engine according to the input model
-    SearchEnginePtr engine =
-        FZNSearchFactory::get_fzn_search_shr_ptr ( variables, ptr );
+    SearchEnginePtr engine = SearchFactory::get_search_shr_ptr ( variables, ptr );
     variables.clear ();
 
     // Set solver parameters
