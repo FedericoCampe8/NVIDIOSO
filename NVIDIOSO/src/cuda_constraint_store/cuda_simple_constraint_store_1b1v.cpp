@@ -218,6 +218,7 @@ CudaSimpleConstraintStore1b1v::dev_consistency ()
     else
     {
         // Propagate constraints in parallel
+        if ( dev_grid_size.x == 0 ) return;
         CudaPropUtils::cuda_consistency_1b1v <<< dev_grid_size, dev_block_size, _scope_state_size >>> 
         ( _d_constraint_queue, _d_constraint_queue_idx, STANDARD_DOM, _d_states_aux );
         

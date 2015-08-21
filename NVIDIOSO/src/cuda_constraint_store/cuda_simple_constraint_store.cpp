@@ -27,15 +27,19 @@ CudaSimpleConstraintStore::CudaSimpleConstraintStore () :
     }
     else
     {
-    	// Min of 16KB of shared memory
+    	// Minimum of 16KB of shared memory
     	_shared_limit = 16000;
     }
 }//CudaSimpleConstraintStore
 
 CudaSimpleConstraintStore::~CudaSimpleConstraintStore () {
+
 #if CUDAON
+
     cudaFree ( _d_constraint_queue );
+    
 #endif
+
 }//~CudaSimpleConstraintStore
 
 void 
@@ -96,6 +100,7 @@ CudaSimpleConstraintStore::finalize ( CudaCPModel* ptr )
     _cp_model_ptr = ptr;
 
     #if CUDAON
+    
     // Synchronization barrier for blocks on device
     if ( logger.cuda_handle_error ( cudaMalloc ( (void**)&g_dev_synch_barrier,
                                                  sizeof ( bool )) ) )
@@ -113,7 +118,9 @@ CudaSimpleConstraintStore::finalize ( CudaCPModel* ptr )
         throw NvdException ( err.c_str(), __FILE__, __LINE__ );
     }
     _h_constraint_queue.insert ( _h_constraint_queue.end(), num_constraints, 0 );
+    
     #endif
+    
 }//finalize
 
 
@@ -132,6 +139,7 @@ CudaSimpleConstraintStore::move_states_from_device ()
 void
 CudaSimpleConstraintStore::move_queue_to_device ()
 {
+
 #if CUDAON
 
     _scope_state_size = 0;
@@ -160,6 +168,7 @@ CudaSimpleConstraintStore::move_queue_to_device ()
 bool
 CudaSimpleConstraintStore::consistency ()
 {
+
 #if CUDAON
     
     if ( _d_constraint_queue == nullptr )
@@ -232,11 +241,13 @@ CudaSimpleConstraintStore::clear_queue ()
 void
 CudaSimpleConstraintStore::dev_consistency ()
 {// Default propagation: sequential on device
+
 #if CUDAON
 
 	CudaPropUtils::cuda_consistency_sequential <<< 1, 1, _scope_state_size >>> ( _d_constraint_queue, _constraint_queue.size() );
 	
 #endif
+
 }//dev_consistency
 
 

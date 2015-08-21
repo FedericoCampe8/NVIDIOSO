@@ -37,8 +37,13 @@ CudaCPModelSimple::alloc_variables ()
     {
     	_var_event_lookup [ var->get_id () ] = 0;
     	
+    	// ================== NOTE ==================
+    	// BOOLEAN DOMAIN REPRESENTATION ON DEVICE
+    	// NOT TESTED YET.
+    	// ==========================================
+    	
         // Map Boolean variables
-        if ( var->get_size() == 2 )
+        if ( var->get_size() == 2 && false )
         {
             _bool_var_lookup.insert ( var->get_id() );
 

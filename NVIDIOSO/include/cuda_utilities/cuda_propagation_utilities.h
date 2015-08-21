@@ -43,6 +43,7 @@ extern __device__ bool* g_dev_synch_barrier;
 namespace CudaPropUtils
 {
     #if CUDAON
+    
     /**
      * Propagates constraints in constraint_queue sequentially on device.
      * @param constraint_queue the queue of constraints to propagate.
@@ -70,12 +71,12 @@ namespace CudaPropUtils
      * @param constraint_queue the queue of constraints to propagate.
      * @param queue_size size of the constraint queue.
      
-     * @param shared_memory_array_size size of the array of shared memory for each constraint.
+     * @param shared_array_size size of the array of shared memory for each constraint.
      * @param domain_type the type of domain (i.e., standard, Boolean, etc.).
      */
     __global__ void cuda_consistency_1bKc (  size_t * constraint_queue, std::size_t constraint_queue_size,
  
-    int shared_memory_array_size, int domain_type = STANDARD_DOM );
+    int shared_array_size, int domain_type = STANDARD_DOM );
     
     /**
      * Propagates constraints in constraint_queue in parallel on device.
@@ -84,13 +85,36 @@ namespace CudaPropUtils
      * @param constraint_queue queue of constraints for each variable: this queue contains
      *        1 - Id of the constraint
      * 		  2 - Index (0, 1, 2, etc.) of the variable to consider for propagation
-     * @param queue_idx indexes of the starting position for each queue of constraints for each variable
-     * @param domain_type type of domain (bool, standard, mixed)
-     * @aux_state pointer to an array of auxiliary states. Used for synchronization between blocks
+     * @param queue_idx indexes of the starting position for each queue of constraints for each variable.
+     * @param domain_type type of domain (bool, standard, mixed).
+     * @param aux_state pointer to an array of auxiliary states. Used for synchronization between blocks.
      * @todo use a separate array for indexes of variables
      * @todo return asap if a failure is found
      */
-    __global__ void cuda_consistency_1b1v (  size_t * constraint_queue, int* queue_idx, int domain_type = STANDARD_DOM, uint * aux_state = nullptr );
+    __global__ void cuda_consistency_1b1v (  size_t * constraint_queue, int* queue_idx, 
+    int domain_type = STANDARD_DOM, uint * aux_state = nullptr );
+    
+    /**
+     * Propagates constraints in constraint_queue in parallel on device.
+     * This function is supposed to be invoked with one block per K variable and the
+     * constraints are propagated w.r.t. that variable.
+     * @param constraint_queue queue of constraints for each variable: this queue contains
+     *        1 - Id of the constraint
+     * 		  2 - Index (0, 1, 2, etc.) of the variable to consider for propagation
+     * @param queue_idx indexes of the starting position for each queue of constraints for each variable
+     * @param constraint_queue_idx size of the queue of indexes.
+  
+     * @param shared_array_size size of the array of shared memory for each constraint.
+     * @param domain_type type of domain (bool, standard, mixed).
+     * @param aux_state pointer to an array of auxiliary states. Used for synchronization between blocks.
+     * @todo use a separate array for indexes of variables
+     * @todo return asap if a failure is found
+     */
+    __global__ void cuda_consistency_1bKv (  size_t * constraint_queue, int* queue_idx, 
+    std::size_t constraint_queue_idx_size,
+ int shared_array_size,
+    int domain_type = STANDARD_DOM, uint * aux_state = nullptr );
+    
 #endif
 }
 

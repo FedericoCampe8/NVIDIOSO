@@ -15,7 +15,8 @@
 #include "cuda_simple_constraint_store.h"
 
 class CudaSimpleConstraintStore1b1v : public CudaSimpleConstraintStore {
-private:
+protected:
+
     //! Size of the array of constraints that will be coipied on device
     std::size_t _h_constraint_queue_size;
 
@@ -44,17 +45,16 @@ private:
 
     //! Pointers (indeces) to the list of constraints for each variable
     std::vector<int> _var_to_constraint_idx;
-
-    //! Reset all mappings
-    void reset ();
     
     /**
      * Sequential propagation to perform if parallel propagation
      * cannot be performed for some external reasons.
      */
     void sequential_propagation ();
+	
+	//! Reset all mappings
+    void reset ();
     
-protected:
     //! Add the constraint to the queue of constraints to propagate for each variable
     void add_changed ( size_t c_id, EventType event ) override;
     
@@ -71,6 +71,7 @@ protected:
     void dev_consistency ();
 
 public:
+
     CudaSimpleConstraintStore1b1v ();
 
     ~CudaSimpleConstraintStore1b1v ();

@@ -66,13 +66,13 @@ CudaPropUtils::cuda_consistency_1bKc ( size_t * constraint_queue, size_t constra
     extern __shared__ uint shared_status[];
 	
 	// Warp idx
-  	int warp_idx_std = (blockIdx.x * blockDim.x + threadIdx.x) / WARP_SIZE;
-  	int c_idx        = constraint_queue [ warp_idx_std ];
+  	int warp_idx = (blockIdx.x * blockDim.x + threadIdx.x) / WARP_SIZE;
+  	int c_idx    = constraint_queue [ warp_idx ];
 	
 	// Local shared memory
   	uint * local_shared = &shared_status [ (threadIdx.x / WARP_SIZE) * shared_array_size ];
   
-  	if ( warp_idx_std < constraint_queue_size )
+  	if ( warp_idx < constraint_queue_size )
   	{
   		G_DEV_CONSTRAINTS_ARRAY [ c_idx ]->
   		move_status_to_shared ( local_shared, domain_type, -((threadIdx.x / WARP_SIZE) * WARP_SIZE));
@@ -80,7 +80,7 @@ CudaPropUtils::cuda_consistency_1bKc ( size_t * constraint_queue, size_t constra
   	
  	__syncthreads();
   
-  	if ( ((threadIdx.x % WARP_SIZE) == 0) && (warp_idx_std < constraint_queue_size) )
+  	if ( ((threadIdx.x % WARP_SIZE) == 0) && (warp_idx < constraint_queue_size) )
   	{
    		G_DEV_CONSTRAINTS_ARRAY [ c_idx ]->consistency();
     	G_DEV_CONSTRAINTS_ARRAY [ c_idx ]->satisfied();
@@ -88,7 +88,7 @@ CudaPropUtils::cuda_consistency_1bKc ( size_t * constraint_queue, size_t constra
   
   	__syncthreads();
   
-  	if ( warp_idx_std < constraint_queue_size)
+  	if ( warp_idx < constraint_queue_size)
   	{
   		G_DEV_CONSTRAINTS_ARRAY [ c_idx ]->
   		move_bit_status_from_shared ( local_shared, domain_type, -1, nullptr, -((threadIdx.x / WARP_SIZE) * WARP_SIZE) );
@@ -134,6 +134,74 @@ CudaPropUtils::cuda_consistency_1b1v ( size_t * constraint_queue, int* queue_idx
         G_DEV_CONSTRAINTS_ARRAY [ c_idx ]->move_bit_status_from_shared ( shared_status, domain_type, v_idx, aux_state );
     }
 }//cuda_consistency__1b1v
+
+__global__ void
+CudaPropUtils::cuda_consistency_1bKv ( size_t * constraint_queue, int* queue_idx, std::size_t constraint_queue_idx_size,
+ int shared_array_size, int domain_type, uint * aux_state )
+{
+    extern __shared__ uint shared_status[];
+	__shared__ bool exit_asap;
+	
+	if (threadIdx.x == 0 )
+	{
+		exit_asap = false;
+	}
+	__syncthreads();
+	
+	// Warp idx
+	int warp_idx = (blockIdx.x * blockDim.x + threadIdx.x) / WARP_SIZE;
+	
+	// Local shared memory
+  	uint * local_shared = &shared_status [ (threadIdx.x / WARP_SIZE) * shared_array_size ];
+  	
+
+    int c_idx, v_idx;
+    int s_con = queue_idx [ warp_idx % constraint_queue_idx_size     ];
+    int e_con = queue_idx [ warp_idx % constraint_queue_idx_size + 1 ];
+
+	// Loop through all constraints involving the current variable
+    for ( ; s_con < e_con; s_con += 2 )
+    {
+    	/*
+    	 * Get the current constraint to propagate w.r.t. 
+    	 * the variable associated to this block
+    	 */
+        c_idx = constraint_queue [ s_con     ];
+        v_idx = constraint_queue [ s_con + 1 ];
+        		
+        // Copy state from global memory to shared memory to speedup operations
+		if ( warp_idx < constraint_queue_idx_size && !exit_asap )
+		{
+    		G_DEV_CONSTRAINTS_ARRAY [ c_idx ]->
+    		move_status_to_shared ( local_shared, domain_type, -((threadIdx.x / WARP_SIZE) * WARP_SIZE));
+		}			
+
+		if ( ((threadIdx.x % WARP_SIZE) == 0) && (warp_idx < constraint_queue_idx_size) && !exit_asap )
+    	{
+			// Perform consistency w.r.t. the variable associated to this block 
+        	G_DEV_CONSTRAINTS_ARRAY [ c_idx ]->consistency ( v_idx ); 
+        	
+        	// Satisfiability check
+        	if ( !G_DEV_CONSTRAINTS_ARRAY [ c_idx ]->satisfied() )
+        	{
+        		exit_asap = true;
+        	}
+        }
+        				
+		/*
+		 * Copy reduced domains back to global memory.
+		 * @note DO NOT copy on the original global memory since other block 
+		 *       may still be reading original global memory.
+		 */
+		 if ( warp_idx < constraint_queue_idx_size )
+		 {	
+        	G_DEV_CONSTRAINTS_ARRAY [ c_idx ]->
+        	move_bit_status_from_shared ( local_shared, domain_type, v_idx, aux_state, -((threadIdx.x / WARP_SIZE) * WARP_SIZE) );
+        	if ( exit_asap ) break; 
+        }
+    }//s_con	
+    
+}//cuda_consistency_1bKv
 
 #endif
 

@@ -65,8 +65,8 @@ public:
   	//! Constructor get (static) instance
   	static BaseConstraintRegister& get_instance () 
   	{
-    	static BaseConstraintRegister register_instance;
-    	return register_instance;
+  		static BaseConstraintRegister register_instance;
+  		return register_instance;
   	}//get_instance
   	
   	//! Given the string name of the constraint, return an instance of it

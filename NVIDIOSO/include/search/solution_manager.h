@@ -1,9 +1,9 @@
 //
 //  solution_manager.h
-//  NVIDIOSO
+//  iNVIDIOSO
 //
-//  Created by Federico Campeotto on 09/08/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Created by Federico Campeotto on 08/09/14.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 //  This class represents the interface of any solution manager
 //  that can be attached to a search engine.
