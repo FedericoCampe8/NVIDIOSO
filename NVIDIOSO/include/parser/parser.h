@@ -139,7 +139,7 @@ public:
      *         False otherwise.
      */
     virtual bool parse () = 0;
-    
+     
     /**
      * Get methods:
      * more tokens of the same related type (i.e., variables,
@@ -147,11 +147,12 @@ public:
      * These methods should be used together with the 
      * "get" methods.
      */
-    virtual bool more_aux_arrays     () const = 0;
-    virtual bool more_variables      () const = 0;
-    virtual bool more_constraints    () const = 0;
-    virtual bool more_search_engines () const = 0;
-  
+    virtual bool more_aux_arrays        () const = 0;
+    virtual bool more_variables         () const = 0;
+    virtual bool more_constraints       () const = 0;
+    virtual bool more_search_engines    () const = 0;
+  	virtual bool more_constraint_stores () const = 0;
+  	
     /**
      * Get methods:
      * get variables, constraints, and the search engine.
@@ -160,11 +161,12 @@ public:
      * variables.
      * @return return a unique_ptr
      */
-    virtual UTokenPtr get_aux_array     () = 0;
-    virtual UTokenPtr get_variable      () = 0;
-    virtual UTokenPtr get_constraint    () = 0;
-    virtual UTokenPtr get_search_engine () = 0;
-  
+    virtual UTokenPtr get_aux_array        () = 0;
+    virtual UTokenPtr get_variable         () = 0;
+    virtual UTokenPtr get_constraint       () = 0;
+    virtual UTokenPtr get_search_engine    () = 0;
+  	virtual UTokenPtr get_constraint_store () = 0;
+  	
     //! Print info
     virtual void print () const = 0;
 };

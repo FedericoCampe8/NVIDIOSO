@@ -66,6 +66,7 @@ CUDA_LOCAL_SEARCH=cuda_local_search
 CUDA_CONSTRAINT_STORE=cuda_constraint_store
 CUDA_UTILITIES=cuda_utilities
 EXCEPTION=exception
+THIRD_PARTY=third-party
 EOF
 
 touch $MAKE_INC_CUDA

@@ -107,6 +107,12 @@ GlobalConstraint::consistency ()
   	}
 }//consistency
 
+int
+GlobalConstraint::unsat_level ()
+{
+	return 0;
+}//unsat_level
+
 bool
 GlobalConstraint::satisfied () 
 {

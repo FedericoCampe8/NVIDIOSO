@@ -18,7 +18,7 @@ _constraint_queue_size    ( 0 ),
 _number_of_constraints    ( 0 ),
 _number_of_propagations   ( 0 ),
 _satisfiability_check     ( true ),
-_consistecy_propagation   ( true ),
+_consistency_propagation  ( true ),
 _failure                  ( false ) {
 }//SimpleConstraintStore
 
@@ -54,7 +54,7 @@ SimpleConstraintStore::sat_check ( bool sat_check ) {
 void
 SimpleConstraintStore::con_check ( bool con_check )
 {
-    _consistecy_propagation = con_check;
+    _consistency_propagation = con_check;
 }//con_check
 
 size_t
@@ -71,8 +71,8 @@ size_t
 SimpleConstraintStore::num_constraints_to_reevaluate () const {
   return _constraint_queue_size;
 }//num_constraints
-
-void
+  
+void 
 SimpleConstraintStore::add_changed ( size_t c_id, EventType event ) {
   /*
    * Check if the constraints belongs to the constraint store.
@@ -83,7 +83,7 @@ SimpleConstraintStore::add_changed ( size_t c_id, EventType event ) {
   /*
    * Check if the constraints is already set for re-evaluation.
    * @note it requires log n time, where n = _constraint_queue_size.
-   */
+   */ 
   if ( _constraint_queue.insert( c_id ).second ) _constraint_queue_size++;
   
   /*
@@ -103,19 +103,25 @@ SimpleConstraintStore::add_changed ( vector< size_t >& c_id, EventType event ) {
   for ( size_t c : c_id )
     add_changed ( c, event );
 }//add_changed
-
+ 
 void
-SimpleConstraintStore::impose ( ConstraintPtr c ) {
-  if ( c == nullptr ) return;
-  if ( _lookup_table.find( c->get_unique_id() ) !=
-       _lookup_table.end() ) return;
+SimpleConstraintStore::impose ( ConstraintPtr c ) 
+{
+	// Sanity check
+	if ( c == nullptr ) return;
+	
+	// Check if the constraints has been already stored
+  	if ( _lookup_table.find( c->get_unique_id() ) != _lookup_table.end() ) return;
   
-  // Add c to the constraint store
-  size_t c_id = c->get_unique_id();
-  _lookup_table [ c_id ] = c;
-  _number_of_constraints++;
-  
-  add_changed ( c_id, EventType::OTHER_EVT );
+  	// Add c to the constraint store
+  	size_t c_id = c->get_unique_id();
+  	
+  	// Add constraint into the store
+  	_lookup_table [ c_id ] = c;
+  	_number_of_constraints++;
+  	
+  	// Add it into the queue for initial propagation
+  	add_changed ( c_id, EventType::OTHER_EVT );
 }//impose
 
 void
@@ -146,7 +152,7 @@ SimpleConstraintStore::consistency () {
   while ( !_constraint_queue.empty() )
   {    
       _constraint_to_reevaluate = getConstraint ();
-      if ( _consistecy_propagation )
+      if ( _consistency_propagation )
       {
           _constraint_to_reevaluate->consistency ();
       }
@@ -164,7 +170,7 @@ SimpleConstraintStore::consistency () {
           if ( !succeed ) break;
       }
   }//while
-
+ 
   /*
    * @note here it is possible to add the checks for
    *       for nogood learning.
@@ -200,6 +206,9 @@ SimpleConstraintStore::print () const {
   cout << "Attached constraints:      " << _number_of_constraints << endl;
   cout << "Constraints to reevaluate: " << _constraint_queue_size << endl;
   cout << "Number of propagations:    " << _number_of_propagations << endl;
+  cout << "Consistency propagation:   ";
+  if ( _consistency_propagation ) cout << " Enabled" << endl;
+  else                         	  cout << " Disabled" << endl;
   cout << "Satisfiability check:      ";
   if ( _satisfiability_check ) cout << " Enabled" << endl;
   else                         cout << " Disabled" << endl;

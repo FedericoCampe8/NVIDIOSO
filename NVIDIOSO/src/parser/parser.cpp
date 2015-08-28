@@ -79,15 +79,16 @@ Parser::more_tokens ()
 {
   	//return _more_tokens;
     return
-    ( more_aux_arrays     () ||
-      more_variables      () ||
-      more_constraints    () ||
-      more_search_engines () );
+    ( more_aux_arrays        () ||
+      more_variables         () ||
+      more_constraints       () ||
+      more_search_engines    () || 
+      more_constraint_stores () );
 }//has_more_elements
 
 UTokenPtr
 Parser::get_next_content ()
-{
+{ 
 	while ( more_aux_arrays () )
     {
         return std::move ( get_aux_array () );
@@ -104,6 +105,10 @@ Parser::get_next_content ()
     {
         return std::move ( get_search_engine () );
     }
+    while ( more_constraint_stores () )
+    {
+        return std::move ( get_constraint_store () );
+    } 
 
     UTokenPtr ptr ( nullptr );
     return std::move ( ptr );

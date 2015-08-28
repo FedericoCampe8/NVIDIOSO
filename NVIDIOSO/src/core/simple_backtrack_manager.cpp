@@ -30,7 +30,7 @@ SimpleBacktrackManager::detach_backtracable ( size_t bkt_id ) {
     _backtrackable_objects.erase( bkt_id );
   }
 }//detach_backtracable
-
+ 
 size_t
 SimpleBacktrackManager::get_level () const {
   return _current_level;

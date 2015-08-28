@@ -158,7 +158,7 @@ public:
   /**
    * It assignes variables one by one.
    * This function is called recursively.
-   * @param var the index of the variable (not grounded) to assign.
+   * @param var the index of the variable (not ground) to assign.
    * @return true if the solution was found.
    */
   virtual bool label ( int var ) = 0;

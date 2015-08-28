@@ -35,8 +35,7 @@ FZNTokenization::~FZNTokenization () {
 		delete [] _parsed_line;
 	}
 }//~FZNTokenization
-
-
+ 
 void
 FZNTokenization::set_flatzinc_map ( std::unordered_map < std::string, std::string >& m )
 {

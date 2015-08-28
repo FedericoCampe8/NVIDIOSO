@@ -17,11 +17,11 @@ class SimpleConstraintStore : public ConstraintStore {
 protected:
     //! Debug info
     std::string _dbg;
-  
+  	 
     /**
-     * Mapping between constraints' ids and
-     * constraints' pointer. Any new constraint
-     * imposed into the store is stored here.
+     * Mapping between constraints' ids and constraints' pointer. 
+     * Any constraint imposed into the store is stored here.
+     * @note this represents the actual store for constraints.
      */
     std::unordered_map < size_t, ConstraintPtr > _lookup_table;
   
@@ -57,7 +57,7 @@ protected:
      * Defines whether the consistency propagation
      * should be performed or not (default: true).
      */
-    bool _consistecy_propagation;
+    bool _consistency_propagation;
     
     /**
      * Keeps track whether some failure happened during

@@ -1,9 +1,9 @@
 //
 //  heuristic.h
-//  NVIDIOSO
+//  iNVIDIOSO
 //
-//  Created by Federico Campeotto on 07/08/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Created by Federico Campeotto on 08/07/14.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 //  This class defines the interface for the heuristic to be used
 //  during search. Implementing this interface allows the client to
@@ -19,44 +19,39 @@
 #include "variable.h"
 
 class Heuristic;
-typedef std::shared_ptr< Heuristic > HeuristicPtr;
+typedef std::unique_ptr< Heuristic > HeuristicUPtr;
+typedef std::shared_ptr< Heuristic > HeuristicSPtr;
+typedef std::shared_ptr< Heuristic > HeuristicPtr; /* Deprecated */
 
 class Heuristic {
 protected:
-  //! Debug info
-  std::string _dbg;
   
-  //! Current index used to select the next choice variable
-  int _current_index;
-  
-  Heuristic ();
+  Heuristic () {};
   
 public:
-  virtual ~Heuristic ();
+  virtual ~Heuristic () {};
   
   /**
-   * Return the current index (last index used) to
-   * select the choice variable.
+   * Returns the current internal index used to select the choice variable.
+   * @return internal index of the variable returned by get_choice_variable().
    */
-  virtual int get_index () const;
+  virtual int get_index () const = 0;
   
   /**
-   * Returns the variable which will represent
-   * the next choice point (i.e., the next variable
-   * to label). 
-   * @param idx the position of the last variable which has 
+   * Returns the variable which will represent the next choice point 
+   * (i.e., the next variable to label) w.r.t. the given index. 
+   * @param index the position of the last variable which has 
    *        been returned by this heuristic and which has not been
    *        backtracked upon yet.
    * @return a reference to the variable to label in the next step 
    *         according to this heuristic. 
    *         nullptr is returned if all variables are assigned.
    */
-  virtual Variable * get_choice_variable ( int idx ) = 0;
+  virtual Variable * get_choice_variable ( int index ) = 0;
   
   /**
    * Returns a value which will represent the next choice point 
-   * (i.e., the next value to assign to the variable selected
-   *  by this huristic).
+   * (i.e., the next value to assign to the variable selected by this huristic).
    * @return the value used in the choice point (value)
    * @note this value is an integer value. 
    *       If variables are not defined on integer values 

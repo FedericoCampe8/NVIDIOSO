@@ -86,6 +86,14 @@ IntNe::scope () const
   return scope;
 }//scope
 
+int 
+IntNe::unsat_level () 
+{
+	//@todo implement level of unsat based on the values of the variables
+	if ( satisfied () ) return 0;
+	return 1;
+}//unsat_level
+
 void
 IntNe::consistency () {
 

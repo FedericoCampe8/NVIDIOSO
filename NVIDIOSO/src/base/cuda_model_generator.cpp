@@ -12,6 +12,7 @@
 #include "token_arr.h"
 #include "token_con.h"
 #include "token_sol.h"
+#include "token_cstore.h"
 #include "search_generator.h"
 #include "factory_cstore.h"
 #include "base_constraint_register.h"
@@ -318,9 +319,11 @@ CudaGenerator::get_search_engine ( UTokenPtr tkn_ptr )
     assert ( ptr != nullptr );
     
     // Variables to label
+    Variable * obj_variable = nullptr;
     vector< Variable * > variables;
-    
+     
     // Check whether there is (are) a specific variable(s) to label
+    std::string var_goal = ptr->get_var_goal ();
     std::string label_choice = ptr->get_label_choice ();
     std::vector< std::string > vars_to_label = ptr->get_var_to_label();
     if ( label_choice != "" )
@@ -333,7 +336,7 @@ CudaGenerator::get_search_engine ( UTokenPtr tkn_ptr )
     		{
     			var_in_array = var.first.substr ( 0, found );
     		}
-    		
+    		 
     		if ( var.first == label_choice || var_in_array == label_choice )
     		{
         		variables.push_back ( (var.second).get() );
@@ -363,6 +366,21 @@ CudaGenerator::get_search_engine ( UTokenPtr tkn_ptr )
         	variables.push_back ( (var.second).get() );
     	}
     }
+    
+    if ( var_goal != "" )
+    {
+    	auto it = _var_lookup_table.find ( var_goal );
+    	if ( it != _var_lookup_table.end () )
+    	{
+    		obj_variable = (it->second).get();
+    	}
+    	else
+    	{
+    		LogMsg.error( _dbg + "Objective variable not found",
+                      	  __FILE__, __LINE__);
+        	return nullptr;
+    	}
+    }
   
     struct  SortingFunction
     {
@@ -373,7 +391,7 @@ CudaGenerator::get_search_engine ( UTokenPtr tkn_ptr )
     std::sort( variables.begin(), variables.end(), MySortingFunction );
   
     // Get search engine according to the input model
-    SearchEnginePtr engine = SearchFactory::get_search_shr_ptr ( variables, ptr );
+    SearchEnginePtr engine = SearchFactory::get_search_shr_ptr ( variables, ptr, obj_variable );
     variables.clear ();
 
     // Set solver parameters
@@ -391,35 +409,56 @@ CudaGenerator::get_search_engine ( UTokenPtr tkn_ptr )
     
     return engine;
 }//get_search_engine
-
+ 
 ConstraintStorePtr
 CudaGenerator::get_store ( UTokenPtr tkn_ptr )
 {
     ConstraintStorePtr store;
-  
+  	
+  	int  cstore_type  = 0;
+  	bool on_device    = false;
+  	bool local_search = false;
+  	
+  	if ( tkn_ptr != nullptr )
+  	{
+  		TokenCStore * ptr = static_cast<TokenCStore *> ( tkn_ptr.get() );
+    
+    	//Sanity check
+    	assert ( ptr != nullptr );
+    	local_search = ptr->on_local_search ();
+  	}
+  	
 #if CUDAON
+
+	on_device = true;
 	if ( solver_params != nullptr )
     {
-		store = FactoryCStore::get_cstore ( true, 
-	 					 					solver_params->cstore_type_to_int (
-						 					solver_params->cstore_get_dev_propagation () ) );
+    	cstore_type = solver_params->cstore_type_to_int ( solver_params->cstore_get_dev_propagation () );
 	}
-	else
-	{// Default Constraint Store on device
-		store = FactoryCStore::get_cstore ( true );
-	}
-    
-#else
-
-	store = FactoryCStore::get_cstore ();
 	
 #endif
 
+	
+	store = FactoryCStore::get_cstore ( on_device, cstore_type, local_search );
+	
     // Set solver parameters
     if ( solver_params != nullptr )
     {
         store->sat_check ( solver_params->cstore_get_satisfiability () );
         store->con_check ( solver_params->cstore_get_consistency () );
+        
+        if ( local_search )
+        {	
+        	// Set constraints sat type (default: mixed)
+        	if ( solver_params->cstore_constraints_all_soft () )
+        	{
+        		(std::static_pointer_cast<SoftConstraintStore>( store ))->impose_all_soft ();
+        	}
+        	else if ( solver_params->cstore_constraints_all_hard () )
+        	{
+        		(std::static_pointer_cast<SoftConstraintStore>( store ))->impose_all_hard ();
+        	}
+        }
         
 #if CUDAON
 

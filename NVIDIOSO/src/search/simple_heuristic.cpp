@@ -10,11 +10,12 @@
 
 SimpleHeuristic::SimpleHeuristic ( std::vector< Variable* > vars,
                                    VariableChoiceMetric * var_cm,
-                                   ValueChoiceMetric    * val_cm ) {
-  _dbg = "SimpleHeuristic -";
-  _fd_variables    = vars;
-  _variable_metric = var_cm;
-  _value_metric    = val_cm;
+                                   ValueChoiceMetric    * val_cm ) :
+	_dbg ( "SimpleHeuristic -" ),
+	_current_index ( 0 ) {
+  	_fd_variables    = vars;
+  	_variable_metric = var_cm;
+  	_value_metric    = val_cm;
 }//SimpleHeuristic
 
 SimpleHeuristic::~SimpleHeuristic () {
@@ -22,6 +23,12 @@ SimpleHeuristic::~SimpleHeuristic () {
   delete _variable_metric;
   delete _value_metric;
 }//~SimpleHeuristic
+
+int
+SimpleHeuristic::get_index () const 
+{
+	return _current_index;
+}//get_index
 
 void 
 SimpleHeuristic::placeSearchVariable ( int searchPosition, int variablePosition )
@@ -161,10 +168,10 @@ SimpleHeuristic::get_choice_variable ( int index )
 int
 SimpleHeuristic::get_choice_value () 
 {  
-  // Consistency check
-  if ( (_current_index < 0) ||
-       (_current_index >= _fd_variables.size()) ) {
-    std::ostringstream s;
+  // Sanity check
+  if ( (_current_index < 0) || (_current_index >= _fd_variables.size()) ) 
+  {
+	std::ostringstream s;
     s << _current_index << " / " <<  _fd_variables.size();
     throw  NvdException ( (_dbg + " No consistent index." + s.str()).c_str() );
   }

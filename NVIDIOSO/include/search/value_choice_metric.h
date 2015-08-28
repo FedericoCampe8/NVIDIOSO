@@ -48,6 +48,16 @@ public:
   virtual ValueChoiceMetricType metric_type () const;
   
   /**
+   * Auxiliary function needed when the metric value to get depends
+   * on an externel value (e.g., "greater_than" metric).
+   * @param var (pointer to) the variable for which value for assignment is given.
+   * @param comparator integer value to compare with the current metric value.
+   * @return the value to assign to the given variable.
+   * @note by default this method invokes metric_value ( var ).
+   */
+  virtual int metric_value ( Variable * var, int comparator );
+  
+  /**
    * Returns the value within a variable's domain which should be
    * used to label the current variable.
    * @param var (pointer to) the variable for which value for assignment is given.

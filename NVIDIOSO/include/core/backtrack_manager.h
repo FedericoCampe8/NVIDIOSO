@@ -19,7 +19,11 @@
 #include "backtrackable_object.h"
 
 class BacktrackManager;
-typedef std::shared_ptr<BacktrackManager> BacktrackManagerPtr;
+typedef std::unique_ptr<BacktrackManager> BacktrackManagerUPtr; 
+typedef std::shared_ptr<BacktrackManager> BacktrackManagerSPtr; 
+
+// Deprecated
+typedef std::shared_ptr<BacktrackManager> BacktrackManagerPtr; 
 
 class BacktrackManager {
 public:

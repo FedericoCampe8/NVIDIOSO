@@ -13,14 +13,15 @@ ParamData* solver_params = nullptr;
 using namespace std;
 
     // ======================= MACROS ======================
-     constexpr std::string ParamData::SEPARATOR_KWD  = "_";
-     constexpr std::string ParamData::PARAM_SEP_KWD  = "=";
-     constexpr std::string ParamData::PARAM_YES_KWD  = "YES";
-     constexpr std::string ParamData::PARAM_NO_KWD   = "NO";
-     constexpr std::string ParamData::CUDA_KWD       = "CUDA";
-     constexpr std::string ParamData::SEARCH_KWD     = "SEARCH";
-     constexpr std::string ParamData::CONSTRAINT_KWD = "CONSTRAINT";
-     constexpr std::string ParamData::CSTORE_KWD     = "CSTORE";
+     constexpr std::string ParamData::SEPARATOR_KWD    = "_";
+     constexpr std::string ParamData::PARAM_SEP_KWD    = "=";
+     constexpr std::string ParamData::PARAM_YES_KWD    = "YES";
+     constexpr std::string ParamData::PARAM_NO_KWD     = "NO";
+     constexpr std::string ParamData::CUDA_KWD         = "CUDA";
+     constexpr std::string ParamData::SEARCH_KWD       = "SEARCH";
+     constexpr std::string ParamData::LOCAL_SEARCH_KWD = "LS";
+     constexpr std::string ParamData::CONSTRAINT_KWD   = "CONSTRAINT";
+     constexpr std::string ParamData::CSTORE_KWD       = "CSTORE";
     // =====================================================
 
     // ======================= CUDA ======================
@@ -57,6 +58,13 @@ using namespace std;
     // ======================= CONSTRAINT PARAMETERS =======================
 	constexpr std::string ParamData::CONSTRAINT_PROP_CLASS_KWD = "PROPAGATOR_CLASS";
 	// =====================================================================
+	
+	// ======================= LOCAL SEARCH PARAMETERS =======================
+	constexpr std::string ParamData::LS_SAT_CONSTRAINTS_KWD = "SAT_CONSTRAINTS";
+	constexpr std::string ParamData::LS_SAT_SOFT_KWD        = "all_soft";
+	constexpr std::string ParamData::LS_SAT_HARD_KWD        = "all_soft";
+	constexpr std::string ParamData::LS_SAT_MIXED_KWD       = "mixed";
+	// =======================================================================
 
 
 ParamData::ParamData () :
@@ -151,6 +159,9 @@ ParamData::set_default_parameters ()
     _cstore_cuda_prop_loop_out = 1;
     _cstore_cuda_propagation_function = CudaPropParam::SEQUENTIAL;
     
+    // --- Local Search ---
+    _ls_cstore_constraints_sat_type = ConSatType::MIXED; 
+    
 }//set_default_parameters
 
 void
@@ -223,14 +234,22 @@ ParamData::read_params ()
         if ( !useful_char ) continue;
 		
         // Parse line according to the solver's component
+        
         // Search Engine
         pos = line.find ( SEARCH_KWD );
         if ( pos != string::npos )
         {
             set_search_parameters ( line );
         }
-
-		// CONSTRAINT
+		
+		// Local Search
+        pos = line.find ( LOCAL_SEARCH_KWD );
+        if ( pos != string::npos )
+        {
+            set_local_search_parameters ( line );
+        }
+        
+		// Constraint
         pos = line.find ( CONSTRAINT_KWD );
         if ( pos != string::npos )
         {
@@ -347,6 +366,47 @@ ParamData::set_search_parameters ( std::string& line )
         return;
     }
 }//set_search_parameters
+
+void
+ParamData::set_local_search_parameters ( std::string& line )
+{
+    std::size_t pos = line.find ( LOCAL_SEARCH_KWD );
+    if ( pos == string::npos )
+    {
+        return;
+    }
+
+    pos = line.find_first_of ( SEPARATOR_KWD );
+    if ( pos == string::npos )
+    {
+        return;
+    }
+	
+    string line_aux = line.substr ( pos + 1 );
+    string param    = get_param_value ( line_aux );
+    
+    pos = line_aux.find ( LS_SAT_CONSTRAINTS_KWD );
+    if ( pos != string::npos )
+    {
+    	if ( param == LS_SAT_SOFT_KWD )
+        {
+            _ls_cstore_constraints_sat_type = ConSatType::SOFT;
+        }
+        else if ( param == LS_SAT_HARD_KWD )
+        {
+            _ls_cstore_constraints_sat_type = ConSatType::HARD;
+        }
+        else if ( param == LS_SAT_MIXED_KWD )
+        {	
+            _ls_cstore_constraints_sat_type = ConSatType::MIXED;
+        }
+        else
+        {
+        	_ls_cstore_constraints_sat_type = ConSatType::MIXED;
+        }
+        return;
+    }
+}//set_local_search_parameters
 
 void
 ParamData::set_constraint_parameters ( std::string& line )
@@ -576,6 +636,24 @@ ParamData::cstore_get_dev_propagation () const
     return _cstore_cuda_propagation_function;
 }//cstore_get_dev_propagation
 
+bool 
+ParamData::cstore_constraints_all_soft () const
+{
+	return _ls_cstore_constraints_sat_type == ConSatType::SOFT;
+}//cstore_constraints_all_soft
+
+bool 
+ParamData::cstore_constraints_all_hard () const
+{
+	return _ls_cstore_constraints_sat_type == ConSatType::HARD;
+}//cstore_constraints_all_soft
+
+bool 
+ParamData::cstore_constraints_mixed () const
+{
+	return _ls_cstore_constraints_sat_type == ConSatType::MIXED;
+}//cstore_constraints_all_soft
+
 void
 ParamData::print_option ( bool b, bool new_line ) const
 {
@@ -609,6 +687,16 @@ void
 ParamData::print_option ( std::size_t size, bool new_line ) const
 {
     cout << size;
+    if ( new_line ) cout << endl;
+}//print_option
+
+void
+ParamData::print_option ( ConSatType t, bool new_line ) const
+{
+    if ( t == ConSatType::SOFT ) cout << "soft";
+    else if ( t == ConSatType::HARD ) cout << "hard";
+    else if ( t == ConSatType::MIXED ) cout << "mixed";
+    else cout << "mixed";
     if ( new_line ) cout << endl;
 }//print_option
 
@@ -655,6 +743,10 @@ ParamData::print () const
     print_option ( _search_wrong_decisions_limit );
     cout << "\t+ Search Timeout: ";
     print_option ( _search_timeout );
+    
+    cout << "- Local Search:\n";
+    cout << "\t+ Constraint as: ";
+    print_option ( _ls_cstore_constraints_sat_type );
     
     cout << "- Constraints:\n";
     cout << "\t+ Propagator class: "; 

@@ -90,7 +90,7 @@ private:
     bool more_global_constraints  () const;
     
 public:
-  
+   
     FZNParser ();
     FZNParser ( std::string ifile );
 
@@ -110,34 +110,44 @@ public:
     //! Ask whether there are more search engines to get
     bool more_search_engines () const override;
   
+  	//! Ask whether there are more constraints stores to get
+    bool more_constraint_stores () const override;
+    
   	/**
      * Get a "aux/info array" token.
      * @return token pointer to a "aux/info array" token.
      * @note the returned pointer is a unique_ptr.
      */
-  	UTokenPtr get_aux_array     ();
+  	UTokenPtr get_aux_array        () override;
   	
     /**
      * Get a "variable" token.
      * @return token pointer to a "variable" token.
      * @note the returned pointer is a unique_ptr.
      */
-    UTokenPtr get_variable      ();
+    UTokenPtr get_variable         () override;
   
     /**
      * Get a "constraint" token.
      * @return token pointer to a "constraint" token.
      * @note the returned pointer is a unique_ptr.
      */
-    UTokenPtr get_constraint    ();
+    UTokenPtr get_constraint       () override;
   
     /**
      * Get a "search_engine" token.
      * @return token pointer to a "search_engine" token.
      * @note the returned pointer is a unique_ptr.
      */
-    UTokenPtr get_search_engine ();
+    UTokenPtr get_search_engine    () override;
   
+  	/**
+     * Get a "constraint store" token.
+     * @return token pointer to a "constraint_store" token.
+     * @note the returned pointer is a unique_ptr.
+     */
+    UTokenPtr get_constraint_store () override;
+    
     //! Print info about the parser
     void print () const;
 };

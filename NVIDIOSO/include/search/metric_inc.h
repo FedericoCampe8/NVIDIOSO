@@ -22,5 +22,8 @@
 #include "indomain_min_metric.h"
 #include "indomain_max_metric.h"
 #include "indomain_median_metric.h"
+#include "indomain_greater_than_metric.h"
+#include "indomain_less_than_metric.h"
+#include "indomain_metric.h"
 #include "indomain_metric.h"
 #include "indomain_random_metric.h"

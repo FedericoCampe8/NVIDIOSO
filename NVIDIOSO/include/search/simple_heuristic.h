@@ -1,6 +1,6 @@
 //
 //  simple_heuristic.h
-//  NVIDIOSO
+//  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 08/07/14.
 //  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
@@ -19,27 +19,38 @@
 #include "variable_choice_metric.h"
 #include "value_choice_metric.h"
 
+class SimpleHeuristic;
+typedef std::unique_ptr<SimpleHeuristic> SimpleHeuristicUPtr;
+typedef std::shared_ptr<SimpleHeuristic> SimpleHeuristicSPtr;
+
 class SimpleHeuristic : public Heuristic {
 protected:
-  /**
-   * The array of (pointers to) variables used
-   * to store the references and hence to select
-   * the next variable to label according to the
-   * heuristic parameter specified as input.
-   */
-  std::vector< Variable* > _fd_variables;
+
+	//! Debug info
+  	std::string _dbg;
   
-  /**
-   * The metric used to select the next variable
-   * to label.
-   */
-  VariableChoiceMetric * _variable_metric;
+  	//! Current index used to select the next choice variable
+  	int _current_index;
   
-  /**
-   * The metric used to select the next value
-   * to assign to the selected variable.
-   */
-  ValueChoiceMetric * _value_metric;
+  	/**
+   	 * The array of (pointers to) variables used
+   	 * to store the references and hence to select
+   	 * the next variable to label according to the
+   	 * heuristic parameter specified as input.
+   	 */
+  	std::vector< Variable* > _fd_variables;
+  
+  	/**
+   	 * The metric used to select the next variable
+   	 * to label.
+   	 */
+  	VariableChoiceMetric * _variable_metric;
+  
+	/**
+   	 * The metric used to select the next value
+   	 * to assign to the selected variable.
+   	 */
+  	ValueChoiceMetric * _value_metric;
   
 	/**
 	 * It places the variable at index "variablePosition" at "searchPosition".
@@ -70,23 +81,29 @@ public:
   ~SimpleHeuristic ();
   
   /**
+   * Return the current index (last index used) to
+   * select the choice variable.
+   */
+  int get_index () const override;
+  
+  /**
    * Gets next variable to label according to
    * the VariableChoiceMetric.
    * @param idx the index of the last variable
    *        returned by this heuristic.
    * @return a pointer to the next variable to label.
    */
-  Variable * get_choice_variable ( int idx );
+  Variable * get_choice_variable ( int idx ) override;
   
   /**
    * Returns the next value to assign
    * to the variable selected by this heuristic.
    * @return the value to assign to the selected variable.
    */
-  int get_choice_value ();
+  int get_choice_value () override;
   
   //! Print info about this heuristic
-  void print () const;
+  void print () const override;
 };
 
 #endif /* defined(__NVIDIOSO__simple_heuristic__) */

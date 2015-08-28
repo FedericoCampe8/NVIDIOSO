@@ -21,3 +21,8 @@ ValueChoiceMetric::metric_type () const {
   return _metric_type;
 }//metric_type
 
+int 
+ValueChoiceMetric::metric_value ( Variable * var, int comparator )
+{
+	return metric_value ( var );
+}//metric_value

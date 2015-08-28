@@ -34,6 +34,8 @@
 /* STL dependencies */
 #include <algorithm>
 #include <iterator>
+#include <bitset>
+#include <random>
 #include <map>
 #include <unordered_map>
 #include <list>
@@ -56,6 +58,7 @@
 #include "id_generator.h"
 #include "nvd_exception.h"
 #include "param_data.h"
+#include "random_generator.h"
 
 /* Cuda */
 #if CUDAON

@@ -52,9 +52,11 @@ BaseConstraint::attach_me_to_vars () {
 }//attach_me_to_vars
 
 int
-BaseConstraint::unsat_level () const 
+BaseConstraint::unsat_level () 
 {
-	throw NvdException ( (_dbg + "Constraint " + _str_id + " unsat_level not yet implemented").c_str() );
+	//throw NvdException ( (_dbg + "Constraint " + _str_id + " unsat_level not yet implemented").c_str() );
+	if ( satisfied () ) return 0;
+	return 1;
 }//unsat_level
 
 void

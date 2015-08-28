@@ -83,6 +83,8 @@ TokenSol::set_token ( std::string& token_str )
 	return true;
 }//set_token
 
+bool string_sort ( std::string a, std::string b ) { return a.size() > b.size(); }
+
 bool
 TokenSol::set_solve_params( string& annotation ) 
 {
@@ -92,6 +94,7 @@ TokenSol::set_solve_params( string& annotation )
 		"bool_search",
 		"set_search"
 	};
+	std::sort ( search_annotation.begin(), search_annotation.end(), string_sort );
 	
 	vector < string > var_choice_annotation =
 	{
@@ -104,25 +107,32 @@ TokenSol::set_solve_params( string& annotation )
 		"most_constrained",
 		"max_regret"
 	};
+	std::sort ( var_choice_annotation.begin(), var_choice_annotation.end(), string_sort );
 	
 	vector < string > assignment_annotation =
 	{
+		"indomain",
 		"indomain_min",
 		"indomain_max",
 		"indomain_middle",
 		"indomain_median",
-		"indomain",
 		"indomain_random",
 		"indomain_split",
 		"indomain_reverse_split",
-		"indomain_interval"
+		"indomain_interval",
 	};
+	std::sort ( assignment_annotation.begin(), assignment_annotation.end(), string_sort );
 	
 	vector < string > strategy_annotation =
 	{
 		"complete",
+		"incomplete",
+		"local_search",
+		"heuristic",
+		"large_neighborhood"
 	};
-	  
+	std::sort ( strategy_annotation.begin(), strategy_annotation.end(), string_sort );
+	
 	// search_annotation
 	for ( auto& x : search_annotation )
 	{

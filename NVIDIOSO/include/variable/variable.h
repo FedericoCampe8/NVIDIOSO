@@ -156,7 +156,7 @@ public:
   
   /**
    * It returns the size of the current domain.
-   * @return the size of the current variable's domain.
+   * @return the current size of the domain.
    */
   virtual size_t get_size () const = 0;
   

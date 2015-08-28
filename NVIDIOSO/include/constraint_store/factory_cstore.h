@@ -12,6 +12,7 @@
 #define NVIDIOSO_factory_cstore_h
 
 #include "globals.h"
+#include "soft_constraint_store.h"
 #include "cuda_simple_constraint_store.h"
 #include "cuda_simple_constraint_store_seq.h"
 #include "cuda_simple_constraint_store_1b1c.h"
@@ -19,7 +20,7 @@
 #include "cuda_simple_constraint_store_1b1v.h"
 #include "cuda_simple_constraint_store_1bKv.h"
 
-class FactoryCStore {
+class FactoryCStore { 
   
 public:
   /**
@@ -28,11 +29,18 @@ public:
    *        otherwise it generates the constraint store for host propagation.
    * @param type, type of constraint store to generate.
    */
-  static ConstraintStorePtr get_cstore ( bool on_device=false, int type=0 ) 
+  static ConstraintStorePtr get_cstore ( bool on_device=false, int type=0, bool local_search=false ) 
   {
   		if ( !on_device )
   		{
-  			return std::make_shared<SimpleConstraintStore> ();
+  			if ( local_search )
+  			{
+  				return std::make_shared<SoftConstraintStore> ();
+  			}
+  			else
+  			{
+  				return std::make_shared<SimpleConstraintStore> ();
+  			}
   		}
   		CudaPropParam dev_cstore_type = solver_params->cstore_int_to_type ( type );
     	switch ( dev_cstore_type ) 

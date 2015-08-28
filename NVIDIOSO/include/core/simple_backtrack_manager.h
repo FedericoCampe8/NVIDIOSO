@@ -94,7 +94,14 @@ public:
    * @note only object already registered with this manager
    *       can be restored later.
    */
-  void add_changed ( size_t idx );
+  void add_changed ( size_t idx ) override;
+  
+ /**
+  * Forces the storage of all the backtrackable objects
+  * attached to this manager (at next set_level call),
+  * no matter if a backtrackable object has been modified or not.
+  */
+  void force_storage () override;
   
   /**
    * Specifies the level which should become the
@@ -102,13 +109,6 @@ public:
    * @param lvl the active level at which the changes will be recorded.
    */
   void set_level ( size_t lvl ) override;
-  
-  /**
-   * Forces the storage of all the backtrackable objects
-   * attached to this manager (at next set_level call),
-   * no matter if a backtrackable object has been modified or not.
-   */
-  void force_storage () override;
   
   /**
    * Removes a level.

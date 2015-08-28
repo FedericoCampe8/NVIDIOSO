@@ -20,7 +20,11 @@
 #include "global_constraint.h"
 
 class ConstraintStore;
-typedef std::shared_ptr<ConstraintStore> ConstraintStorePtr;
+typedef std::unique_ptr<ConstraintStore> ConstraintStoreUPtr; 
+typedef std::shared_ptr<ConstraintStore> ConstraintStoreSPtr;  
+
+// Deprecated
+typedef std::shared_ptr<ConstraintStore> ConstraintStorePtr; 
 
 class ConstraintStore {
 public:

@@ -251,11 +251,5 @@ Constraint::fix_point () const
   return  ((changed_vars()).size() == 0);
 }//fix_point
 
-int
-Constraint::unsat_level () const 
-{
-	return 0;
-}//unsat_level
-
 
 

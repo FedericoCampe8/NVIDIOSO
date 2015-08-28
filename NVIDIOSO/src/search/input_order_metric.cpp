@@ -14,32 +14,39 @@ InputOrder::InputOrder () {
 }//InputOrder
 
 int
-InputOrder::compare ( double metric, Variable * var ) {
-  int other_metric = var->get_id ();
-  if ( metric < other_metric ) {
-    return 1;
-  }
-  else if ( metric == other_metric ) {
-    return 0;
-  }
-  else {
-    return -1;
-  }
+InputOrder::compare ( double metric, Variable * var ) 
+{
+	int other_metric = var->get_id ();
+  	if ( metric < other_metric ) 
+  	{
+    	return 1;
+ 	}
+  	else if ( metric == other_metric ) 
+  	{
+    	return 0;
+  	}
+  	else 
+  	{
+    	return -1;
+  	}
 }//compare
 
 int
-InputOrder::compare ( Variable * var_a , Variable * var_b ) {
-  return compare( var_a->get_id(), var_b );
+InputOrder::compare ( Variable * var_a , Variable * var_b ) 
+{
+	return compare( var_a->get_id(), var_b );
 }//compare
 
 double
-InputOrder::metric_value ( Variable * var ) {
-  return var->get_id();
+InputOrder::metric_value ( Variable * var ) 
+{
+	return var->get_id();
 }//metric_value
 
 void
-InputOrder::print () const {
-  std::cout << "input_order" << std::endl;
+InputOrder::print () const 
+{
+	std::cout << "input_order" << std::endl;
 }//print
 
 

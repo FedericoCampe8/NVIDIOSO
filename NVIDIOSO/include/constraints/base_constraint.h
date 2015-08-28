@@ -180,7 +180,7 @@ public:
    *         constraint is unsatisfied. It returns 0 if
    *         this constraint is satisfied.
    */
-  virtual int unsat_level () const override;
+  int unsat_level () override;
   
   //! Get base constraint type
   BaseConstraintType get_base_constraint_type () const;

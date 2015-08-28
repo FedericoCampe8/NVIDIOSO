@@ -116,6 +116,17 @@ public:
   void attach_me_to_vars () override;
   
   /**
+   * It returns an integer value that can be used
+   * to represent how much the current constraint is
+   * unsatisfied. This function can be used to
+   * implement some heuristics for optimization problems.
+   * @return an integer value representing how much this 
+   *         constraint is unsatisfied. It returns 0 if
+   *         this constraint is satisfied.
+   */
+  int unsat_level () override;
+  
+  /**
    * It is a (most probably incomplete) consistency function which
    * removes the values from variable domains. Only values which
    * do not have any support in a solution space are removed.

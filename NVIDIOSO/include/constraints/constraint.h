@@ -187,14 +187,14 @@ public:
    	 * Set the consistency level for this
    	 * constraints. Different consistency
    	 * levels are implemented with different algorithms
-   	 * and may require different computational times.
-   	 * @param t string identifying the type of propagator to use.
-     *        t can be of the following strings:
-     *        - "naive"
-     *        - "bound"
-     *        - "domain/full"
-     * @note if t doesn't match any of the above strings, this function
-     *       sets "naive" as default propagator algorithm to use.
+	 * and may require different computational times.
+	 * @param con_type string identifying the type of propagator to use.
+	 *        con_type can be of the following strings:
+	 *        - "naive"
+	 *        - "bound"
+	 *        - "domain/full"
+	 * @note if t doesn't match any of the above strings, this function
+	 *       sets "naive" as default propagator algorithm to use.
    	 */
   	void set_consistency_level ( std::string con_type );
   	
@@ -342,7 +342,7 @@ public:
    *         constraint is unsatisfied. It returns 0 if
    *         this constraint is satisfied.
    */
-  virtual int unsat_level () const;
+  virtual int unsat_level () = 0;
   
   /**
    * It returns the vector of (shared) pointers

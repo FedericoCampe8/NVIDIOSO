@@ -28,6 +28,13 @@ enum class CudaPropParam
     BLOCK_K_VAR
 };
 
+enum class ConSatType
+{
+    SOFT,
+    HARD,
+    MIXED
+};
+
 class ParamData {
   
 private:
@@ -48,6 +55,7 @@ private:
     static constexpr std::string PARAM_NO_KWD;
     static constexpr std::string CUDA_KWD;
     static constexpr std::string SEARCH_KWD;
+    static constexpr std::string LOCAL_SEARCH_KWD;
     static constexpr std::string CONSTRAINT_KWD;
     static constexpr std::string CSTORE_KWD;
     // =====================================================
@@ -102,13 +110,22 @@ private:
 	static constexpr std::string CONSTRAINT_PROP_CLASS_KWD;
 	// =====================================================================
 	
+	// ======================= LOCAL SEARCH PARAMETERS =======================
+	ConSatType _ls_cstore_constraints_sat_type;
+	static constexpr std::string LS_SAT_CONSTRAINTS_KWD;
+	static constexpr std::string LS_SAT_SOFT_KWD;
+	static constexpr std::string LS_SAT_HARD_KWD;
+	static constexpr std::string LS_SAT_MIXED_KWD; 
+	// =======================================================================
+	
     //Print utilities
-    void print_option ( bool         b,  bool new_line=true ) const;
-    void print_option ( int          n,  bool new_line=true ) const;
-    void print_option ( double       d,  bool new_line=true ) const;
-    void print_option ( std::string  s,  bool new_line=true ) const;
-    void print_option ( CudaPropParam p, bool new_line=true ) const;
-    void print_option ( std::size_t   s, bool new_line=true ) const;
+    void print_option ( bool          b,  bool new_line=true ) const;
+    void print_option ( int           n,  bool new_line=true ) const;
+    void print_option ( double        d,  bool new_line=true ) const;
+    void print_option ( std::string   s,  bool new_line=true ) const;
+    void print_option ( CudaPropParam p,  bool new_line=true ) const;
+    void print_option ( std::size_t   s,  bool new_line=true ) const;
+    void print_option ( ConSatType    t,  bool new_line=true ) const;
     
 protected:
     //! Open parameters file
@@ -128,7 +145,10 @@ protected:
 
     //! Search engine parameters
     virtual void set_search_parameters ( std::string& line );
-
+	
+	//! Local Search parameters 
+    virtual void set_local_search_parameters ( std::string& line );
+    
 	//! Constraint parameters
     virtual void set_constraint_parameters ( std::string& line );
     
@@ -188,7 +208,14 @@ public:
     CudaPropParam cstore_get_dev_propagation () const;
     // =====================================
     
-    //======================================
+    // ========= LOCAL SEARCH PARAMETERS =========
+    	bool cstore_constraints_all_soft () const;
+    	bool cstore_constraints_all_hard () const;
+    	bool cstore_constraints_mixed    () const;
+    //============================================
+    
+    
+    //============================================
     
     virtual void print () const;
 };

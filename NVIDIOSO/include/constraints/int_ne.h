@@ -39,6 +39,9 @@ public:
    */
   const std::vector<VariablePtr> scope () const override;
   
+  //! Value representing unsatisfiability for int_ne (0 means satisfied)
+  int unsat_level () override;
+  
   //! It performs domain consistency
   void consistency () override;
   

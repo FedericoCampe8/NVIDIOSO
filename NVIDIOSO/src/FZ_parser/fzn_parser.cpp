@@ -10,6 +10,9 @@
 #include "fzn_tokenization.h"
 #include "token_arr.h"
 #include "token_var.h"
+#include "token_sol.h"
+#include "token_con.h"
+#include "token_cstore.h"
 
 using namespace std;
 
@@ -51,7 +54,7 @@ std::string
 FZNParser::replace_bool ( std::string line )
 {
 	std::string rep = replace_bool_vars ( line );
-	return replace_bool_vals ( rep );
+	return replace_bool_vals ( rep ); 
 }//replace_bool
 
 bool
@@ -113,6 +116,17 @@ FZNParser::more_search_engines () const {
   }
   return false;
 }//more_search_engines
+
+bool 
+FZNParser::more_constraint_stores () const 
+{
+	auto it = _lookup_token_table.find( TokenType::FD_CONSTRAINT_STORE );
+  	if ( it != _lookup_token_table.end() ) 
+  	{
+    	return ( it->second.size() > 0 );
+  	}
+  	return false;
+}//more_constraint_stores
 
 UTokenPtr 
 FZNParser::get_aux_array ()
@@ -202,11 +216,26 @@ FZNParser::get_search_engine () {
         it->second.pop_back();
         _num_tokens--;
         return std::move ( _map_tokens[ ptr ] );
-    }//more_constraints
+    }//more_search_engines
     
     UTokenPtr ptr ( nullptr );
     return std::move ( ptr );
 }//get_search_engine
+
+UTokenPtr
+FZNParser::get_constraint_store () {
+    if ( more_constraint_stores () )
+    {
+        auto it = _lookup_token_table.find( TokenType::FD_CONSTRAINT_STORE );
+        size_t ptr = it->second[ it->second.size () - 1 ];
+        it->second.pop_back();
+        _num_tokens--;
+        return std::move ( _map_tokens[ ptr ] );
+    }//more_constraint_stores
+    
+    UTokenPtr ptr ( nullptr );
+    return std::move ( ptr );
+}//get_constraint_store
 
 
 // Get token (i.e., FlatZinc element)
@@ -412,7 +441,52 @@ FZNParser::store_token ( UTokenPtr token ) {
       	}
   	}//FD_VAR_ARRAY
   	else 
-  	{
+  	{ 
+  	
+  		if ( token->get_type() == TokenType::FD_SOLVE || 
+  		     token->get_type() == TokenType::FD_CONSTRAINT ||
+  		     token->get_type() == TokenType::FD_GLB_CONSTRAINT )
+  		{
+  			bool is_on_local = false;
+  			if ( token->get_type() == TokenType::FD_SOLVE )
+  			{
+  				TokenSol * sol_ptr = static_cast<TokenSol *> ( token.get() );
+  				if ( sol_ptr->get_strategy_choice () != "complete" )
+  				{
+  					is_on_local = true;
+  				}
+  			}
+  			else
+  			{
+  				TokenCon * con_ptr = static_cast<TokenCon *> ( token.get() );
+  				if ( con_ptr->is_soft () )
+  				{
+  					is_on_local = true;
+  				}
+  			}
+  				
+  			// Create a dummy constraint store
+  			if ( is_on_local && _lookup_token_table.find ( TokenType::FD_CONSTRAINT_STORE ) == _lookup_token_table.end () )
+  			{
+  				UTokenPtr cs_token ( nullptr ); 
+  				std::unique_ptr < TokenCStore > cs_ptr ( new TokenCStore () );
+  					
+  				cs_ptr->set_on_local_search ();
+  					
+  				cs_token = std::move ( cs_ptr );
+  				_lookup_token_table [ TokenType::FD_CONSTRAINT_STORE ].push_back ( _num_tokens );
+  				_map_tokens[ _num_tokens++ ] = std::move ( cs_token );
+  			}
+  			else if ( is_on_local )
+  			{
+  				std::size_t c_store_idx = _lookup_token_table [ TokenType::FD_CONSTRAINT_STORE ][ 0 ];
+  				if ( !(static_cast<TokenCStore *> ( (_map_tokens[ c_store_idx ]).get() ))->on_local_search () )
+  				{
+  					(static_cast<TokenCStore *> ( (_map_tokens[ c_store_idx ]).get() ))->set_on_local_search ();
+  				}
+  			}			
+  		}
+  		
     	// Store the index of the current token in the look_up table
     	_lookup_token_table [ token->get_type() ].push_back ( _num_tokens );
     	

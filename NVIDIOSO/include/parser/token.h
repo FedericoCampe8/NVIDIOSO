@@ -27,7 +27,9 @@ enum class TokenType {
   FD_DOMAIN,
   FD_CONSTRAINT,
   FD_GLB_CONSTRAINT,
+  FD_CONSTRAINT_STORE, 
   FD_SOLVE,
+  FD_INCOMPLETE,
   FD_LNS,
   OTHER
 };
@@ -64,7 +66,7 @@ public:
      * @param token_string the string corresponding to the token
      * @return True if token has been created, False otherwise
      */
-    virtual bool set_token ( std::string& token_string) = 0;
+    virtual bool set_token ( std::string& token_string ) = 0;
 };
 
 #endif

@@ -19,7 +19,8 @@
 
 class DepthFirstSearch : public SearchEngine {
 protected:
-  //! Id for this search
+
+  //! Id for this search engine
   static size_t _search_id;
   
   std::string _dbg;

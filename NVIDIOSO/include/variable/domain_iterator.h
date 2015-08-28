@@ -27,21 +27,28 @@ public:
   /**
    * Checks if the current domain is a numeric domain.
    * @return true if current domain is numeric 
-   *         (i.e., int domain).
+   *         (i.e., int domain), false otherwise.
    */
   virtual bool is_numeric () const;
+  
+  /**
+   * Checks if the current domain contains the given value.
+   * @param val integer value to look.
+   * @return true if current domain constains val, false otherwise.
+   */
+  virtual bool contains ( int val ) const;
   
   /**
    * Returns the current minimal value in domain.
    * @return the minimum value belonging to the domain.
    */
-  virtual int min_val    () const;
+  virtual int min_val () const;
   
   /**
    * Returns the current maximal value in domain.
    * @return the maximum value belonging to the domain.
    */
-  virtual int max_val    () const;
+  virtual int max_val () const;
   
   /**
    * Returns a random value from domain.

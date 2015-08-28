@@ -240,7 +240,8 @@ DepthFirstSearch::labeling ()
   /*
    * Initial consistency on constraints into the store.
    * @note Exit asap if the problem is unsatisfiable and
-   * this can be found with a single propagation, e.g., checking domains.
+   * this can be found with a single propagation, 
+   * e.g., satisfiability on domains.
    */
   bool search_consistent  = _store->consistency();
 
@@ -299,7 +300,8 @@ DepthFirstSearch::labeling ()
     print_all_solutions ();
     cout << "---------------------\n";
   }
-  else {
+  else
+  {
     cout << "----- Unsatisfiable -----\n";
   }
   

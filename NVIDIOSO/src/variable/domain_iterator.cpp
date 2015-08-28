@@ -1,6 +1,6 @@
 //
 //  domain_iterator.cpp
-//  NVIDIOSO
+//  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 07/08/14.
 //  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
@@ -20,6 +20,12 @@ DomainIterator::is_numeric () const
 {
   return _domain->is_numeric();
 }//is_numeric
+
+bool 
+DomainIterator::contains ( int val ) const
+{
+	return _domain->contains ( val );
+}//contains
 
 int
 DomainIterator::min_val () const 
@@ -55,16 +61,16 @@ DomainIterator::random_val () const
 	{// min_val < 0 && max_val < 0
 		num_elems = abs ( min_val ) - abs ( max_val ) + 1;
 	}
-	
-	int rand_val = min_val + (rand () % num_elems);
+	 
+	int rand_val = min_val + glb_rand.uniform_rand ( num_elems );
 	if ( _domain->contains ( rand_val ) ) 
 	{
 		return rand_val;
 	}
 	else
 	{
-		int old_rand = rand_val;
-		int half_size = (rand () % 100);
+		int old_rand  = rand_val;
+		int half_size = glb_rand.uniform_rand ( 100 );
 		if ( half_size >= 50 )
 		{
 			while ( ++rand_val <= max_val )
