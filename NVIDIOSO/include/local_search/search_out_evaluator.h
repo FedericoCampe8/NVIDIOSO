@@ -29,7 +29,7 @@ protected:
 	
 	//! Virtual function to update the metric value depending on some internal state
 	virtual void upd_metric_value () = 0;
-	
+	 
 public:
 	virtual ~SearchOutEvaluator () {}
 	

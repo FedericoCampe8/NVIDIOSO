@@ -51,13 +51,7 @@ NeighborhoodBacktrackManager::detach_backtracable ( size_t bkt_id )
 	}
 	SimpleBacktrackManager::detach_backtracable ( bkt_id );
 }//detach_backtracable
-
-void
-NeighborhoodBacktrackManager::add_changed ( size_t idx ) 
-{
-	_changed_backtrackables.insert( idx );
-}//notify_changed
-
+ 
 void
 NeighborhoodBacktrackManager::set_level ( size_t lvl ) 
 {

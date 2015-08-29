@@ -27,6 +27,13 @@ protected:
 	 */
 	std::unordered_map < int, bool > _initialized_variables;
 	
+	/**
+	 * Hash table of variables ids and integer values 
+	 * used to store the initialization performed by the initialize method.
+	 * @note This hash table is used to speedup lookup methods.
+	 */
+	std::unordered_map < int, int > _initialized_values;
+	
 	//! Array of (pointers to) variables to initialize
   	std::vector< Variable* > _fd_variables;
   	

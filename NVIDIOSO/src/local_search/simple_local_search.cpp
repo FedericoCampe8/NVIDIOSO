@@ -28,6 +28,9 @@ SimpleLocalSearch::init_search_parameters ()
   _dbg                   = "SimpleLocalSearch - ";
   _num_nodes             = 0;
   _num_wrong_decisions   = 0;
+  _II_steps			     = 0;
+  _restarts              = 0;
+  _restarts_out          = 0;
   _debug                 = false;
   _trail_debug           = false;
   _time_watcher          = false;
@@ -113,6 +116,21 @@ SimpleLocalSearch::get_wrong_decisions () const
 void
 SimpleLocalSearch::set_timeout_limit ( double timeout )
 {
+	// Sanity check
+	assert ( _ls_search_out_manager != nullptr );
+	
+	if ( _debug )
+    {
+    	if ( timeout >= 0.0 )
+    	{
+    		LogMsg << _dbg << "Timeout set to " << timeout << " sec." << endl;
+    	}
+    	else
+    	{
+    		LogMsg << _dbg << "No timeout set." << endl;
+    	}
+    } 
+	_ls_search_out_manager->set_time_out ( timeout );
 }//set_timeout_limit
 
 void
@@ -124,6 +142,26 @@ SimpleLocalSearch::set_time_watcher ( bool watcher_on )
 void
 SimpleLocalSearch::set_solution_limit ( size_t num_sol )
 {
+	// Sanity check
+	assert ( _solution_manager != nullptr );
+	
+	/*
+	 * Instead of search_out_manager, 
+	 * use solution manager for solution limit.
+	 */
+	if ( _debug )
+    {
+    	if ( num_sol > 0 )
+    	{
+    		LogMsg << _dbg << "Solution limit set to " << num_sol << " solutions." << endl;
+    		_solution_manager->set_solution_limit( (int) num_sol );
+    	}
+    	else
+    	{
+    		LogMsg << _dbg << "No solutions limit set." << endl;
+    		_solution_manager->set_solution_limit( -1 );
+    	}
+    } 
 }//set_solution_limit
 
 std::vector<DomainPtr>
@@ -144,14 +182,86 @@ SimpleLocalSearch::set_backtrack_out ( size_t out_b )
 }//set_backtrack_out
 
 void
-SimpleLocalSearch::set_nodes_out( size_t out_n )
+SimpleLocalSearch::set_nodes_out( std::size_t out_n )
 {
+	// Sanity check
+	assert ( _ls_search_out_manager != nullptr );
+	
+	if ( _debug )
+    {
+    	if ( out_n > 0 )
+    	{
+    		LogMsg << _dbg << "Nodes out limit set to " << out_n << " nodes." << endl;
+    	}
+    	else
+    	{
+    		LogMsg << _dbg << "No nodes out limit set." << endl;
+    	}
+    } 
+	_ls_search_out_manager->set_num_nodes_out ( out_n );
 }//set_nodes_out
 
 void
-SimpleLocalSearch::set_wrong_decisions_out ( size_t out_w )
+SimpleLocalSearch::set_wrong_decisions_out ( std::size_t out_w )
 {
+	// Sanity check
+	assert ( _ls_search_out_manager != nullptr );
+	
+	if ( _debug )
+    {
+    	if ( out_w > 0 )
+    	{
+    		LogMsg << _dbg << "Wrong decisions limit set to " << out_w << " wrong decisions." << endl;
+    	}
+    	else
+    	{
+    		LogMsg << _dbg << "No wrong decisions limit set." << endl;
+    	}
+    } 
+	_ls_search_out_manager->set_num_wrong_decisions_out ( out_w );
 }//set_wrong_decisions_out
+
+void  
+SimpleLocalSearch::set_iterative_improving_limit ( std::size_t ii_limit )
+{
+	// Sanity check
+	assert ( _ls_search_out_manager != nullptr );
+	
+	if ( _debug )
+    {
+    	if ( ii_limit > 0 )
+    	{
+    		LogMsg << _dbg << "Iterative Improving limit set to " << ii_limit << " steps." << endl;
+    	}
+    	else
+    	{
+    		LogMsg << _dbg << "No Iterative Improving limit set." << endl;
+    	}
+    } 
+
+	_ls_search_out_manager->set_num_iterative_improvings_out ( ii_limit );
+}//set_iterative_improving_limit
+
+void 
+SimpleLocalSearch::set_restarts_limit ( std::size_t restarts_limit )
+{
+	// Sanity check
+	assert ( _ls_search_out_manager != nullptr );
+	
+	if ( _debug )
+    {
+    	if ( restarts_limit > 0 )
+    	{
+    		LogMsg << _dbg << "Restarts limit set to " << restarts_limit << " restarts" << endl;
+    	}
+    	else
+    	{
+    		LogMsg << _dbg << "No restarts limit set." << endl;
+    	}
+    }  
+	_restarts_out = restarts_limit;
+	_ls_search_out_manager->set_num_restarts_out ( restarts_limit );
+}//set_iterative_improving_limit
 
 void 
 SimpleLocalSearch::unset_neighborhood ( int idx )
@@ -265,29 +375,55 @@ SimpleLocalSearch::labeling ()
 	 *       (or it has been terminated for some other reasons) and no solutions
 	 *   	 satisfying hard constraints have been found.
 	 */
-	 
 	if ( search_consistent ) 
-  	{
+  	{	
+  		// Reset out manager
+  		_ls_search_out_manager->reset_out_evaluator ();
 		try 
     	{
-    		/*
-    		 * Force storage for variables before any operation on them.
-    	 	 * @note if we don't force storage, it may be the case where the
-    	 	 *       following propagation does not modify any domain and, therefore,
-    	 	 *       no variable notifies backtrack manager.
-    	 	 *       The following labeling will notify the backtrack manager which 
-    	 	 *       will store a modified domain (i.e., the singleton) without storing
-    	 	 *       the actual domain of the labeled variable.
-    	 	 */ 
-    		_backtrack_manager->force_storage (); 
+    		do
+    		{// Restarts
+    			// II steps per Restats
+    			_II_steps = 0;
+    			do 
+    			{// Iterative Improvements
+    				/*
+    		 	 	 * Force storage for variables before any operation on them.
+    	 	 	 	 * @note if we don't force storage, it may be the case where the
+    	 	 	 	 *       following propagation does not modify any domain and, therefore,
+    	 	 	 	 *       no variable notifies backtrack manager.
+    	 	 	 	 *       The following labeling will notify the backtrack manager which 
+    	 	 	 	 *       will store a modified domain (i.e., the singleton) without storing
+    	 	 	 	 *       the actual domain of the labeled variable.
+    	 	 	 	 */ 
+    				_backtrack_manager->force_storage (); 
     		
-    		// Reset the internal state of the store before every local search iteration
-    		_store->reset_state ();
+    				// Reset the internal state of the store before every local search iteration
+    				_store->reset_state ();
     		
-    		// Reset the internal state of the heuristic before every local search iteration
-    		_ls_heuristic->reset_state ();
+    				// Reset the internal state of the heuristic before every local search iteration
+    				_ls_heuristic->reset_state ();
     		
-			search_consistent = label( -1 );
+					search_consistent = label ( 0 );
+				 
+					_ls_search_out_manager->upd_iterative_improvings_steps ( ++_II_steps );
+				}
+				while ( !_ls_search_out_manager->search_out () );
+				
+				// Avoid restoring states if no Restart has to be performed
+				if ( _restarts + 1 < _restarts_out )
+				{
+					// Unlabel variables
+					_backtrack_manager->remove_level( _backtrack_manager->get_level () );
+				
+					// Store the current unlabeled variables 
+					_backtrack_manager->set_level ( _backtrack_manager->get_level () + 1 );
+				
+					// Reset initial solution
+					_ls_initializer->initialize_back ();
+				}
+			}//_restarts
+			while ( ++_restarts < _restarts_out );
 		}
 		catch ( NvdException& e ) 
     	{
@@ -295,7 +431,7 @@ SimpleLocalSearch::labeling ()
     	}
 	}
 	
-	// Reset all the status of the variables 
+	// Reset all variables (unlabel variables)
   	_backtrack_manager->remove_level( _backtrack_manager->get_level() );
   
   	// Print solutions and info about the search
@@ -325,7 +461,7 @@ SimpleLocalSearch::labeling ()
 bool
 SimpleLocalSearch::label ( int var_idx ) 
 {
-	vector<int> idxs_neighborhood = _ls_heuristic->ls_get_index ();
+	std::vector<int> idxs_neighborhood = _ls_heuristic->ls_get_index ();
 
   	int value {};
   	bool consistent {};
@@ -335,7 +471,7 @@ SimpleLocalSearch::label ( int var_idx )
 	while ( !terminate )
 	{
 		unset_neighborhood ( idxs_neighborhood );
-		getchar();
+		
 		// Search nodes begins here
   		_num_nodes++;
   		vars_neighborhood = _ls_heuristic->ls_get_choice_variable ( idxs_neighborhood );
@@ -387,8 +523,12 @@ SimpleLocalSearch::label ( int var_idx )
 	  		}
     	}
     	else
-    	{
-    		// Solution found, so this is not a search node
+    	{ 
+    		/*
+    		 * Solution found, so this is not a search node.
+    		 * Store this solution in the solution manager along with its value.
+    		 * Solution manager will keep the k best solutions found so far.
+    		 */
       		if ( _debug )
       		{
         		LogMsg << _dbg << "Solution found at iteration " << _num_nodes << endl;
@@ -396,7 +536,12 @@ SimpleLocalSearch::label ( int var_idx )
       
       		try 
       		{
+      			//@todo Check on epsilon, sat constraints, etc.
         		terminate = _solution_manager->notify ();
+        		if ( terminate )
+        		{
+        			_ls_search_out_manager->force_out ();
+        		}
       		} 
       		catch ( NvdException& e ) 
       		{
@@ -428,11 +573,9 @@ SimpleLocalSearch::label ( int var_idx )
       			<< _num_nodes << endl;
     		}
     
-    		/*
-     		 * There is a leaf representing 
-     		 * a wrong decision (i.e., failed leaf).
-     		 */
-    		_num_wrong_decisions++;
+     		// There is a leaf representing a wrong decision (i.e., failed leaf).
+    		_ls_search_out_manager->upd_wrong_decisions ( ++_num_wrong_decisions );
+    		
     		continue;
   		}
   		 
@@ -467,6 +610,10 @@ SimpleLocalSearch::label ( int var_idx )
       		try 
       		{
         		terminate = _solution_manager->notify ();
+        		if ( terminate )
+        		{
+        			_ls_search_out_manager->force_out ();
+        		}
       		} 
       		catch ( NvdException& e ) 
       		{
@@ -477,6 +624,10 @@ SimpleLocalSearch::label ( int var_idx )
       		
       		terminate = true;
   		}
+  		
+  		// Update total number of nodes explored
+  		_ls_search_out_manager->upd_nodes ( _num_nodes );
+  		
 	}//while
 
 	return true;

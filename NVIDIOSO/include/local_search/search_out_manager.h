@@ -52,14 +52,14 @@ public:
 			(_out_evaluators [ eval_id ].second)->set_limit_out ( val );
 		}
 	}//set_value_out
-	
+	 
 	/**
 	 * Update an out value for the given search_out_evaluator.
 	 * @param eval_id (unique) id of the evaluator to set
 	 * @param val value to updtae for the eval_id evaluator
 	 */
 	template<typename T> void 
-	upd_out_value ( std::size_t eval_id, T val ) 
+	upd_metric_value ( std::size_t eval_id, T val ) 
 	{
 		auto it = _out_evaluators.find ( eval_id );
 		if ( it != _out_evaluators.end () )

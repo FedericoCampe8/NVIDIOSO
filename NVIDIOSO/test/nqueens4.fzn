@@ -17,4 +17,4 @@ constraint int_ne(q[1], q[4]);
 constraint int_ne(q[2], q[3]);
 constraint int_ne(q[2], q[4]);
 constraint int_ne(q[3], q[4]);
-solve  :: int_search(q, first_fail, indomain_min, complete) satisfy;
+solve  :: int_search(q, first_fail, indomain_min, incomplete) satisfy;

@@ -44,6 +44,13 @@ protected:
 	//! Initialization function
 	virtual void initialize_manager ();
 	
+	/**
+	 * Return true if the evaluator with id "eval_id" is active, false otherwise.
+	 * @param eval_id id of the evaluator to query.
+	 * @return true if the evaluator with id "eval_id" is active, false otherwise.
+	 */
+	bool is_active_evaluator ( std::size_t eval_id ) const;
+	
 public:
 	
 	SimpleSearchOutManager ();
@@ -75,7 +82,7 @@ public:
 	 * @note reset state of all evaluators even if they are not active.
 	 */ 
 	 void reset_out_evaluator () override;
-	
+	 
 	/**
 	 * Activate a given (id) out_evaluator
 	 * @param eval_id id of the out_evaluator to activate.
@@ -89,12 +96,17 @@ public:
 	void deactivate_out_evaluator ( std::size_t eval_id ) override;
 	
 	/**
-	 * Return true if the search has to be terminated 
-	 * false otherwise.
+	 * Return true if the search has to be terminated false otherwise.
+	 * This method queries every active evaluator to check if they 
+	 * have reached their internal limit.
 	 * @return true if the search has to be terminated, false otherwise.
+	 * @note It resets the search_out internal flag to false.
+	 *       By reseting the internal flag, the client can reset other
+	 *       evaluators (e.g., iterative improvements steps) to continue
+	 *       exploring the search space.
 	 */
 	bool search_out () override;
-	 
+	  
 	// Set out values
 	void set_num_restarts_out ( std::size_t num_sol );
 	void set_num_iterative_improvings_out ( std::size_t num_sol );
@@ -104,12 +116,12 @@ public:
 	void set_num_wrong_decisions_out ( std::size_t out_w );
 	
 	// Update out values
-	void upd_num_restarts_out ( std::size_t num_sol );
-	void upd_num_iterative_improvings_out ( std::size_t num_sol );
-	void upd_num_solutions_out ( std::size_t num_sol );
-	void upd_time_out ( double timeout );
-	void upd_num_nodes_out ( std::size_t out_n );
-	void upd_num_wrong_decisions_out ( std::size_t out_w );
+	void upd_restarts ( std::size_t num_sol );
+	void upd_iterative_improvings_steps ( std::size_t num_sol );
+	void upd_solutions ( std::size_t num_sol );
+	void upd_time ( double timeout );
+	void upd_nodes ( std::size_t out_n );
+	void upd_wrong_decisions ( std::size_t out_w );
 
 	//! Print information about the search_out_manager
 	void print() const override;

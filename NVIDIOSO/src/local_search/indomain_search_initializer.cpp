@@ -32,12 +32,83 @@ InDomainSearchInitializer::get_initialization_type () const
 	return _initialization_type;
 }//set_initialization_type
 
+void
+InDomainSearchInitializer::initialize_back ()
+{
+	// If first initialization: use initialize method
+	if ( _initialized_values.size () == 0 )
+	{
+		initialize ();
+		return;
+	}
+	
+	// Use init values
+	int value;
+	for ( auto& var : _fd_variables )
+	{
+		// Sanity check
+		if ( var->is_empty () )
+		{
+			std::string err_msg {"InDomainSearchInitializer::initialize_back - empty domain cannot initialize."};
+        	throw NvdException ( err_msg.c_str() );
+		}
+		
+		// Skip singleton variables
+		if ( var->is_singleton () )
+		{
+			_initialized_values    [ var->get_id () ] = value;
+			_initialized_variables [ var->get_id () ] = true;
+			continue;
+		}
+		
+		auto it = _initialized_values.find ( var->get_id () );
+		if ( it == _initialized_values.end () )
+		{
+			std::string err_msg {"InDomainSearchInitializer::initialize_back - variable id not found."};
+        	throw NvdException ( err_msg.c_str() );
+		}
+		
+		value = _initialized_values [ var->get_id () ];
+		
+		/*
+       	 * Here it comes the actual labeling.
+       	 * @note care must be taken for non int variables (e.g. set, float).
+       	 * @note it automatically notifies the attached store.
+       	 */
+      	if ( var->domain_iterator->is_numeric () )
+      	{
+        	(static_cast<IntVariable*>(var))->shrink ( value, value );   
+        }
+        else
+        {
+        	std::string err_msg {"InDomainSearchInitializer::initialize - variable not numeric."};
+        	throw NvdException ( err_msg.c_str() );
+        }
+        _initialized_variables [ var->get_id () ] = true;
+	}
+}//initialize_back
+
 void 
 InDomainSearchInitializer::initialize ()
 {
 	int value;
 	for ( auto& var : _fd_variables )
 	{
+		// Sanity check
+		if ( var->is_empty () )
+		{
+			std::string err_msg {"InDomainSearchInitializer::initialize - empty domain cannot initialize."};
+        	throw NvdException ( err_msg.c_str() );
+		}
+		
+		// Skip singleton variables
+		if ( var->is_singleton () )
+		{
+			_initialized_values    [ var->get_id () ] = value;
+			_initialized_variables [ var->get_id () ] = true;
+			continue;
+		}
+		
 		if ( _initialization_type == InDomainInitType::INDOMAIN_MIN )
 		{
 			value = var->domain_iterator->min_val ();
@@ -66,10 +137,11 @@ InDomainSearchInitializer::initialize ()
         }
         else
         {
-        	std::string err_msg {"InDomainSearchInitializer::initialize variable not numeric"};
+        	std::string err_msg {"InDomainSearchInitializer::initialize - variable not numeric."};
         	throw NvdException ( err_msg.c_str() );
         }
         
+        _initialized_values    [ var->get_id () ] = value;
 		_initialized_variables [ var->get_id () ] = true;
 	}
 }//initialize

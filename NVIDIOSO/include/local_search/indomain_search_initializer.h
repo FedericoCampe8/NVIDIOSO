@@ -46,6 +46,13 @@ public:
 	//! Initialize the variables with random values from their domains.
 	void initialize () override;
 	
+	/**
+	 * Initialize the variables handled by this initializer.
+	 * Variables are initialized with the values used last time 
+	 * the method initialize() has been called.
+	 */
+	void initialize_back () override; 
+	
 	void print () const override;
 };
 

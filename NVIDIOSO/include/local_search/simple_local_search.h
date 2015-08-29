@@ -35,7 +35,16 @@ protected:
    	 * during local search. A wrong decision is represented by 
    	 * an assignment of variables which does not satisfy hard constraints.
    	 */
-  	size_t _num_wrong_decisions;
+  	std::size_t _num_wrong_decisions;
+  	
+  	//! Number of iterative improving steps performed
+  	std::size_t _II_steps;
+  	
+  	//! Number of restarts performed
+  	std::size_t _restarts;
+  	
+  	//! Maximum number of restarts to perfrom
+  	std::size_t _restarts_out;
   
   	//! Specifies if debug option is on.
   	bool _debug;
@@ -128,7 +137,7 @@ public:
    	 * @param a reference to a solution manager.
    	 */
   	void set_solution_manager ( SolutionManager* sol_manager ) override;
-  
+   
   	/**
    	 * Sets a backtrackable manager to this class.
    	 * @param bkt_manager a reference to a backtrack manager.
@@ -155,20 +164,20 @@ public:
    	 * @return the number of backtracks.
    	 * @note by default it returns 0.
    	 */
-  	size_t get_backtracks () const override;
+  	std::size_t get_backtracks () const override;
   
   	/**
      * Returns the number of nodes visited by the search.
    	 * @return the number of visited nodes.
    	 */
-  	size_t get_nodes () const override;
+  	std::size_t get_nodes () const override;
   
   	/**
      * Returns the number of wrong decisions made during the search process.
   	 * @return the number of wrong decisions.
    	 * @note a decision is "wrong" when the assignment does not satisfy hard constraints.
    	 */
-	size_t get_wrong_decisions () const override;
+	std::size_t get_wrong_decisions () const override;
   
   	/**
    	 * Set maximum number of solutions to be found.
@@ -227,7 +236,7 @@ public:
    	 * @return true if a solution was found.
    	 */
  	bool labeling () override;
-  
+   
   	/**
    	 * Set a maximum number of backtracks to perform during search.
    	 * @note This function does not have any effect.
@@ -250,6 +259,29 @@ public:
    	 * @note  this function will change SearchOutManager settings.
    	 */
   	void set_wrong_decisions_out ( size_t out_w ) override;
+  	
+  	
+  	/**
+   	 * Set the maximum number of iterative improving steps to perform.
+   	 * An Iterative Improving (II) step is a restart of the (local) search strategy
+   	 * where the starting point is the best solution found so far.
+   	 * @param ii_limit unsigned value representing the maximum number of 
+   	 *        iterative improving steps to perform.
+   	 */
+  	void set_iterative_improving_limit ( std::size_t ii_limit = 0 ) override;
+  	
+  	/**
+   	 * Set the maximum number of restarts to perform.
+   	 * A restarts calles the (local) search strategy again, starting from 
+   	 * the initial solution provided to the strategy (e.g., by the 
+   	 * search initializer).
+   	 * @param restarts_limit unsigned value representing the maximum number of 
+   	 *        restarts to perform (default 0 restarts).
+   	 * @note A restart is not performed if some other limit has been already reached,
+   	 *       e.g., a restart is not performed if timeout limit has been reached.
+   	 */
+  	void set_restarts_limit ( std::size_t restarts_limit = 0 ) override;
+  	
   	
   	//! Print on standard output last solution found.
   	void print_solution () const override;

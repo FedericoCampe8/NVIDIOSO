@@ -397,13 +397,13 @@ CudaGenerator::get_search_engine ( UTokenPtr tkn_ptr )
     // Set solver parameters
     if ( solver_params != nullptr )
     {
-        engine->set_debug          ( solver_params->search_get_debug() );
-        engine->set_trail_debug    ( solver_params->search_get_trail_debug () );
-        engine->set_time_watcher   ( solver_params->search_get_time_watcher () );
-        engine->set_timeout_limit  ( solver_params->search_get_timeout () );
-        engine->set_solution_limit ( solver_params->search_get_solution_limit () );
-        engine->set_backtrack_out  ( solver_params->search_get_backtrack_limit () );
-        engine->set_nodes_out      ( solver_params->search_get_nodes_limit () );
+        engine->set_debug               ( solver_params->search_get_debug() );
+        engine->set_trail_debug         ( solver_params->search_get_trail_debug () );
+        engine->set_time_watcher        ( solver_params->search_get_time_watcher () );
+        engine->set_timeout_limit       ( solver_params->search_get_timeout () );
+        engine->set_solution_limit      ( solver_params->search_get_solution_limit () );
+        engine->set_backtrack_out       ( solver_params->search_get_backtrack_limit () );
+        engine->set_nodes_out           ( solver_params->search_get_nodes_limit () );
         engine->set_wrong_decisions_out ( solver_params->search_get_wrong_decision_limit () );
     }
     

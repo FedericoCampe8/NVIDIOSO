@@ -56,8 +56,15 @@ public:
    	 */
   	virtual void set_variables ( std::vector < Variable* > vars ) = 0;
 	
-	//! Initialize the variables set internally to this initializer.
+	//! Initialize the variables handled by this initializer.
 	virtual void initialize () = 0;
+	
+	/**
+	 * Initialize the variables handled by this initializer.
+	 * Variables are initialized with the values used last time 
+	 * the method initialize() has been called.
+	 */
+	virtual void initialize_back () = 0;
 	
 	/**
 	 * Returns true if the variable is considered for initialization

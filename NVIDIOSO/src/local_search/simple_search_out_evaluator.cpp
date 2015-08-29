@@ -23,13 +23,13 @@ void
 SimpleSearchOutEvaluator::notify ()
 {
 	_search_out_manager->notify_out ( _id );
-}//notify
+}//notify 
 
 void 
 SimpleSearchOutEvaluator::set_limit_out ()
 {
 }//set_limit_out
-
+ 
 void 
 SimpleSearchOutEvaluator::upd_metric_value ()
 {

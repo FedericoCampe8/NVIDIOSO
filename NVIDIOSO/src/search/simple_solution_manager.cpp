@@ -47,7 +47,7 @@ size_t
 SimpleSolutionManager::number_of_solutions () {
   return _number_of_solutions;
 }//number_of_solutions
-
+ 
 std::string
 SimpleSolutionManager::get_solution () const {
   if ( !_solution_strings.size ()) return "";
@@ -70,8 +70,9 @@ SimpleSolutionManager::get_all_solutions () const {
 
 void
 SimpleSolutionManager::set_solution_limit ( int n_sol ) {
-  if ( n_sol < 0 ) {
-    _find_all_solutions = true;
+  if ( n_sol < 0 ) 
+  { 
+	_find_all_solutions = true;
     return;
   }
   _find_all_solutions      = false;
@@ -79,27 +80,28 @@ SimpleSolutionManager::set_solution_limit ( int n_sol ) {
 }//set_solution_limit
 
 bool
-SimpleSolutionManager::notify () {
-  if ( !_variables.size() ) return true;
+SimpleSolutionManager::notify () 
+{
+	if ( !_variables.size() ) return true;
   
-  string solution_str = "";
-  for ( auto var : _variables ) 
-  {
-    if ( !var.second->is_singleton() ) 
-    {
-      throw
-      NvdException ( string("Something went wrong: not all variables assigned for solution.").c_str() );
-    }
-    solution_str += var.second->domain_iterator->get_string_representation ();
-  }
-
-  _solution_strings.push_back ( solution_str );
-  _number_of_solutions++;
+  	string solution_str = "";
+  	for ( auto var : _variables ) 
+  	{
+    	if ( !var.second->is_singleton() ) 
+    	{
+      		throw
+      		NvdException ( string("Something went wrong: not all variables assigned for solution.").c_str() );
+    	}
+    	solution_str += var.second->domain_iterator->get_string_representation ();
+  	}
+ 
+  	_solution_strings.push_back ( solution_str );
+  	_number_of_solutions++;
   
-  if ( _find_all_solutions ) return false;
-  if ( _number_of_solutions >= _max_number_of_solutions ) return true;
+  	if ( _find_all_solutions ) return false;
+  	if ( _number_of_solutions >= _max_number_of_solutions ) return true;
   
-  return false;
+  	return false;
 }//notify
 
 void

@@ -68,15 +68,6 @@ public:
   void detach_backtracable ( size_t bkt_id );
   
   /**
-   * Informs the manager that a given backtrackable object
-   * has changed at a given level.
-   * @param idx the (unique) id of the backtrackable object which is changed.
-   * @note only object already registered with this manager
-   *       can be restored later.
-   */
-  void add_changed ( size_t idx ) override;
-  
-  /**
    * Specifies the level which should become the
    * active one in the manager.
    * @param lvl the active level at which the changes will be recorded.

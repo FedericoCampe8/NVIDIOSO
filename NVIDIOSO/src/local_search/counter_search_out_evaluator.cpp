@@ -12,6 +12,9 @@ using namespace std;
 
 CounterSearchOutEvaluator:: CounterSearchOutEvaluator ( SearchOutManager * search_out_manager ) :
 	SimpleSearchOutEvaluator ( search_out_manager ) {	
+	// Default: no limit
+	_metric_value = -1;
+	_limit_value  = 0;
 }//CounterSearchOutEvaluator
 
 CounterSearchOutEvaluator::~CounterSearchOutEvaluator () {
@@ -20,7 +23,10 @@ CounterSearchOutEvaluator::~CounterSearchOutEvaluator () {
 void 
 CounterSearchOutEvaluator::reset_state () 
 {
-	_metric_value = 0; 
+	if ( _limit_value >= 0 )
+	{
+		_metric_value = 0; 
+	}
 }//reset_state
 
 void 

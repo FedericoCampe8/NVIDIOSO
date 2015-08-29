@@ -24,14 +24,14 @@ SimpleSearchOutManager::~SimpleSearchOutManager () {
 void
 SimpleSearchOutManager::initialize_manager ()
 { 
-	add_out_evaluator ( new TimeSearchOutEvaluator    ( this ), "num_restarts_out" ); 
+	add_out_evaluator ( new TimeSearchOutEvaluator    ( this ), "time_out" ); 
 	add_out_evaluator ( new CounterSearchOutEvaluator ( this ), "num_iterative_improving_out" );
 	add_out_evaluator ( new CounterSearchOutEvaluator ( this ), "num_solution_out" );
-	add_out_evaluator ( new CounterSearchOutEvaluator ( this ), "time_out" );
+	add_out_evaluator ( new CounterSearchOutEvaluator ( this ), "num_restarts_out" );
 	add_out_evaluator ( new CounterSearchOutEvaluator ( this ), "num_nodes_out" );
 	add_out_evaluator ( new CounterSearchOutEvaluator ( this ), "num_wrong_decisions_out" );
 }//initialize_manager
-  
+   
 void  
 SimpleSearchOutManager::notify_out ( std::size_t eval_id )
 {
@@ -45,7 +45,7 @@ SimpleSearchOutManager::notify_out ( std::size_t eval_id )
 		}
 	}	
 }//notify_out
-
+ 
 void 
 SimpleSearchOutManager::force_out ()
 {
@@ -55,18 +55,21 @@ SimpleSearchOutManager::force_out ()
 bool 
 SimpleSearchOutManager::search_out ()
 {
+	bool set_out = _search_out;
 	if ( !_search_out )
 	{
 		for ( auto& evals : _out_evaluators )
 		{
 			if ( (evals.second.second)->is_limit_reached () )
 			{
-				_search_out = true;
+				set_out = true;
 				break;
 			}
 		}
 	}
-	return _search_out; 
+	 
+	_search_out = false;
+	return set_out; 
 }//search_out 
  
 void 
@@ -95,6 +98,17 @@ SimpleSearchOutManager::add_out_evaluator ( SimpleSearchOutEvaluator * out_eval,
 	SearchOutManager::add_out_evaluator ( out_eval );
 }//add_out_evaluator
 
+bool 
+SimpleSearchOutManager::is_active_evaluator ( std::size_t eval_id ) const
+{
+	auto it = _out_evaluators.find ( eval_id );
+	if ( it != _out_evaluators.end() )
+	{
+		return _out_evaluators.at ( eval_id ).first;
+	}
+	return false;
+}//is_active_evaluator
+ 
 void 
 SimpleSearchOutManager::activate_out_evaluator ( std::size_t eval_id )
 {
@@ -118,73 +132,139 @@ SimpleSearchOutManager::deactivate_out_evaluator ( std::size_t eval_id )
 void 
 SimpleSearchOutManager::set_num_restarts_out ( std::size_t num_sol )
 {
-	set_out_value ( _string_eval_lookup [ "num_restarts_out" ], num_sol );
+	if ( num_sol == 0 )
+	{// Deactivate evaluator
+		deactivate_out_evaluator ( _string_eval_lookup [ "num_restarts_out" ] );
+	}
+	else
+	{
+		set_out_value ( _string_eval_lookup [ "num_restarts_out" ], num_sol );
+		activate_out_evaluator ( _string_eval_lookup [ "num_restarts_out" ] );
+	}
 }//set_num_restarts_out
 
 void 
 SimpleSearchOutManager::set_num_iterative_improvings_out ( std::size_t ii )
-{
-	set_out_value ( _string_eval_lookup [ "num_iterative_improving_out" ], ii );
+{ 
+	if  ( ii == 0 )
+	{// Deactivate evaluator
+		deactivate_out_evaluator ( _string_eval_lookup [ "num_iterative_improving_out" ] );
+	}
+	else
+	{
+		set_out_value ( _string_eval_lookup [ "num_iterative_improving_out" ], ii );
+		activate_out_evaluator ( _string_eval_lookup [ "num_iterative_improving_out" ] );
+	}
 }//set_num_iterative_improving_out
 
 void 
 SimpleSearchOutManager::set_num_solutions_out ( std::size_t num_sol )
 {
-	set_out_value ( _string_eval_lookup [ "num_solution_out" ], num_sol );
+	if ( num_sol == 0 )
+	{// Deactivate the evaluator
+		deactivate_out_evaluator ( _string_eval_lookup [ "num_solution_out" ] );
+	}
+	else
+	{
+		set_out_value ( _string_eval_lookup [ "num_solution_out" ], num_sol );
+		activate_out_evaluator ( _string_eval_lookup [ "num_solution_out" ] );
+	}
 }//set_num_solution_out
 
 void 
 SimpleSearchOutManager::set_time_out ( double timeout )
 {
-	set_out_value ( _string_eval_lookup [ "time_out" ], timeout );
+	if ( timeout < 0.0 )
+	{// Deactivate the evaluator
+		deactivate_out_evaluator ( _string_eval_lookup [ "time_out" ] );
+	}
+	else
+	{
+		set_out_value ( _string_eval_lookup [ "time_out" ], timeout );
+		activate_out_evaluator ( _string_eval_lookup [ "time_out" ] );
+	}
 }//set_time_out
-
-void 
+ 
+void  
 SimpleSearchOutManager::set_num_nodes_out ( std::size_t out_n )
 {
-	set_out_value ( _string_eval_lookup [ "num_nodes_out" ], out_n );
-}//set_restarts_out
+	if ( out_n == 0 )
+	{// Deactivate the evaluator
+		deactivate_out_evaluator ( _string_eval_lookup [ "num_nodes_out" ] );
+	}
+	else
+	{
+		set_out_value ( _string_eval_lookup [ "num_nodes_out" ], out_n );
+		activate_out_evaluator ( _string_eval_lookup [ "num_nodes_out" ] );
+	}
+}//set_num_nodes_out
 
 void 
 SimpleSearchOutManager::set_num_wrong_decisions_out ( std::size_t out_w )
 {
-	set_out_value ( _string_eval_lookup [ "num_wrong_decisions" ], out_w );
+	if ( out_w == 0 )
+	{// Deactivate the evaluator
+		deactivate_out_evaluator ( _string_eval_lookup [ "num_wrong_decisions" ] );
+	}
+	else
+	{
+		set_out_value ( _string_eval_lookup [ "num_wrong_decisions" ], out_w );
+		activate_out_evaluator ( _string_eval_lookup [ "num_wrong_decisions" ] );
+	}
 }//set_num_wrong_decisions_out
 
 void 
-SimpleSearchOutManager::upd_num_restarts_out ( std::size_t num_sol )
+SimpleSearchOutManager::upd_restarts ( std::size_t num_sol )
 {
-	upd_out_value ( _string_eval_lookup [ "num_restarts_out" ], num_sol );
+	if ( is_active_evaluator ( _string_eval_lookup [ "num_restarts_out" ] ) )
+	{
+		upd_metric_value ( _string_eval_lookup [ "num_restarts_out" ], num_sol );
+	}
 }//set_num_restarts_out
 
 void 
-SimpleSearchOutManager::upd_num_iterative_improvings_out ( std::size_t ii )
+SimpleSearchOutManager::upd_iterative_improvings_steps ( std::size_t ii )
 {
-	upd_out_value ( _string_eval_lookup [ "num_iterative_improving_out" ], ii );
+	if ( is_active_evaluator ( _string_eval_lookup [ "num_iterative_improving_out" ] ) )
+	{
+		upd_metric_value ( _string_eval_lookup [ "num_iterative_improving_out" ], ii ); 
+	}
 }//set_num_iterative_improving_out
 
 void 
-SimpleSearchOutManager::upd_num_solutions_out ( std::size_t num_sol )
+SimpleSearchOutManager::upd_solutions ( std::size_t num_sol )
 {
-	upd_out_value ( _string_eval_lookup [ "num_solution_out" ], num_sol );
+	if ( is_active_evaluator ( _string_eval_lookup [ "num_solution_out" ] ) )
+	{
+		upd_metric_value ( _string_eval_lookup [ "num_solution_out" ], num_sol );
+	}
 }//set_num_solution_out
 
 void 
-SimpleSearchOutManager::upd_time_out ( double timeout )
+SimpleSearchOutManager::upd_time ( double timeout )
 {
-	upd_out_value ( _string_eval_lookup [ "time_out" ], timeout );
+	if ( is_active_evaluator ( _string_eval_lookup [ "time_out" ] ) )
+	{
+		upd_metric_value ( _string_eval_lookup [ "time_out" ], timeout );
+	}
 }//set_time_out
 
 void 
-SimpleSearchOutManager::upd_num_nodes_out ( std::size_t out_n )
+SimpleSearchOutManager::upd_nodes ( std::size_t out_n )
 {
-	upd_out_value ( _string_eval_lookup [ "num_nodes_out" ], out_n );
+	if ( is_active_evaluator ( _string_eval_lookup [ "num_nodes_out" ] ) )
+	{
+		upd_metric_value ( _string_eval_lookup [ "num_nodes_out" ], out_n );
+	}
 }//set_restarts_out
 
 void 
-SimpleSearchOutManager::upd_num_wrong_decisions_out ( std::size_t out_w )
+SimpleSearchOutManager::upd_wrong_decisions ( std::size_t out_w )
 {
-	upd_out_value ( _string_eval_lookup [ "num_wrong_decisions" ], out_w );
+	if ( is_active_evaluator ( _string_eval_lookup [ "num_wrong_decisions" ] ) )
+	{
+		upd_metric_value ( _string_eval_lookup [ "num_wrong_decisions" ], out_w );
+	}
 }//set_num_wrong_decisions_out
 
 void 

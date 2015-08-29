@@ -12,7 +12,10 @@ using namespace std;
 using namespace std::chrono;
 
 TimeSearchOutEvaluator:: TimeSearchOutEvaluator ( SearchOutManager * search_out_manager ) :
-	SimpleSearchOutEvaluator ( search_out_manager ) {	
+	SimpleSearchOutEvaluator ( search_out_manager ) {
+	// Deafult no limit
+	_metric_value = -1.0;
+	_limit_value  = 0.0;
 }//TimeSearchOutEvaluator
 
 TimeSearchOutEvaluator::~TimeSearchOutEvaluator () {
@@ -25,7 +28,7 @@ TimeSearchOutEvaluator::get_seconds_from_time ( std::chrono::time_point<std::chr
   	seconds s = duration_cast<seconds>(ms);
   	return s.count ();
 }//get_seconds_from_time
-
+ 
 void 
 TimeSearchOutEvaluator::set_limit_out () 
 {
@@ -51,6 +54,12 @@ TimeSearchOutEvaluator::upd_metric_value ()
 void 
 TimeSearchOutEvaluator::reset_state () 
 {
+	if ( _limit_value == 0.0 ) 
+	{
+		_metric_value = -1.0;
+		return;
+	}
+	
 	std::chrono::time_point<std::chrono::system_clock> p_time;
     p_time = std::chrono::system_clock::now();
     
