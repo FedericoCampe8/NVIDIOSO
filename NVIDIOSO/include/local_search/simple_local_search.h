@@ -17,6 +17,7 @@
 #include "local_search.h"
 #include "soft_constraint_store.h"
 #include "simple_search_out_manager.h"
+#include "local_search_solution_manager.h"
 #include "neighborhood_backtrack_manager.h"
 
 class SimpleLocalSearch : public LocalSearch {
@@ -71,8 +72,8 @@ protected:
   	SimpleSearchOutManagerSPtr _ls_search_out_manager;
   	
   	//! Pointer to solution manager
-  	SolutionManager* _solution_manager;
-  	
+  	LocalSearchSolutionManager* _solution_manager;
+  	 
   	//! Initialization function for member variables
   	virtual void init_search_parameters ();
   	
@@ -281,7 +282,6 @@ public:
    	 *       e.g., a restart is not performed if timeout limit has been reached.
    	 */
   	void set_restarts_limit ( std::size_t restarts_limit = 0 ) override;
-  	
   	
   	//! Print on standard output last solution found.
   	void print_solution () const override;

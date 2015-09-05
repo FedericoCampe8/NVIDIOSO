@@ -212,6 +212,9 @@ SimpleLocalSearchHeuristic::get_choice_value ()
 				index_to_add = _neighborhood_heuristic->get_next_index ();
 			}
 			value = _neighborhood_heuristic->get_choice_value ();
+			
+			// Change internal state due to value selection
+			notify_on_var_assignment ( _current_index );
 		}
 	} 
 	
@@ -296,7 +299,7 @@ SimpleLocalSearchHeuristic::ls_get_choice_value ()
 				_neighborhood_val.push_back ( _neighborhood_heuristic->get_choice_value () );
 				
 				// Change internal state due to value selection
-				neighborhood_assignment_on_var ( idx );
+				notify_on_var_assignment ( idx );
 			}
 		} 
 	}

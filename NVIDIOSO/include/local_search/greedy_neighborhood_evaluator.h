@@ -17,12 +17,39 @@
 #include "neighborhood_evaluator.h"
  
 class GreedyNeighborhoodEvaluator : public NeighborhoodEvaluator {
+protected:
+	//! Objective type: objective var, satisfied constraints, etc.
+	ObjectiveValueType _objective_type;
+	
+	//! Minimization/Maximization
+	bool _minimize;
+	
 public:
 
 	GreedyNeighborhoodEvaluator ();
   	
   	~GreedyNeighborhoodEvaluator ();
   	 
+  	/**
+  	 * Set the objective to evaluate (var, sat constraints, etc.).
+  	 * @param ovt ObjectiveValueType specifying the objective to evaluate.
+  	 */ 
+  	void set_objective ( ObjectiveValueType ovt ) override;
+  	
+  	/**
+  	 * Set minimize goal.
+  	 * @note minimization is the default. Maximization of the objective function
+  	 *       should be enforced by calling the respective method.
+  	 */
+  	void set_minimize_objective () override;
+  	
+  	/**
+  	 * Set maximize goal.
+  	 * @note minimization is the default. Maximization of the objective function
+  	 *       should be enforced by calling the this method.
+  	 */
+  	void set_maximize_objective () override;
+  	
   	/**
   	 * Get best value for a given variable
   	 * according a greedy evaluator, i.e., the one associated with the best value.

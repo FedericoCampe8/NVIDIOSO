@@ -112,10 +112,14 @@ private:
 	
 	// ======================= LOCAL SEARCH PARAMETERS =======================
 	ConSatType _ls_cstore_constraints_sat_type;
+	std::size_t _ls_restarts;
+	std::size_t _ls_II_steps;
 	static constexpr std::string LS_SAT_CONSTRAINTS_KWD;
 	static constexpr std::string LS_SAT_SOFT_KWD;
 	static constexpr std::string LS_SAT_HARD_KWD;
 	static constexpr std::string LS_SAT_MIXED_KWD; 
+	static constexpr std::string LS_RESTARTS_KWD;
+	static constexpr std::string LS_II_STEPS_KWD;
 	// =======================================================================
 	
     //Print utilities
@@ -208,10 +212,12 @@ public:
     CudaPropParam cstore_get_dev_propagation () const;
     // =====================================
     
-    // ========= LOCAL SEARCH PARAMETERS =========
-    	bool cstore_constraints_all_soft () const;
-    	bool cstore_constraints_all_hard () const;
-    	bool cstore_constraints_mixed    () const;
+	// ========= LOCAL SEARCH PARAMETERS =========
+    bool cstore_constraints_all_soft () const;
+    bool cstore_constraints_all_hard () const;
+    bool cstore_constraints_mixed    () const;
+    std::size_t ls_get_restarts      () const;
+    std::size_t ls_get_II_steps      () const;
     //============================================
     
     

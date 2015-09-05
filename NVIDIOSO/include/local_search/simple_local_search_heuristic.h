@@ -113,12 +113,16 @@ protected:
 	void set_explored_var ( int idx, bool val = true );
 	
 	/**
-	 * This function allows the specific local search implementation
-	 * to be notified when a new value has been considered.
+	 * This method is to design specific local search strategies.
+	 * It is invoked when the client ask for values by invoking the 
+	 * (ls_)get_choice_value method.
+	 * By implementing this method a specific local search strategy can 
+	 * decide, for example, when a complete exploration of a given variable idx
+	 * has been performed.
 	 * @param var_index, index of the variable in _fd_variables under consideration.
 	 * @todo Use observer pattern.
 	 */
-	virtual void neighborhood_assignment_on_var ( int var_index ) = 0;
+	virtual void notify_on_var_assignment ( int var_index ) = 0;
 	
 	/**
 	 * This method returns true if the local search strategy 

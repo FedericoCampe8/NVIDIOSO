@@ -106,7 +106,7 @@ public:
 	 *       exploring the search space.
 	 */
 	bool search_out () override;
-	  
+	    
 	// Set out values
 	void set_num_restarts_out ( std::size_t num_sol );
 	void set_num_iterative_improvings_out ( std::size_t num_sol );

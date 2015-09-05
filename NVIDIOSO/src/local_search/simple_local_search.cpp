@@ -73,10 +73,10 @@ void
 SimpleLocalSearch::set_solution_manager ( SolutionManager* sol_manager ) 
 {
 	if ( sol_manager == nullptr ) return;
-    _solution_manager = sol_manager;
+    _solution_manager = dynamic_cast<LocalSearchSolutionManager*> ( sol_manager );
 }//set_solution_manager
-
-void
+ 
+void 
 SimpleLocalSearch::set_backtrack_manager ( BacktrackManagerPtr bkt_manager ) 
 {
 	if ( bkt_manager == nullptr ) return;
@@ -591,10 +591,19 @@ SimpleLocalSearch::label ( int var_idx )
   		/*
   		 * Notify the heuristic that labeling has been performed and
   		 * constraint propagation has propagated constraints.
-  		 * This will update some value (e.g., number of unsat constraints) in heuristic.
+  		 * This will update some values (e.g., number of unsat constraints) in heuristic.
   		 */
   		notify_heuristic ();
   		
+  		/*
+  		 * Update solution manager on values changed due to propagation.
+  		 * @note notifies solution manager that propagation has been performed and
+  		 *       hence number of constraints and objective value could be both changed.
+  		 * @note out manager is notified as soon as possible after propagation.
+  		 *       Other labelings could produce worst values on the objective.
+  		 */
+  		terminate = _solution_manager->notify_on_propagation ( _store->num_unsat_constraints () );
+  		 
   		// Proceed with local search on a different neighborhood
   		idxs_neighborhood = _ls_heuristic->ls_get_index ();
   		
@@ -608,7 +617,7 @@ SimpleLocalSearch::label ( int var_idx )
       		}
       
       		try 
-      		{
+      		{	
         		terminate = _solution_manager->notify ();
         		if ( terminate )
         		{

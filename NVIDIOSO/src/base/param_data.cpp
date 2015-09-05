@@ -64,6 +64,8 @@ using namespace std;
 	constexpr std::string ParamData::LS_SAT_SOFT_KWD        = "all_soft";
 	constexpr std::string ParamData::LS_SAT_HARD_KWD        = "all_soft";
 	constexpr std::string ParamData::LS_SAT_MIXED_KWD       = "mixed";
+	constexpr std::string ParamData::LS_RESTARTS_KWD        = "RESTARTS";
+	constexpr std::string ParamData::LS_II_STEPS_KWD        = "ITERATIVE_IMPROVING";
 	// =======================================================================
 
 
@@ -161,7 +163,8 @@ ParamData::set_default_parameters ()
     
     // --- Local Search ---
     _ls_cstore_constraints_sat_type = ConSatType::MIXED; 
-    
+    _ls_restarts = 0;
+    _ls_II_steps = 0;
 }//set_default_parameters
 
 void
@@ -404,6 +407,20 @@ ParamData::set_local_search_parameters ( std::string& line )
         {
         	_ls_cstore_constraints_sat_type = ConSatType::MIXED;
         }
+        return;
+    }
+    
+    pos = line_aux.find ( LS_RESTARTS_KWD );
+    if ( pos != string::npos )
+    {
+    	_ls_restarts = atoi ( param.c_str() );
+        return;
+    }
+    
+    pos = line_aux.find ( LS_II_STEPS_KWD );
+    if ( pos != string::npos )
+    {
+    	_ls_II_steps = atoi ( param.c_str() );
         return;
     }
 }//set_local_search_parameters
@@ -654,6 +671,19 @@ ParamData::cstore_constraints_mixed () const
 	return _ls_cstore_constraints_sat_type == ConSatType::MIXED;
 }//cstore_constraints_all_soft
 
+std::size_t 
+ParamData::ls_get_restarts () const
+{
+	return _ls_restarts;
+}//cstore_constraints_all_soft
+
+std::size_t 
+ParamData::ls_get_II_steps () const
+{
+	return _ls_II_steps;
+}//cstore_constraints_all_soft
+
+
 void
 ParamData::print_option ( bool b, bool new_line ) const
 {
@@ -747,6 +777,10 @@ ParamData::print () const
     cout << "- Local Search:\n";
     cout << "\t+ Constraint as: ";
     print_option ( _ls_cstore_constraints_sat_type );
+    cout << "\t+ Restarts to perform: ";
+    print_option ( _ls_restarts );
+    cout << "\t+ Iterative Improving steps to perform : ";
+    print_option ( _ls_II_steps );
     
     cout << "- Constraints:\n";
     cout << "\t+ Propagator class: "; 

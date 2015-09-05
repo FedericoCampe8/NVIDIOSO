@@ -22,7 +22,8 @@
 #include "simple_backtrack_manager.h"
 #include "neighborhood_backtrack_manager.h"
 #include "simple_search_out_manager.h"
-
+#include "local_search_solution_manager.h"
+ 
 class SearchFactory {
 public:
   
@@ -48,6 +49,9 @@ public:
       	
       	// Backtrack Manager
       	BacktrackManagerPtr backtrack_manager;
+      	
+      	// Solution Manager
+      	SolutionManager * solution_manager;
     
 		// Var goal
       	std::string var_goal = search_tkn->get_var_goal ();
@@ -57,11 +61,13 @@ public:
       	}
     
       	std::string solve_goal = search_tkn->get_solve_goal ();
-      	if ( solve_goal != "satisfy" )
+      	if ( solve_goal != "satisfy" && 
+      		 solve_goal != "minimize" &&
+      		 solve_goal != "maximize" )
       	{
         	LogMsg << "Solve goal choice not yet implement: " + solve_goal << std::endl;
       	}
-      	LogMsg << "Search Engine - Solve goal set: satisfy" << std::endl;
+      	LogMsg << "Search Engine - Solve goal set: " << solve_goal << std::endl;
       
       	// Search choice
       	std::string search_choice = search_tkn->get_search_choice ();
@@ -189,16 +195,18 @@ public:
       		engine = std::make_shared<DepthFirstSearch> ();
       		heuristic = std::make_shared<SimpleHeuristic>( variables, var_choice_metric, val_choice_metric );
       		backtrack_manager = std::make_shared<SimpleBacktrackManager>();
+      		solution_manager  = new SimpleSolutionManager ( variables );
       	}
       	else if ( strategy_choice == "incomplete" || strategy_choice == "local_search" || strategy_choice == "heuristic" )
-      	{
-      		int var_goal_index = -1;
-      		if ( var_goal != "" )
+      	{	
+      		// Set solve goal
+      		bool minimize = true;
+      		if ( solve_goal == "maximize" )
       		{
-      		
-      		} 
+      			minimize = false;
+      		}
       		engine = std::make_shared<SimpleLocalSearch> ();
-      		heuristic = std::make_shared<IteratedConditionalModesHeuristic>( variables, obj_var );
+      		heuristic = std::make_shared<IteratedConditionalModesHeuristic>( variables, obj_var, minimize );
       		
       		(std::dynamic_pointer_cast<SimpleLocalSearch> (engine))->
       		set_search_initializer ( std::unique_ptr<InDomainSearchInitializer> ( new InDomainSearchInitializer ( variables ) ) );
@@ -206,6 +214,20 @@ public:
       		(std::dynamic_pointer_cast<SimpleLocalSearch> (engine))->
       		set_search_out_manager ( std::make_shared<SimpleSearchOutManager> () );
       		backtrack_manager = std::make_shared<NeighborhoodBacktrackManager>();
+      		
+      		solution_manager  = new LocalSearchSolutionManager ( variables, obj_var ); 
+      		
+      		if ( solver_params != nullptr )
+    		{
+      			(std::dynamic_pointer_cast<SimpleLocalSearch> (engine))->
+      			set_restarts_limit ( solver_params->ls_get_restarts () );
+      			(std::dynamic_pointer_cast<SimpleLocalSearch> (engine))->
+      			set_restarts_limit ( solver_params->ls_get_II_steps () ); 
+      			
+      			(dynamic_cast<LocalSearchSolutionManager*> (solution_manager))->
+      			use_satisfiability_obj (); 
+      		}
+      		
       	}
       	else
       	{
@@ -229,9 +251,6 @@ public:
     
       	// Set backtrack manager on search engine.
       	engine->set_backtrack_manager( backtrack_manager );
-    
-      	// Solution Manager
-      	SolutionManager * solution_manager = new SimpleSolutionManager ( variables );
     
       	// Set solution manager on search engine.
       	engine->set_solution_manager( solution_manager );

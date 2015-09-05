@@ -24,12 +24,12 @@ SimpleSearchOutManager::~SimpleSearchOutManager () {
 void
 SimpleSearchOutManager::initialize_manager ()
 { 
-	add_out_evaluator ( new TimeSearchOutEvaluator    ( this ), "time_out" ); 
-	add_out_evaluator ( new CounterSearchOutEvaluator ( this ), "num_iterative_improving_out" );
-	add_out_evaluator ( new CounterSearchOutEvaluator ( this ), "num_solution_out" );
-	add_out_evaluator ( new CounterSearchOutEvaluator ( this ), "num_restarts_out" );
-	add_out_evaluator ( new CounterSearchOutEvaluator ( this ), "num_nodes_out" );
-	add_out_evaluator ( new CounterSearchOutEvaluator ( this ), "num_wrong_decisions_out" );
+	add_out_evaluator ( new TimeSearchOutEvaluator       ( this ), "time_out" ); 
+	add_out_evaluator ( new CounterSearchOutEvaluator    ( this ), "num_iterative_improving_out" );
+	add_out_evaluator ( new CounterSearchOutEvaluator    ( this ), "num_solution_out" );
+	add_out_evaluator ( new CounterSearchOutEvaluator    ( this ), "num_restarts_out" );
+	add_out_evaluator ( new CounterSearchOutEvaluator    ( this ), "num_nodes_out" );
+	add_out_evaluator ( new CounterSearchOutEvaluator    ( this ), "num_wrong_decisions_out" );
 }//initialize_manager
    
 void  
@@ -248,7 +248,7 @@ SimpleSearchOutManager::upd_time ( double timeout )
 		upd_metric_value ( _string_eval_lookup [ "time_out" ], timeout );
 	}
 }//set_time_out
-
+ 
 void 
 SimpleSearchOutManager::upd_nodes ( std::size_t out_n )
 {

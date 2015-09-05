@@ -16,7 +16,12 @@
 #include "variable.h"
 
 class SolutionManager;
+typedef std::unique_ptr<SolutionManager> SolutionManagerUPtr;
+typedef std::shared_ptr<SolutionManager> SolutionManagerSPtr;
+
+// Deprecated
 typedef std::shared_ptr<SolutionManager> SolutionManagerPtr;
+// Deprecated
 typedef std::unique_ptr<SolutionManager> SolutionManagerUniquePtr;
 
 
@@ -73,12 +78,11 @@ public:
   virtual void set_solution_limit ( int n_sol ) = 0;
   
   /**
-   * Increases the number of solutions found so far and
-   * computes the current solution (also storing it).
-   * States whether another solution is required by
-   * this solution manager in order to reach the 
-   * total number of solutions.
-   * @return true no more solutions are required, false otherwise.
+   * Increases the number of solutions found so far, computes the 
+   * current solution, and it stores it.
+   * States whether another solution is required by this solution manager in order 
+   * to reach the total number of solutions.
+   * @return true if no more solutions are required, false otherwise.
    */
   virtual bool notify () = 0;
   

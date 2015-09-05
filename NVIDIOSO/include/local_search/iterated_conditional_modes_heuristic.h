@@ -32,7 +32,7 @@ private:
 	void set_neighborhood_heuristic ( VariableChoiceMetric * var_cm, ValueChoiceMetric * val_cm );
 	
 	//! Set neighborhood evaluator function
-	void set_neighborhood_evaluator ();
+	void set_neighborhood_evaluator ( bool minimize, bool use_constraint_satisfiability_value, int percentage_on_sat );
 	
 protected:
 	
@@ -43,7 +43,7 @@ protected:
 	 * Change status on _sampling_variable_status.
 	 * @param var_index index of the variable in _sampling_variable_status.
 	 */
-	void neighborhood_assignment_on_var ( int var_index ) override;
+	void notify_on_var_assignment ( int var_index ) override;
 	
 	/**
 	 * Override neighborhood_last_assignment_on_var.
@@ -61,8 +61,27 @@ protected:
 	
 public:
 	
+	/**
+	 * Constructor.
+	 * @param vars array of pointer to variable where the ICM is performed on.
+	 * @param obj_var pointer to the objective variable.
+	 * @param minimize Boolean value, true if obj value must be minimized, false otherwise.
+	 * @param use_constraint_satisfiability_value Boolean value. True if the objective function
+	 *        should consider the satisfiability of constraints instead of the number of 
+	 *        satisfied constraints.
+	 * @param percentage_on_sat percentage value (integer value in [0..100]) of the weight to assign
+	 *        to the number of satisfied constraints/value of satisfiability w.r.t. the objective 
+	 *        value assigned to the objective variable.
+	 * @param var_cm pointer to a given variable choice metric. The client should rely on the 
+	 *        default one.
+	 * @param val_cm pointer to a given value choice metric. The client should rely on the 
+	 *        default one.
+	 */
 	IteratedConditionalModesHeuristic ( std::vector< Variable* > vars,
 										Variable * obj_var = nullptr,
+										bool minimize = true,
+										bool use_constraint_satisfiability_value = false, 
+										int percentage_on_sat = 0,
 										VariableChoiceMetric * var_cm = nullptr,
                     					ValueChoiceMetric *    val_cm = nullptr );
 	

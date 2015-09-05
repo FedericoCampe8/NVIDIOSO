@@ -23,9 +23,43 @@ class NeighborhoodEvaluator;
 typedef std::unique_ptr<NeighborhoodEvaluator> NeighborhoodEvaluatorUPtr;
 typedef std::shared_ptr<NeighborhoodEvaluator> NeighborhoodEvaluatorSPtr;
  
+/**
+ * Objective value:
+ * - Objective variable,
+ * - Satisfied constraints,
+ * Other types may be added in future.
+ */
+enum class ObjectiveValueType {
+  OBJ_VAR,
+  SAT_CON,
+  SAT_VAL,
+  OTHER
+};
+
+
 class NeighborhoodEvaluator {
 public: 
   	virtual ~NeighborhoodEvaluator () {};
+  	
+  	/**
+  	 * Set the objective to evaluate (var, sat constraints, etc.).
+  	 * @param ovt ObjectiveValueType specifying the objective to evaluate.
+  	 */
+  	virtual void set_objective ( ObjectiveValueType ovt ) = 0;
+  	
+  	/**
+  	 * Set minimize goal.
+  	 * @note minimization is the default. Maximization of the objective function
+  	 *       should be enforced by calling the respective method.
+  	 */
+  	virtual void set_minimize_objective () = 0;
+  	
+  	/**
+  	 * Set maximize goal.
+  	 * @note minimization is the default. Maximization of the objective function
+  	 *       should be enforced by calling the this method.
+  	 */
+  	virtual void set_maximize_objective () = 0;
   	
   	/**
   	 * Get best value for a given variable
