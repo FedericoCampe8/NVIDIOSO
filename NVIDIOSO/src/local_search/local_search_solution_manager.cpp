@@ -91,7 +91,7 @@ bool
 LocalSearchSolutionManager::notify_on_propagation ( std::size_t value ) 
 {
 	if ( !_variables.size() ) return true;
-      
+	
    	/*
    	 * Satisfiability as objective value and constraints are satisfied or
    	 * Objective variable and epsilon is reached.
@@ -114,13 +114,11 @@ LocalSearchSolutionManager::notify_on_propagation ( std::size_t value )
   	
   		_number_of_solutions++;
   	}
-  	
+  	 
   	if ( _find_all_solutions ) return false;
   	
   	// Max number of solutions reached
   	if ( _number_of_solutions >= _max_number_of_solutions ) return true;
-  
-  	if ( _find_all_solutions ) return false;
   
   	return false;
 }//notify_on_propagation

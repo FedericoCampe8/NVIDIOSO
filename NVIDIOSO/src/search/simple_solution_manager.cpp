@@ -50,9 +50,9 @@ SimpleSolutionManager::number_of_solutions () {
  
 std::string
 SimpleSolutionManager::get_solution () const {
-  if ( !_solution_strings.size ()) return "";
+  if ( !_solution_strings.size () ) return "";
   
-  return _solution_strings[ _solution_strings.size() -1  ];
+  return _solution_strings[ _solution_strings.size () - 1  ];
 }//get_solution
 
 std::string

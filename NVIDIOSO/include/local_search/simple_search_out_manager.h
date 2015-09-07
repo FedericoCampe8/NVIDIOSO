@@ -30,6 +30,9 @@ private:
 	//! Lookup table mapping string identifiers of search_out_eval(s) with their (unique) id(s)
 	std::unordered_map < std::string, std::size_t > _string_eval_lookup;
 	
+	//! Lookup table mapping (unique) id(s) of search_out_eval(s) with their string identifiers
+	std::unordered_map < std::size_t, std::string > _id_eval_lookup;
+	
 	//! As add_out_evaluator but sets string identifies as well
 	void add_out_evaluator ( SimpleSearchOutEvaluator* out_eval, std::string str );
 	 

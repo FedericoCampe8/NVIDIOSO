@@ -98,7 +98,8 @@ CPSolver::run_model ( CPModel * model ) {
    * changes its state, it will automatically inform
    * the constraint store.
    */
-  try {
+  try 
+  {
     model->attach_constraint_store ();
   } catch ( NvdException& e ) {
     e.what();

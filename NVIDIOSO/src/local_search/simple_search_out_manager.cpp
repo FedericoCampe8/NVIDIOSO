@@ -40,7 +40,9 @@ SimpleSearchOutManager::notify_out ( std::size_t eval_id )
 	{
 		if ( _out_evaluators [ eval_id ].first )
 		{
-			LogMsg << _dbg + "search out notification received." << endl;
+			LogMsg << _dbg + "search out notification received from: " << 
+			_id_eval_lookup [ eval_id ] << endl;
+			
 			_search_out = true;
 		}
 	}	
@@ -84,7 +86,7 @@ SimpleSearchOutManager::reset_out_evaluator ( std::size_t eval_id )
 
 void 
 SimpleSearchOutManager::reset_out_evaluator ()
-{
+{ 
 	for ( auto& eval : _out_evaluators )
 	{
 		(eval.second.second)->reset_state ();
@@ -95,6 +97,7 @@ void
 SimpleSearchOutManager::add_out_evaluator ( SimpleSearchOutEvaluator * out_eval, std::string eval_str_id )
 {
 	_string_eval_lookup [ eval_str_id ] = out_eval->get_id ();
+	_id_eval_lookup     [ out_eval->get_id () ] = eval_str_id;
 	SearchOutManager::add_out_evaluator ( out_eval );
 }//add_out_evaluator
 

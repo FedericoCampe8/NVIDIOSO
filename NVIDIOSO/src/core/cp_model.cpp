@@ -109,13 +109,13 @@ CPModel::init_constraint_store ()
   // Add base constraints
   for ( auto c : _constraints ) 
   {
-	_store->impose( c );
+	 _store->impose( c );
   }
   
   // Add global constraints
   for ( auto c : _glb_constraints ) 
   {
-	_store->impose( c );
+	 _store->impose( c );
   }
 }//init_constraint_store
 
@@ -132,13 +132,13 @@ CPModel::create_constraint_graph ()
   // Attach base constraints to variables
   for ( auto c : _constraints ) 
   {
-	c->attach_me_to_vars();
+	 c->attach_me_to_vars();
   }
   
   // Attach global constraints to variable
   for ( auto c : _glb_constraints ) 
   {
-	c->attach_me_to_vars();
+	 c->attach_me_to_vars();
   }
 }//create_constraint_graph
 

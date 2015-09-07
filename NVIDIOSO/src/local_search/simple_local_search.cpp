@@ -297,7 +297,19 @@ bool
 SimpleLocalSearch::labeling ()
 {  
 	// Sanity check (no store -> model satisfied)
-	if ( _store == nullptr ) return true;
+	if ( _store == nullptr ) 
+	{
+		return true;
+	}
+	else
+	{
+		/*
+		 * Reset the internal state of the constraint store (initialize its internal state).
+		 * This is done in order to initialize the store before any propagation.
+		 * @note this is a store which handles soft constraints and has an internal state.
+		 */
+		_store->reset_state (); 
+	}
   
   	std::string err_msg;
   	if ( _backtrack_manager == nullptr ) 
@@ -341,7 +353,6 @@ SimpleLocalSearch::labeling ()
    	 * this can be found with a single propagation, 
    	 * e.g., satisfiability on domains. 
    	 */
-   	_store->initialize_internal_state ();
   	bool search_consistent = _store->consistency();
   
   	/*
@@ -377,13 +388,19 @@ SimpleLocalSearch::labeling ()
 	 */
 	if ( search_consistent ) 
   	{	
-  		// Reset out manager
+  		/*
+		 * Reset out manager.
+		 * This is done in order to reset all parameters of the manager before
+		 * starting the actual search.
+		 * For example, this sets the current time to this point of computation
+		 * if the timeout_evaluator is activated.
+		 */
   		_ls_search_out_manager->reset_out_evaluator ();
 		try 
     	{
     		do
     		{// Restarts
-    			// II steps per Restats
+    			// II steps for each Restats
     			_II_steps = 0;
     			do 
     			{// Iterative Improvements
@@ -580,7 +597,7 @@ SimpleLocalSearch::label ( int var_idx )
   		}
   		 
 		if ( _debug )
-      	{
+      	{	 
         	LogMsg << _dbg << "Number of unsatisfied constraints at iteration " 
         	<< _num_nodes << ": " << _store->num_unsat_constraints () << endl;
         	
@@ -671,6 +688,16 @@ SimpleLocalSearch::print_solution ( size_t sol_idx ) const
 void
 SimpleLocalSearch::print () const 
 {
+	cout << "LocalSearch:\n";
+  	cout << "Summary\n";
+  	cout << "\tSolutions:                 " << _solution_manager->number_of_solutions () << endl;
+  	cout << "\tPropagators:               " << _store->num_constraints () << endl;
+  	cout << "\tPropagations:              " << _store->num_propagations () << endl;
+  	cout << "\tExplored nodes:            " << get_nodes( ) << endl;
+  	cout << "\tWrong decisions:           " << get_wrong_decisions () << endl;
+	cout << "\tRestarts:                  " << _restarts_out << endl;
+  	cout << "\tIterative improving steps: " << _II_steps << endl;
+ 	_ls_heuristic->print();
 }//print
 
 

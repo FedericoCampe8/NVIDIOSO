@@ -521,7 +521,7 @@ DepthFirstSearch::label( int var_idx )
       
       if ( !var->is_singleton() ) 
       {
-    	if ( _debug )
+        if ( _debug )
         {
           cout << _dbg << "V_" << var->get_id() 
           << " new labeling (rec. call) " << "D^V_" << var->get_id() 

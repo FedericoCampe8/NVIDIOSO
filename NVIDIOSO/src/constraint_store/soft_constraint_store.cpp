@@ -56,25 +56,32 @@ SoftConstraintStore::impose_all_hard ()
 void 
 SoftConstraintStore::reset_unsat_counters ()
 {	
-	// Init bitset with size equal to the current set of attached constraints
-	if ( _sat_constraint_bitset.size () == 0 )
-	{
-		// Reset unsat constraints counter
-		_unsat_constraint_counter = 0;
+	_sat_constraint_bitset.clear ();
+	_sat_constraint_level.clear  ();
+	
+	// Reset unsat constraints counter
+	_unsat_constraint_counter = 0;
 		
-		// At the beginning, each constraint is supposed to be satisfied
-		_sat_constraint_bitset.resize ( _lookup_table.size (), true );
+	// At the beginning, each constraint is supposed to be satisfied
+	_sat_constraint_bitset.resize ( _lookup_table.size (), true );
+
+	// Reset unsat level counter
+	_unsat_constraint_level = 0;
+		
+	// At the beginning, each constraint is supposed to be satisfied (i.e., level 0.0)
+	for ( auto& val : _lookup_table )
+	{
+		_sat_constraint_level [ val.first ] = 0.0;	
 	}
 	
-	// Init constraint level for each constraint
-	if ( _sat_constraint_level.size () == 0 )
+	// Set to false unsat constraints
+	for ( auto& pr: _lookup_table )
 	{
-		// Reset unsat level counter
-		_unsat_constraint_level = 0;
-		
-		// At the beginning, each constraint is supposed to be satisfied (i.e., level 0.0)
-		for ( auto& val : _lookup_table )
-			_sat_constraint_level [ val.first ] = 0.0;
+		if ( !pr.second->satisfied () )
+		{
+			_sat_constraint_bitset.set ( _constraint_2_bitset[ pr.second->get_unique_id() ], false );  
+			_sat_constraint_level [ pr.second->get_unique_id() ] = pr.second->unsat_level ();
+		}
 	}
 }//reset_unsat_counters 
  
@@ -153,17 +160,8 @@ SoftConstraintStore::record_unsat_value ( Constraint* c, bool sat )
 }//record_unsat_value
 
 void 
-SoftConstraintStore::initialize_internal_state ()
-{
-	reset_state ();
-}//initialize_internal_state
-
-void 
 SoftConstraintStore::reset_state ()
-{// Clear maps and reset counters
-	_sat_constraint_level.clear  ();
-	_sat_constraint_bitset.clear ();
-	
+{
 	handle_failure		 ();
 	reset_unsat_counters ();
 }//reset_state

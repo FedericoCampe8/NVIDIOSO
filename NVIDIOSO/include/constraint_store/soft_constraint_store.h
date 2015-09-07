@@ -137,16 +137,18 @@ public:
   
     virtual ~SoftConstraintStore ();
     
-    //! Initialize internal state of the store (e.g., bitset, hash tables, counters, etc.)
-    virtual void initialize_internal_state ();
-    
     /**
-     * Resets internal state of this constraints store, i.e.,
-     * resets bitset and counters.
+     * Resets internal state of this constraints store, i.e., resets bitset and counters.
+     * This method also sets the current number of unsatisfied constraints if the 
+     * variables involved in the attached constraints are ground.
+     * @note this method scans all the constraints to check whether they are satisfied
+     *       or not so it may be expensive to call if there are many constraints attached
+     *       to the store. 
      * @note this method DOES NOT detach any constraint.
      *       All constraints currently attached to this constraint store remain attached.
      * @note this method empty the queue of constraints.
-     * @note this method is supposed to be called before the first constraint propagation.
+     * @note this method is supposed to be called before the first constraint propagation,
+     *       or before each search process.
      */
     void reset_state ();
     
