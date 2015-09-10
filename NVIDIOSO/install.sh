@@ -132,12 +132,13 @@ echo "Installing iNVIDIOSO (`date`)"
 
 OBJ=obj
 LIB=lib
+TEST=test
 SRC=src
 OBJ_FOLDER=("base constraints" "cuda_constraints" \
 "global_constraints" "cuda_global_constraints" "constraint_store" \
 "cuda_constraint_store" "parser" "FZ_parser" "core" "search exception" \
 "local_search" "cuda_local_search" \
-"cuda_utilities" "variable cuda_variable" )
+"cuda_utilities" "variable cuda_variable")
 
 # Create install folder if default is used
 if [ ${INSTALL_PATH} == "bin" ]; then
@@ -167,6 +168,9 @@ mkdir ${OBJ}/${SRC}
 for dir in ${OBJ_FOLDER[@]} ; do
     mkdir ${OBJ}/${SRC}/${dir}
 done
+
+# Create obj folder for unit test
+mkdir ${OBJ}/${TEST}
 
 # Create make.inc file according to the current architecture
 MAKE_INC="make.inc"

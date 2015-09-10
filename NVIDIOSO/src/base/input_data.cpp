@@ -9,7 +9,9 @@
 #include <getopt.h>
 #include "input_data.h"
 
-using namespace std;
+using std::cout;
+using std::endl;
+using std::string;
 
 void
 InputData::init () {
@@ -78,7 +80,7 @@ InputData::InputData ( int argc, char* argv[] ) {
         
       case 'd':
         print_gpu_info ();
-	exit ( 0 );
+	      exit ( 0 );
        
       case 'w':
         _time = true;
@@ -110,26 +112,37 @@ InputData::InputData ( int argc, char* argv[] ) {
     }
   }//while
   
-  /// Exit if the user did not set an input file!
-  if ( _in_file.compare( "" ) == 0 ) {
+  // Exit without input file
+  if ( _in_file.compare( "" ) == 0 ) 
+  {
     print_help();
     exit( 0 );
   }
-  else {
-    //Consistency check
-    ifstream infile ( _in_file.c_str(), ifstream::in );
-    if ( !infile.is_open() ) {
-      std::cerr << "Can't open file " << _in_file << std::endl;
+  else 
+  {
+    //Sanity check
+    std::ifstream infile ( _in_file.c_str(), std::ifstream::in );
+    if ( !infile.is_open() ) 
+    {
+      LogMsg << "Can't open file " << _in_file << endl;
       exit ( 0 );
     }
     infile.close ();
   }
   
-  if ( _verbose ) {
+  if ( _verbose ) 
+  {
     //puts ( "verbose flag is set" );
     LogMsg.set_verbose ( true );
   }
   
+  // Sanity check
+    if ( _max_sol < -1 )
+    {
+      LogMsg << "Maximum number of solutions set to: " << _max_sol << " automatically set to -1";
+      _max_sol = -1;
+    }
+    
   // Print any remaining command line arguments (not options).
   if ( optind < argc ) {
     printf ("non-option ARGV-elements: ");
@@ -139,24 +152,28 @@ InputData::InputData ( int argc, char* argv[] ) {
   }
 }//-
 
-InputData::~InputData () {
+InputData::~InputData () 
+{
     // Delete (pointer to) parameters class
     delete solver_params;
 }
 
 bool
-InputData::verbose () const {
+InputData::verbose () const 
+{
   return _verbose;
 }//verbose
 
 bool
-InputData::timer () const {
+InputData::timer () const 
+{
   return _time;
 }//timer
 
 int
-InputData::max_n_sol () const {
-  return _max_sol;
+InputData::max_n_sol () const 
+{
+    return _max_sol;
 }//max_sol
 
 double
@@ -210,10 +227,10 @@ InputData::print_gpu_info () {
 void
 InputData::print_help () 
 {
-	ifstream ifs ( _help_file );
+	std::ifstream ifs ( _help_file );
 	if ( !ifs.is_open() )
 	{
-		cerr << "No help available\n";
+		LogMsg << "No help available\n";
 		return;
 	}
 	string line;

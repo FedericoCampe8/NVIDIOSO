@@ -5,7 +5,8 @@ Usage: ./nvidioso -i <infile> [options]
                             |   during computation.
  -h|--help                  | - Print this help message.
  -d|--device                | - Print device info message.
- -w|--watcher               | - Turns on the time-watcher.
+ -w|--watcher               | - Turns on the time-watcher
+                            |   (deprecated).
  -i|--input      (string)   | - Input file.
  -o|--output     (string)   | - Output file.
  -n|--solutions  (int)      | - Set number of solutions:
@@ -16,5 +17,5 @@ Usage: ./nvidioso -i <infile> [options]
                             |   (default: inf).
 =========================== | ===========================
 You may want to try:
-	./invidioso -i test/nqueens.fzn
-For any questions, feel free to write at: campe8@nmsu.edu.
+	./invidioso -i samples/nqueens.fzn
+For any questions, feel free to write at: fede.campe@gmail.com.

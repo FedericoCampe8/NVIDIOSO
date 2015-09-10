@@ -67,6 +67,7 @@ CUDA_CONSTRAINT_STORE=cuda_constraint_store
 CUDA_UTILITIES=cuda_utilities
 EXCEPTION=exception
 THIRD_PARTY=third-party
+TEST=test
 EOF
 
 touch $MAKE_INC_CUDA

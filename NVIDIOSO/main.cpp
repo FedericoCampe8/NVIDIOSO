@@ -12,7 +12,7 @@
 #include "cp_solver.h"
 
 int main( int argc, char * argv[] )
-{
+{	
   	std::string dbg = "Main - ";
 
   	/***************************************

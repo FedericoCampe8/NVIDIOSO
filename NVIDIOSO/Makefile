@@ -27,24 +27,7 @@ OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(SEARCH)
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(LOCAL_SEARCH)/*.cpp))
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CUDA_LOCAL_SEARCH)/*.cpp))
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(EXCEPTION)/*.cpp))
-
-HEADERS = $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(BASE)/*.cpp))
-HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CONSTRAINTS)/*.cpp))
-HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(GLOBAL_CONSTRAINTS)/*.cpp))
-HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CUDA_CONSTRAINTS)/*.cpp))
-HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CUDA_GLOBAL_CONSTRAINTS)/*.cpp))
-HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CONSTRAINT_STORE)/*.cpp))
-HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CUDA_CONSTRAINT_STORE)/*.cpp))
-HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(VARIABLE)/*.cpp))
-HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CUDA_VARIABLE)/*.cpp))
-HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CUDA_UTILITIES)/*.cpp))
-HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CORE)/*.cpp))
-HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(PARSER)/*.cpp))
-HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(FZN_PARSER)/*.cpp))
-HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(SEARCH)/*.cpp))
-HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(LOCAL_SEARCH)/*.cpp))
-HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CUDA_LOCAL_SEARCH)/*.cpp))
-HEADERS += $(patsubst %.cpp,%.h,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(EXCEPTION)/*.cpp))
+OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(TEST)/*.cpp))
 
 # ---------------------------------------------------------------------
 # Compiler options 
@@ -76,11 +59,10 @@ INCLDIRS += -I$(PRG_PATH)/$(NVIDIOSO_INC)/$(LOCAL_SEARCH)
 INCLDIRS += -I$(PRG_PATH)/$(NVIDIOSO_INC)/$(CUDA_LOCAL_SEARCH)
 INCLDIRS += -I$(PRG_PATH)/$(NVIDIOSO_INC)/$(EXCEPTION)
 INCLDIRS += -I$(PRG_PATH)/$(THIRD_PARTY)
+INCLDIRS += -I$(PRG_PATH)/$(TEST)
 
 ## Compiler Flags
 CCFLAGS = $(CCOPT) $(INCLDIRS)
-
-DEPS = $(HEADERS)
 
 ## Note for developers: add the following macro
 ## -DCUDAVERBOSE=true
