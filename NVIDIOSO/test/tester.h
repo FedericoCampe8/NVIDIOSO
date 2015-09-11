@@ -10,9 +10,6 @@
 //
 
 #include "globals.h"
-#include "input_data.h"
-#include "cp_store.h"
-#include "cp_solver.h"
 #include "unit_test_register.h"
 
 #ifndef __NVIDIOSO__tester__
@@ -23,11 +20,12 @@ extern UnitTestRegister& utest_register;
 class Tester {
 public:
 
-	Tester ();
-	
-	virtual ~Tester ();
-	
-	virtual void run ();
+	Tester();
+
+	virtual ~Tester();
+
+	//! @note it throws for failed tests 
+	virtual void run();
 };
-	
+
 #endif

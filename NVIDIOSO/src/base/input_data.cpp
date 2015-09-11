@@ -6,8 +6,13 @@
  *  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
  */
 
-#include <getopt.h>
 #include "input_data.h"
+
+#if WINDOWS_REL
+	#include "getopt_win.h"
+#else
+	#include <getopt.h>
+#endif 
 
 using std::cout;
 using std::endl;
@@ -83,7 +88,7 @@ InputData::InputData ( int argc, char* argv[] ) {
 	      exit ( 0 );
        
       case 'w':
-        _time = true;
+        _time = 1;
         break;
         
       case 'v':
@@ -161,13 +166,13 @@ InputData::~InputData ()
 bool
 InputData::verbose () const 
 {
-  return _verbose;
+  return _verbose == 1;
 }//verbose
 
 bool
 InputData::timer () const 
 {
-  return _time;
+  return _time == 1;
 }//timer
 
 int

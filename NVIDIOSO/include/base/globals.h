@@ -1,22 +1,27 @@
 //
 //  globals.h
-//  NVIDIOSO
+//  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 26/06/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 #ifndef NVIDIOSO_globals_h
 #define NVIDIOSO_globals_h
 
 /* Common dependencies */
+#if WINDOWS_REL
+	#include <windows.h>
+	#include <time.h>
+#else
+	#include <sys/time.h>
+	#include <sys/wait.h>
+	#include <unistd.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
-#include <sys/time.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <string.h>
-#include <unistd.h>
 #include <cstddef>
  
 /* Input/Output */
@@ -62,13 +67,13 @@
 
 /* Cuda */
 #if CUDAON
-#include <cuda.h>
-#include <cuda_runtime_api.h>
+	#include <cuda.h>
+	#include <cuda_runtime_api.h>
 #endif
 
 #if GCC4
-#define nullptr NULL
-#define noexcept throw()
+	#define nullptr NULL
+	#define noexcept throw()
 #endif
 
 #endif

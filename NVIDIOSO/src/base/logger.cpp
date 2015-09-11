@@ -1,9 +1,10 @@
 //
 //  logger.cpp
-//  NVIDIOSO
+//  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 27/06/14.
-//  Copyright (c) 2014-2015 ___UDNMSU___. All rights reserved.
+//  Modified by Federico Campeotto on 09/09/15.
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //
 
 #include "logger.h"
@@ -17,21 +18,21 @@ Logger::Logger ( ostream& out, std::string log_file ) :
 	_out ( out ) {
   	if ( log_file.compare( "" ) == 0 )
   	{
-	  _out_log_file = "invidioso_" + get_time_stamp () + ".log";
+#if UNIT_TEST 
+		  _out_log_file = "unit_test_" + get_time_stamp() + ".log";
+#else
+		  _out_log_file = "invidioso_" + get_time_stamp() + ".log";
+#endif
   	}
   	else
-      	{
-	  _out_log_file = log_file;
+    {
+	   _out_log_file = log_file;
   	}
   	_of_stream.open ( _out_log_file );
   	_verbose   = false;
 }//Logger
 
 Logger::~Logger () {
-  if ( _of_stream.is_open() )
-  {
-    _of_stream.close();
-  }
 }//~Logger
 
 void
@@ -67,24 +68,33 @@ Logger::print_message ( std::string msg ) {
 string
 Logger::get_time_stamp ()
 {
-  	_raw_time  = std::time ( nullptr );
-  	_time_info = std::localtime ( &_raw_time );
-  	string yy  = to_string ( _time_info->tm_year + 1900 );
-  	string mm  = to_string ( _time_info->tm_mon  + 1    );
-  	string dd  = to_string ( _time_info->tm_mday + 1    );
-  	
-  	string hh  = to_string ( _time_info->tm_hour );
-  	string mn  = to_string ( _time_info->tm_min  );
-  	string ss  = to_string ( _time_info->tm_sec  );
-  	
-  	if ( mm.size() == 1 )
-  	{
-  		mm = "0" + mm;
-  	}
-  	string time_stamp =
-  	yy + mm + dd + "_" + hh + mn + ss;
+	_raw_time = std::time(nullptr);
+	string time_stamp{};
+	
+#if WINDOWS_REL
+	char buffer[30];
+	localtime_s( &_time_info, &_raw_time);
+	strftime(buffer, sizeof(buffer), "%m%d%H%M%y", &_time_info);
+	time_stamp = std::string(buffer);
+#else
+	_time_info = std::localtime(&_raw_time);
+	string yy = to_string(_time_info->tm_year + 1900);
+	string mm = to_string(_time_info->tm_mon + 1);
+	string dd = to_string(_time_info->tm_mday + 1);
 
-  	return time_stamp;
+	string hh = to_string(_time_info->tm_hour);
+	string mn = to_string(_time_info->tm_min);
+	string ss = to_string(_time_info->tm_sec);
+
+	if (mm.size() == 1)
+	{
+		mm = "0" + mm;
+	}
+	time_stamp =
+		yy + mm + dd + "_" + hh + mn + ss;
+#endif
+
+	return time_stamp;
 }//get_time_stamp
 
 // Print error message on cerr

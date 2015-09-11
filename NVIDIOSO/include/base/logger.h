@@ -11,12 +11,16 @@
 #ifndef NVIDIOSO_logger_h
 #define NVIDIOSO_logger_h
 
+#if WINDOWS_REL
+  #include <windows.h>
+#else
+  #include <unistd.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
 #include <algorithm>
-#include <unistd.h>
 #include <iomanip>
 #include <iostream>
 #include <fstream>
@@ -48,10 +52,15 @@ private:
   std::stringstream _ss_log;
 
   time_t _raw_time;
-  struct tm * _time_info;
   
+ #if WINDOWS_REL
+    struct tm _time_info;
+ #else
+    struct tm * _time_info;
+ #endif
+ 
   //! Output log stream (to stdout)
-  std::ostream&    _out;
+  std::ostream& _out;
   
   //! Output log stream (to file)
   std::ofstream _of_stream;
@@ -71,7 +80,12 @@ protected:
   	if ( (std::find ( str.begin(), str.end(), '\n' ) != str.end()) || flush )
   	{
   		_ss_log.str("");
-  		std::string to_file = "[" +  get_time_stamp() + "]: " + str;
+      
+#if UNIT_TEST 
+      std::string to_file = str;
+#else
+      std::string to_file = "[" +  get_time_stamp() + "]: " + str;
+#endif
   			
   		if ( _verbose )
   		{
@@ -148,7 +162,7 @@ public:
   
   // Set method
   void set_out_file ( std:: string );
-  void set_verbose  ( bool );
+  void set_verbose  ( bool v );
   
   //! Print message on stdout or file (print_message force printing)
   void message       ( std::string );

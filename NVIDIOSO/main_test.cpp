@@ -11,7 +11,35 @@
 int main( int argc, char * argv[] ) 
 {	
   	std::string dbg = "Main (Test) - ";
-
+	  
+	/**************************************
+   	 *             CHECK INPUT            *
+   	 **************************************/
+	if ( argc > 2 )
+	{
+		std::cerr << "Unit Test: invalid input\n";
+		std::cerr << "Usage:\n";
+		std::cerr << "./invidioso [-v | --verbose]\n";
+		return 0;					
+	}
+	
+	bool verbose = false;
+	if ( argc == 2 )
+	{
+		std::string opt ( argv[ 1 ] );
+		if ( opt != "-v" && opt != "--verbose" )
+		{
+			std::cerr << "Unit Test: invalid input\n";
+			std::cerr << "Usage:\n";
+			std::cerr << "./invidioso [-v | --verbose]\n";
+			return 0;	
+		}
+		else
+		{
+			LogMsg.set_verbose ( true );
+		}
+	}
+	
   	/**************************************
    	 *             INIT TESTER            *
    	 **************************************/
@@ -25,18 +53,19 @@ int main( int argc, char * argv[] )
 	bool success = true;
 	try
 	{
-		tester->run ();
+		tester->run();
 	}
-	catch ( std::exception& e )
+	catch (std::exception& e)
 	{
 		success = false;
-		LogMsg << dbg << "Testing failed" << std::endl;
+		LogMsg << dbg << "Testing failed: ";
+		LogMsg << std::string ( e.what() ) << std::endl;
 	}
-  
-  	if ( success )
-	 {
-		 std::cout << dbg << "Testing succeed" << std::endl;
-	 }
+
+	if (success)
+	{
+		LogMsg << dbg << "Testing succeed" << std::endl;
+	}
 	 
   	/***************************************
    	 *            CLEAN AND EXIT           *

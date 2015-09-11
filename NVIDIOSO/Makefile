@@ -5,10 +5,13 @@ include ./make_cuda.inc
 # ---------------------------------------------------------------------
 # Objects
 # ---------------------------------------------------------------------
-MAIN=domain_test
-MAIN=int_ne_test
 MAIN=main
- 
+
+## Test option
+## Uncomment the following for unit test
+#TEST_ON = -DUNIT_TEST
+#MAIN=main_test
+
 OBJECTS =  $(patsubst %.cpp,%.o, $(PRG_PATH)/$(MAIN).cpp)
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(BASE)/*.cpp))
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CONSTRAINTS)/*.cpp))
@@ -74,7 +77,7 @@ all : 	nvidioso
 
 # Default
 nvidioso :	$(OBJECTS) 
-	$(CC) $(CUDAOPT) $(CCLNDIRS) $(CFLAGS) -o $(TARGET) \
+	$(CC) $(CUDAOPT) $(TEST_ON) $(CCLNDIRS) $(CFLAGS) -o $(TARGET) \
 	$(OBJECTS:%=$(PRG_PATH)/obj/%)
 
 # Debug
@@ -90,7 +93,7 @@ lib : $(OBJECTS)
 # $<: the first prerequisite filename.
 # $@: the target filename.
 $(OBJECTS) : 	%.o : %.cpp
-	$(CC) $(CUDACC) $(CUDAOPT) $(COMPILE) $(CFLAGS) $(CCFLAGS) $< -o $(PRG_PATH)/obj/$@
+	$(CC) $(CUDACC) $(CUDAOPT) $(TEST_ON) $(COMPILE) $(CFLAGS) $(CCFLAGS) $< -o $(PRG_PATH)/obj/$@
 	$(PRINT_COMPILE)
 
 #.PHONY : clean
