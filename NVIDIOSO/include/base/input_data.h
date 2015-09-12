@@ -1,12 +1,12 @@
 //
 //  input_data.h
-//  NVIDIOSO
+//  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 26/06/14.
-//  Copyright (c) 2014 ___UDNMSU___. All rights reserved.
-
+//  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
 //  InputData class:
 //  Singleton class used for reading input options given by the user.
+//
 
 
 #ifndef NVIDIOSO_input_data_h
@@ -14,9 +14,9 @@
 
 #include "globals.h"
 
-class InputData {
-  
+class InputData {  
 private:
+
   //! Debug string
   std::string _dbg;
   
@@ -50,12 +50,23 @@ public:
   InputData ( const InputData& other ) 			  = delete; 
   InputData& operator= ( const InputData& other ) = delete; 
   
-  //! Constructor to get the (static) InputData instance
+  /**
+   * Constructor to get the (static) InputData instance.
+   * @note The constructor should have at least the name
+   *       of the input file.
+   *       However, input file can be set later.
+   */
   static InputData& get_instance ( int argc, char* argv[] ) 
   {
   	static InputData id_instance ( argc, argv );
     return id_instance;
   }//get_instance
+  
+  //! Set input file if not given when the instance has been created.
+  void set_input_file ( std::string in_file );
+  
+  //! Set oput file if not given when the instance has been created.
+  void set_output_file ( std::string out_file );
   
   /**
    * Informs about the verbose option.

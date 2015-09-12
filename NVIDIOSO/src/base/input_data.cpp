@@ -120,8 +120,7 @@ InputData::InputData ( int argc, char* argv[] ) {
   // Exit without input file
   if ( _in_file.compare( "" ) == 0 ) 
   {
-    print_help();
-    exit( 0 );
+    LogMsgW << _dbg << " Missing input file" << std::endl;
   }
   else 
   {
@@ -129,8 +128,7 @@ InputData::InputData ( int argc, char* argv[] ) {
     std::ifstream infile ( _in_file.c_str(), std::ifstream::in );
     if ( !infile.is_open() ) 
     {
-      LogMsg << "Can't open file " << _in_file << endl;
-      exit ( 0 );
+      LogMsgW << _dbg << "Can't find input file " << _in_file << std::endl;
     }
     infile.close ();
   }
@@ -162,6 +160,36 @@ InputData::~InputData ()
     // Delete (pointer to) parameters class
     delete solver_params;
 }
+
+void
+InputData::set_input_file ( std::string in_file )
+{
+  // Sanity check 
+  if ( _in_file != "" )
+  {
+    LogMsgW << "Replacing current input file " << _in_file << " with " << in_file << std::endl;
+  }
+  _in_file = in_file;
+  
+  //Sanity check
+  std::ifstream infile ( _in_file.c_str(), std::ifstream::in );
+  if ( !infile.is_open() ) 
+  {
+    LogMsgW << "Can't find input file " << _in_file << std::endl;
+  }
+  infile.close ();
+}//set_input_file
+
+void
+InputData::set_output_file ( std::string out_file )
+{
+  // Sanity check 
+  if ( _out_file != "" )
+  {
+    LogMsgW << "Replacing current output file " << _out_file << " with " << out_file << std::endl;
+  }
+  _out_file = out_file;
+}//set_output_file
 
 bool
 InputData::verbose () const 
@@ -197,19 +225,21 @@ InputData::get_out_file () const {
 }//get_out_file
 
 void
-InputData::print_gpu_info () {
+InputData::print_gpu_info () 
+{
 #if CUDAON
   int nDevices;
   cudaGetDeviceCount ( &nDevices );
   
-  for ( int i = 0; i < nDevices; i++ ) {
+  for ( int i = 0; i < nDevices; i++ ) 
+  {
     cudaDeviceProp devProp;
     cudaGetDeviceProperties( &devProp, i );
     cout << " Device characteristics:\n";
     cout << " Device Number:                 " << i+1 << endl;
     cout << " Device name:                   " << devProp.name << endl;
-    cout << " Device's compute capability:   " << devProp.major 
-     										   << "." << devProp.minor << endl;
+    cout << " Device's compute capability:   " << devProp.major << "." << 
+    devProp.minor << endl;
     cout << " Total global memory:           " << devProp.totalGlobalMem << endl;
     cout << " Total shared memory per block: " << devProp.sharedMemPerBlock << endl;
     cout << " Total registers per block:     " << devProp.regsPerBlock << endl;
@@ -222,11 +252,10 @@ InputData::print_gpu_info () {
     cout << " Peak Memory Bandwidth (GB/s):  " <<
     2.0*devProp.memoryClockRate*(devProp.memoryBusWidth/8)/1.0e6 << endl;
   }
-  
 #else
-  cout << "Use \"make CFLAGS=-DCUDAON=true\" to enable CUDA capabilities" << endl;
+  cout << "Re-build iNVIDIOSO1.0 choosing the GPU version or" << endl;
+  cout << "use \"make CFLAGS=-DCUDAON=true\" to enable CUDA capabilities." << endl;
 #endif
-
 }//print_help
 
 void
@@ -235,7 +264,7 @@ InputData::print_help ()
 	std::ifstream ifs ( _help_file );
 	if ( !ifs.is_open() )
 	{
-		LogMsg << "No help available\n";
+		LogMsgW << "No help available\n";
 		return;
 	}
 	string line;

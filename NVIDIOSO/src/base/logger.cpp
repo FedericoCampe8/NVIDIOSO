@@ -15,28 +15,37 @@ using namespace std;
 Logger& logger = Logger::get_instance ( std::cout );
 
 Logger::Logger ( ostream& out, std::string log_file ) : 
-	_out ( out ) {
-  	if ( log_file.compare( "" ) == 0 )
+	  _out ( out ) {
+    if ( log_file.compare( "" ) == 0 )
   	{
 #if UNIT_TEST 
 		  _out_log_file = "unit_test_" + get_time_stamp() + ".log";
+      _std_log_file = "invidioso_" + get_time_stamp() + ".log";
 #else
 		  _out_log_file = "invidioso_" + get_time_stamp() + ".log";
 #endif
   	}
   	else
     {
-	   _out_log_file = log_file;
+	     _out_log_file = log_file;
   	}
   	_of_stream.open ( _out_log_file );
-  	_verbose   = false;
+ 
+  	_verbose = false;
+    
+#if UNIT_TEST 
+    _log_ut  = false;
+    _std_of_stream.open ( _std_log_file );
+#endif
+    
 }//Logger
 
 Logger::~Logger () {
 }//~Logger
 
 void
-Logger::set_out_file( string out_file ) {
+Logger::set_out_file( string out_file ) 
+{
   _out_log_file = out_file;
   if ( _of_stream.is_open() )
   {
@@ -46,7 +55,8 @@ Logger::set_out_file( string out_file ) {
 }//set_out_file
 
 void
-Logger::set_verbose ( bool verbose ) {
+Logger::set_verbose ( bool verbose ) 
+{
   _verbose = verbose;
 }//set_verbose
 

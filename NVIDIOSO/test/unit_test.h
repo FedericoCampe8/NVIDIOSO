@@ -22,10 +22,92 @@ typedef std::unique_ptr<UnitTest> UnitTestUPtr;
 typedef std::shared_ptr<UnitTest> UnitTestSPtr;
 
 class UnitTest {
+private:
+	//! Internal test state
+	bool _test_success;
+
 protected:
 
 	//! Unit test class 
 	std::string _u_test_class;
+
+	//! Unit test failure string
+	std::string _u_test_failure;
+
+	void TEST_TRUE(bool b, std::string msg = "")
+	{
+		if (!_test_success) return;
+		if (!b)
+		{
+			_u_test_failure = msg;
+			_u_test_failure += "-TEST_TRUE";
+			_test_success = false;
+		}
+	}//TEST_TRUE
+
+	void TEST_FALSE(bool b, std::string msg = "")
+	{
+		if (!_test_success) return;
+		if (b)
+		{
+			_u_test_failure = msg;
+			_u_test_failure += "-TEST_FALSE";
+			_test_success = false;
+		}
+	}//TEST_FALSE
+
+	void TEST_NULL(void* ptr, std::string msg = "")
+	{
+		if (!_test_success) return;
+		if (ptr != NULL)
+		{
+			_u_test_failure = msg;
+			_u_test_failure += "-TEST_NULL";
+			_test_success = false;
+		}
+	}//TEST_NULL
+
+	void TEST_NOT_NULL(void* ptr, std::string msg = "")
+	{
+		if (!_test_success) return;
+		if (ptr == NULL)
+		{
+			_u_test_failure = msg;
+			_u_test_failure += "-TEST_NOT_NULL";
+			_test_success = false;
+		}
+	}//TEST_NOT_NULL
+
+	template<typename T>
+	void TEST_EQUAL(T a, T b, std::string msg = "")
+	{
+		if (!_test_success) return;
+		if (a != b)
+		{
+			_u_test_failure = msg;
+			_u_test_failure += "-TEST_EQUAL";
+			_test_success = false;
+		}
+	}//TEST_EQUAL
+
+	template<typename T>
+	void TEST_NOT_EQUAL(T a, T b, std::string msg = "")
+	{
+		if (!_test_success) return;
+		if (a == b)
+		{
+			_u_test_failure = msg;
+			_u_test_failure += "-TEST_NOT_EQUAL";
+			_test_success = false;
+		}
+	}//TEST_NOT_EQUAL
+
+	/*
+	* Function which is class-specific.
+	* This function can throw if a MACRO is not satisfied.
+	* @return true if the test succeed, false otherwise.
+	*/
+	virtual bool test() = 0;
 
 public:
 	/**
@@ -33,13 +115,14 @@ public:
 	* @param unit_test_class string describing the class the test belongs to.
 	* @note example unit_test_class = "int_ne_constraint".
 	*/
-	UnitTest ( std::string unit_test_class ) :
+	UnitTest(std::string unit_test_class) :
+		_test_success(true),
 		_u_test_class(unit_test_class) {}
 
 	virtual ~UnitTest() {}
 
 	//! Get name of the unit test class
-	std::string get_unit_test_class_name () const
+	std::string get_unit_test_class_name() const
 	{
 		return _u_test_class;
 	}//get_unit_test_class_name
@@ -48,17 +131,36 @@ public:
 	* This is the function running the unit test.
 	* @return true if the test succeed, false otherwise.
 	*/
-	virtual bool run_test () = 0;
+	virtual bool run_test() {
+		_test_success &= test();
+		return _test_success;
+	}//run_test
 
 	/**
-	 * Get a string describing the explanation why 
-	 * the current test has failed.
-	 * @return a string describing the failure.
+	 * Set failure message to print on test failure.
+	 * @param failure_msg failure message describing the unit test failure.
 	 */
-	virtual std::string get_failure () = 0;
+	virtual void set_failure_message ( std::string failure_msg )
+	{
+		_u_test_failure = failure_msg;
+	}//set_failure_message
+	
+	/**
+	* Get a string describing the explanation why
+	* the current test has failed.
+	* @return a string describing the failure.
+	*/
+	virtual std::string get_failure()
+	{
+		if (_u_test_failure == "")
+		{
+			_u_test_failure = "No failure string available";
+		}
+		return _u_test_failure;
+	}//get_failure
 	
 	//! Print information about this unit test
-	virtual void print () const
+	virtual void print() const
 	{
 		std::cout << "Unit test class:\t" << _u_test_class << std::endl;
 	}//print	

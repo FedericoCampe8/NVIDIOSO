@@ -5,12 +5,12 @@ include ./make_cuda.inc
 # ---------------------------------------------------------------------
 # Objects
 # ---------------------------------------------------------------------
-MAIN=main
+MAIN=invidioso
 
 ## Test option
 ## Uncomment the following for unit test
 #TEST_ON = -DUNIT_TEST
-#MAIN=main_test
+#MAIN=invidioso_utest
 
 OBJECTS =  $(patsubst %.cpp,%.o, $(PRG_PATH)/$(MAIN).cpp)
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(BASE)/*.cpp))

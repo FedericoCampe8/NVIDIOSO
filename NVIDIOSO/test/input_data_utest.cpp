@@ -12,20 +12,31 @@ using std::cout;
 using std::endl;
 
 InputDataUTest::InputDataUTest() :
-UnitTest( "InputData" ) {}
-
+UnitTest("InputData") {}
 
 InputDataUTest::~InputDataUTest() {}
 
 bool
-InputDataUTest::run_test()
+InputDataUTest::test()
 {
-	_failure_string = "Test failure";
-	return false;
-}//run_test
+	/*
+	 * @note InputData is a singleton class which makes it difficult to test it.
+	 *       This class was tested by re-building the module.
+	 *       The following is a default unit test.
+	 */
+	int argc = 4; 
+	char ** argv = (char**)malloc((argc + 1) * sizeof(char*));
+	argv[0] = const_cast<char *> (std::string("program_name").c_str());
+	argv[1] = const_cast<char *> (std::string("-i").c_str());
+	argv[2] = const_cast<char *> (std::string("sample_input.fzn").c_str());
+	argv[3] = const_cast<char *> (std::string("-v").c_str());
 
-std::string  
-InputDataUTest::get_failure () 
-{
-	return _failure_string;
-}
+	// InputData instance
+	InputData& idt = InputData::get_instance( argc, argv );
+	TEST_TRUE (idt.verbose(), "verbose");
+	TEST_FALSE(idt.timer(), "timer");
+	TEST_EQUAL(idt.timeout(), -1.0, "timeout");
+	TEST_EQUAL(idt.max_n_sol(), 1, "max_n_sol");
+
+	return true;
+}//run_test

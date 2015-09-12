@@ -12,20 +12,15 @@
 #define NVIDIOSO_input_data_utest_h
 
 #include "unit_test.h"
+#include "input_data.h"
 
 class InputDataUTest : public UnitTest {
-private:
-	//! String describing failures
-	std::string _failure_string;	
 public:
 	InputDataUTest();
 
 	virtual ~InputDataUTest();
 
-	bool run_test() override;
-	
-	std::string get_failure () override;
-
+	bool test() override;
 };
 
 #endif
