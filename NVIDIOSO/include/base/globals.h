@@ -23,6 +23,7 @@
 #include <sys/types.h>
 #include <string.h>
 #include <cstddef>
+#include <type_traits>
  
 /* Input/Output */
 #include <iomanip>

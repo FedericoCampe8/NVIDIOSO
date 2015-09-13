@@ -56,6 +56,14 @@ do
   read VERSION
 done
 
+#echo "Build Unit Test framework? [Y|N]"
+#read UT_ON
+UNIT_TEST="false"
+if [ $1 == "unit_test" ]; then
+    echo "@note build Unit Test framework - iNVIDIOSO1.0 will be built in debug mode"
+	UNIT_TEST="true"
+fi
+
 # Default parameters
 OS=$(uname)
 case "$OS" in

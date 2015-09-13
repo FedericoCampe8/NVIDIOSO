@@ -12,10 +12,10 @@
 //  @note Only header file, no .cpp for this class. 
 //
 
-#include "globals.h"
-
 #ifndef __NVIDIOSO__unit_test__
 #define __NVIDIOSO__unit_test__
+
+#include "globals.h"
 
 class UnitTest;
 typedef std::unique_ptr<UnitTest> UnitTestUPtr;
@@ -40,7 +40,7 @@ protected:
 		if (!b)
 		{
 			_u_test_failure = msg;
-			_u_test_failure += "-TEST_TRUE";
+			_u_test_failure += " => on TEST_TRUE";
 			_test_success = false;
 		}
 	}//TEST_TRUE
@@ -51,7 +51,7 @@ protected:
 		if (b)
 		{
 			_u_test_failure = msg;
-			_u_test_failure += "-TEST_FALSE";
+			_u_test_failure += " => on TEST_FALSE";
 			_test_success = false;
 		}
 	}//TEST_FALSE
@@ -62,7 +62,7 @@ protected:
 		if (ptr != NULL)
 		{
 			_u_test_failure = msg;
-			_u_test_failure += "-TEST_NULL";
+			_u_test_failure += " => on TEST_NULL";
 			_test_success = false;
 		}
 	}//TEST_NULL
@@ -73,7 +73,7 @@ protected:
 		if (ptr == NULL)
 		{
 			_u_test_failure = msg;
-			_u_test_failure += "-TEST_NOT_NULL";
+			_u_test_failure += " => on TEST_NOT_NULL";
 			_test_success = false;
 		}
 	}//TEST_NOT_NULL
@@ -85,11 +85,16 @@ protected:
 		if (a != b)
 		{
 			_u_test_failure = msg;
-			_u_test_failure += "-TEST_EQUAL";
+			_u_test_failure += " => on TEST_EQUAL: ";
+			std::ostringstream convert1; convert1 << a;
+			std::ostringstream convert2; convert2 << b;
+			_u_test_failure += convert1.str();
+			_u_test_failure += " != ";
+			_u_test_failure += convert2.str();
 			_test_success = false;
 		}
 	}//TEST_EQUAL
-
+	
 	template<typename T>
 	void TEST_NOT_EQUAL(T a, T b, std::string msg = "")
 	{
@@ -97,11 +102,16 @@ protected:
 		if (a == b)
 		{
 			_u_test_failure = msg;
-			_u_test_failure += "-TEST_NOT_EQUAL";
+			_u_test_failure += " => on TEST_NOT_EQUAL: ";
+			std::ostringstream convert1; convert1 << a;
+			std::ostringstream convert2; convert2 << b;
+			_u_test_failure += convert1.str();
+			_u_test_failure += " == ";
+			_u_test_failure += convert2.str();
 			_test_success = false;
 		}
 	}//TEST_NOT_EQUAL
-
+	
 	/*
 	* Function which is class-specific.
 	* This function can throw if a MACRO is not satisfied.

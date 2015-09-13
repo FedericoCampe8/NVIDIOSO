@@ -33,10 +33,21 @@ InputDataUTest::test()
 
 	// InputData instance
 	InputData& idt = InputData::get_instance( argc, argv );
-	TEST_TRUE (idt.verbose(), "verbose");
+	
+	// Unit Test
+	TEST_TRUE (idt.verbose(), "verbose"); 
 	TEST_FALSE(idt.timer(), "timer");
 	TEST_EQUAL(idt.timeout(), -1.0, "timeout");
 	TEST_EQUAL(idt.max_n_sol(), 1, "max_n_sol");
-
+	TEST_EQUAL(idt.get_in_file(), std::string ("sample_input.fzn"), "get_in_file [test 1]");
+	TEST_EQUAL(idt.get_out_file(), std::string (""), "get_out_file [test 1]");
+	
+	idt.set_input_file ( "test_in" );
+	idt.set_output_file ( "test_out" );
+	TEST_EQUAL(idt.get_in_file(), std::string ("test_in"), "get_in_file [test 2]");
+	TEST_EQUAL(idt.get_out_file(), std::string ("test_out"), "get_out_file [test 2]");
+	
+	free (argv);
+	
 	return true;
 }//run_test

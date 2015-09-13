@@ -6,11 +6,9 @@ include ./make_cuda.inc
 # Objects
 # ---------------------------------------------------------------------
 MAIN=invidioso
-
-## Test option
-## Uncomment the following for unit test
-#TEST_ON = -DUNIT_TEST
-#MAIN=invidioso_utest
+ifeq ($(UNIT_TEST_ON),true)
+	MAIN=invidioso_utest
+endif
 
 OBJECTS =  $(patsubst %.cpp,%.o, $(PRG_PATH)/$(MAIN).cpp)
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(BASE)/*.cpp))
@@ -30,7 +28,6 @@ OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(SEARCH)
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(LOCAL_SEARCH)/*.cpp))
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(CUDA_LOCAL_SEARCH)/*.cpp))
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(NVIDIOSO_SRC)/$(EXCEPTION)/*.cpp))
-OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(TEST)/*.cpp))
 
 # ---------------------------------------------------------------------
 # Compiler options 
@@ -62,7 +59,13 @@ INCLDIRS += -I$(PRG_PATH)/$(NVIDIOSO_INC)/$(LOCAL_SEARCH)
 INCLDIRS += -I$(PRG_PATH)/$(NVIDIOSO_INC)/$(CUDA_LOCAL_SEARCH)
 INCLDIRS += -I$(PRG_PATH)/$(NVIDIOSO_INC)/$(EXCEPTION)
 INCLDIRS += -I$(PRG_PATH)/$(THIRD_PARTY)
-INCLDIRS += -I$(PRG_PATH)/$(TEST)
+
+ifeq ($(UNIT_TEST_ON),true)
+	TEST_ON = -DUNIT_TEST 
+	OBJECTS += $(patsubst %.cpp,%.o,$(wildcard $(PRG_PATH)/$(TEST)/*.cpp)) 
+	INCLDIRS += -I$(PRG_PATH)/$(TEST)
+	DEBUG_ON = -g
+endif
 
 ## Compiler Flags
 CCFLAGS = $(CCOPT) $(INCLDIRS)
@@ -71,13 +74,16 @@ CCFLAGS = $(CCOPT) $(INCLDIRS)
 ## -DCUDAVERBOSE=true
 ## to activate CUDA verbose (e.g., prints from kernel)
 
+PHONY: all
+#all: ; $(UNIT_TEST_ON) and $(MAIN)
+
 # Incrementally build the system.
 all : 	nvidioso
 	$(PRINT_DONE)
 
 # Default
 nvidioso :	$(OBJECTS) 
-	$(CC) $(CUDAOPT) $(TEST_ON) $(CCLNDIRS) $(CFLAGS) -o $(TARGET) \
+	$(CC) $(CUDAOPT) $(TEST_ON) $(DEBUG_ON) $(CCLNDIRS) $(CFLAGS) -o $(TARGET) \
 	$(OBJECTS:%=$(PRG_PATH)/obj/%)
 
 # Debug
@@ -93,7 +99,7 @@ lib : $(OBJECTS)
 # $<: the first prerequisite filename.
 # $@: the target filename.
 $(OBJECTS) : 	%.o : %.cpp
-	$(CC) $(CUDACC) $(CUDAOPT) $(TEST_ON) $(COMPILE) $(CFLAGS) $(CCFLAGS) $< -o $(PRG_PATH)/obj/$@
+	$(CC) $(CUDACC) $(CUDAOPT) $(TEST_ON) $(DEBUG_ON) $(COMPILE) $(CFLAGS) $(CCFLAGS) $< -o $(PRG_PATH)/obj/$@
 	$(PRINT_COMPILE)
 
 #.PHONY : clean
