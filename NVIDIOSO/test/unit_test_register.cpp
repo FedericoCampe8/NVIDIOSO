@@ -20,6 +20,11 @@ UnitTest* p_input_data_utest ()
 	return new InputDataUTest ();
 }//input_data_utest
 
+UnitTest* p_cpsolver_utest ()
+{
+	return new CPSolverUTest ();
+}//p_cpsolver_utest
+
 // ---------------------------------------------------------------------- //
 // ---------------------------------------------------------------------- //
 
@@ -69,4 +74,5 @@ void
 UnitTestRegister::fill_register()
 {
 	add ( "input_data", p_input_data_utest );
+	add ( "cp_solver",  p_cpsolver_utest );
 }//fill_register

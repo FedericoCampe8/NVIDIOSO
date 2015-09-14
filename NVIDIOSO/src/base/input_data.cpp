@@ -24,7 +24,7 @@ InputData::init () {
   _verbose   = 0;
   _time      = 0;
   _max_sol   = 1;
-  _timeout   = -1;
+  _timeout   = -1.0;
   _in_file   = "";
   _out_file  = "";
   _help_file = "config/.idata_help.txt";

@@ -1,6 +1,6 @@
 //
 //  main.cpp
-//  iNVIDIOSO
+//  iNVIDIOSO1.0
 //
 //  Created by Federico Campeotto on 26/06/14.
 //  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.
@@ -11,7 +11,7 @@
 #include "cp_store.h"
 #include "cp_solver.h"
 
-int main( int argc, char * argv[] )
+int main( int argc, char * argv[] ) 
 {	
   	std::string dbg = "Main - ";
 
@@ -23,7 +23,7 @@ int main( int argc, char * argv[] )
   	/***************************************
    	 *  LOAD MODEL & INIT DATA STRUCURES   *
    	 ***************************************/
-	LogMsg << dbg << "Load Store" << std::endl;
+		LogMsg << dbg << "Load Store" << std::endl;
 
   	statistics.set_timer ( Statistics::TIMING::ALL );
   	statistics.set_timer ( Statistics::TIMING::PREPROCESS );
@@ -32,7 +32,7 @@ int main( int argc, char * argv[] )
   	DataStore& d_store = CPStore::get_store ( i_data.get_in_file() );
   	if ( !d_store.load_model() )
   	{
-  		LogMsg << dbg << "Failed to load the Model" << std::endl; 
+  		LogMsg << dbg << "Failed to load the Model"<< std::endl; 
   		exit ( 2 );
   	}
   	
@@ -51,17 +51,15 @@ int main( int argc, char * argv[] )
   	/***************************************
    	 *      	   CREATE MODEL            *
    	 ***************************************/
-	LogMsg << dbg + "Instantiate CP solver" << std::endl;
+		LogMsg << dbg + "Instantiate CP solver" << std::endl;
   
-	std::unique_ptr<CPSolver> cp_solver ( new CPSolver( d_store.get_model() ) );
+		std::unique_ptr<CPSolver> cp_solver ( new CPSolver ( CPModelUPtr ( d_store.get_model() ) ) );
   	if ( cp_solver == nullptr ) 
   	{
   		LogMsg << dbg << "Failed to create the constraint model" << std::endl;
   		exit( 4 );
   	}
   
-  	// Set some other user options on the solver
-  	cp_solver->customize  ( i_data );
   	statistics.stopwatch ( Statistics::TIMING::PREPROCESS );
   
   	LogMsg << dbg + "CP model created" << std::endl;
@@ -69,7 +67,7 @@ int main( int argc, char * argv[] )
   	/***************************************
    	 *              RUN SOLVER             *
    	 ***************************************/
-	LogMsg << dbg + "Run solver" << std::endl;
+		LogMsg << dbg + "Run solver" << std::endl;
   
   	statistics.set_timer ( Statistics::TIMING::SEARCH );
   	cp_solver->run();

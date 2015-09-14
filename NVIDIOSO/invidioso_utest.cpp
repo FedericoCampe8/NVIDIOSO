@@ -16,16 +16,17 @@ int main ( int argc, char * argv[] )
   	std::string dbg = "Main[invidioso_utest] - ";
 	  
 	/**************************************
-   	 *             CHECK INPUT            *
-   	 **************************************/
-	if ( argc > 3 )
+   *             READ INPUT             *
+   **************************************/
+	if ( argc > 4 )
 	{
 		std::cerr << "Unit Test: invalid input.\n";
 		std::cerr << "Usage:\n";
-		std::cerr << "./invidioso [-h | --help | -v | --verbose | -a <file_name>]\n";
+		std::cerr << "./invidioso [-h | --help] [-v | --verbose] [-a <file_name>] [-t <test>] \n";
 		return 0;					
 	}
 	
+	std::string on_test {};
 	bool verbose = false;
 	if ( argc == 2 )
 	{
@@ -33,10 +34,11 @@ int main ( int argc, char * argv[] )
 		if ( opt == "-h" || opt == "--help" )
 		{
 			std::cout << "Unit Test usage:\n";
-			std::cout << "./invidioso [-h | --help | -v | --verbose | -a <file_name>]\n";
+			std::cout << "./invidioso [-h | --help] [-v | --verbose] [-a <file_name>] [-t <test>] \n";
 			std::cout << "Where:\n";
 			std::cout << "\t-h | --help: print this help message and exit.\n";
 			std::cout << "\t-v | --verbose: print verbose information during unit test.\n";
+			std::cout << "\t-t <test>: unit test to run (must be registered in the register of tests).\n";
 			std::cout << "\t-a <file_name>: analyze file_name to get a summary of errors given by this tool.\n";
 			std::cout << "@note:\n";
 			std::cout << "This is a Unit Test framework for iNVIDIOSO1.0.\n";
@@ -49,7 +51,7 @@ int main ( int argc, char * argv[] )
 		{
 			std::cerr << "Unit Test: invalid input.\n";
 			std::cerr << "Usage:\n";
-			std::cerr << "./invidioso [-h | --help | -v | --verbose]\n";
+			std::cerr << "./invidioso [-h | --help] [-v | --verbose] [-a <file_name>] [-t <test>]\n";
 			return 0;	
 		}
 		else
@@ -57,32 +59,70 @@ int main ( int argc, char * argv[] )
 			LogMsg.set_verbose ( true );
 		}
 	}
-	else if ( argc == 3 )
+	else
 	{
-		std::string opt ( argv[ 1 ] );
-		if ( opt != "-a" )
+		std::string opt;
+		for ( int i = 1; i < argc; i++ )
 		{
-			std::cerr << "Unit Test: invalid input.\n";
-			std::cerr << "Usage:\n";
-			std::cerr << "./invidioso [-h | --help | -v | --verbose | -a <file_name>]\n";	
+			opt = std::string ( argv[ i ] );
+			if ( opt == "-a" )
+			{
+				if ( i == argc - 1 )
+				{
+					std::cerr << "Unit Test: invalid input.\n";
+					std::cerr << "Usage:\n";
+					std::cerr << "./invidioso [-h | --help] [-v | --verbose] [-a <file_name>] [-t <test>]\n";
+				}
+				else
+				{
+					// Run analysis of error on (log) given file
+					run_analysis ( argv[ i + 1 ] );
+					return 0;
+				}	
+			}
+			else if ( opt == "-t" )
+			{
+				if ( i == argc - 1 )
+				{
+					std::cerr << "Unit Test: invalid input.\n";
+					std::cerr << "Usage:\n";
+					std::cerr << "./invidioso [-h | --help] [-v | --verbose] [-a <file_name>] [-t <test>]\n";
+				}
+				else
+				{
+					on_test = std::string ( argv[ i + 1 ] ); 
+					++i;
+				}	
+			}
+			else if ( opt ==  "-v" || opt == "--verbose")
+			{
+				LogMsg.set_verbose ( true );
+			}
+			else
+			{
+				std::cerr << "Unit Test: invalid input.\n";
+				std::cerr << "Usage:\n";
+				std::cerr << "./invidioso [-h | --help] [-v | --verbose] [-a <file_name>] [-t <test>]\n";
+			}
 		}
-		
-		// Run analysis of error on (log) given file
-		run_analysis ( argv[ 2 ] );
-		
-		return 0;
 	}
 	
-  	/**************************************
-   	 *             INIT TESTER            *
-   	 **************************************/
+  /**************************************
+   *             INIT TESTER            *
+   **************************************/
 	std::unique_ptr<Tester> tester ( new Tester() );
   	
-  	/***************************************
-   	 *           Run  Unit Tests           *
-   	 ***************************************/
+  /***************************************
+   *           Run  Unit Tests           *
+   ***************************************/
 	LogMsgUT << dbg << "Run Tests" << std::endl;
-
+	
+	// If specified, perform only one single unit test
+	if ( on_test != "" )
+	{
+		tester->set_running_test ( on_test );
+	}
+	
 	bool success = true;
 	try
 	{
@@ -100,9 +140,9 @@ int main ( int argc, char * argv[] )
 		LogMsgUT << dbg << "Unit test passed" << std::endl;
 	}
 	 
-  	/***************************************
-   	 *            CLEAN AND EXIT           *
-   	***************************************/
+ 	/***************************************
+   *            CLEAN AND EXIT           *
+   ***************************************/
    	LogMsgUT << dbg << "Exit" << std::endl;
 
   	return 0;

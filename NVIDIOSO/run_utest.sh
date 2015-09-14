@@ -40,7 +40,12 @@ echo "=====================================================================" >> 
 echo "Architecture: $ARCHITECTURE_ALL" >> $FILELOG
 echo "=====================================================================" >> $FILELOG
 
-valgrind --leak-check=yes -v ./invidioso -v 1>>$FILELOG  2>&1 &
+if [ $1 != "" ]; then
+  valgrind --leak-check=yes -v ./invidioso -v -t $1 1>>$FILELOG  2>&1 &
+else
+  valgrind --leak-check=yes -v ./invidioso -v 1>>$FILELOG  2>&1 &
+fi
+
 MAKEBG=`echo $!`
 
 CNT=1
@@ -66,7 +71,7 @@ echo "=====================================================================" >> 
 # Remove the log (duplicate)
 rm unit_test_[0-9]*.log
 
-# Remove
+# Remove debug symbol file
 #rm -rf invidioso.dSYM
 
 # Analyze results

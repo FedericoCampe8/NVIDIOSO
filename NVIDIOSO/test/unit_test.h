@@ -141,7 +141,8 @@ public:
 	* This is the function running the unit test.
 	* @return true if the test succeed, false otherwise.
 	*/
-	virtual bool run_test() {
+	virtual bool run_test() 
+	{
 		_test_success &= test();
 		return _test_success;
 	}//run_test
@@ -149,9 +150,11 @@ public:
 	/**
 	 * Set failure message to print on test failure.
 	 * @param failure_msg failure message describing the unit test failure.
+	 * @note This method set internal state to a failure state.
 	 */
 	virtual void set_failure_message ( std::string failure_msg )
 	{
+		_test_success = false;
 		_u_test_failure = failure_msg;
 	}//set_failure_message
 	

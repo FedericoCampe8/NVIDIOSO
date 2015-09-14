@@ -25,6 +25,9 @@
 #include "constraint_store.h"
 #include "search_engine.h"
 
+class CPModel;
+typedef std::unique_ptr<CPModel> CPModelUPtr;
+
 class CPModel {
 protected:
   //! Unique id for this model

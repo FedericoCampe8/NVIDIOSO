@@ -12,5 +12,6 @@
 #define NVIDIOSO_unit_test_inc_h
 
 #include "input_data_utest.h"
+#include "cp_solver_utest.h"
 
 #endif

@@ -19,6 +19,10 @@
 #include "variable.h"
 
 class Constraint;
+typedef std::unique_ptr<Constraint> ConstraintUPtr;
+typedef std::shared_ptr<Constraint> ConstraintSPtr;
+
+//Deprecated
 typedef std::shared_ptr<Constraint> ConstraintPtr;
 
 /**

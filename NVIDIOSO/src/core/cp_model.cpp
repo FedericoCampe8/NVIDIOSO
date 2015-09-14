@@ -103,6 +103,7 @@ CPModel::add_constraint_store ( ConstraintStorePtr store )
 void
 CPModel::init_constraint_store () 
 {
+  // Sanity check
   if ( _store == nullptr ) return;
   if ( _constraints.size () == 0 ) return;
   
@@ -127,7 +128,7 @@ CPModel::finalize ()
 void
 CPModel::create_constraint_graph () 
 {
-  if ( !_constraints.size() ) return;
+  if ( _constraints.size() == 0 ) return;
   
   // Attach base constraints to variables
   for ( auto c : _constraints ) 
@@ -145,7 +146,7 @@ CPModel::create_constraint_graph ()
 void
 CPModel::attach_constraint_store () 
 {
-  if ( !_variables.size()) return;
+  if ( _variables.size() == 0 ) return;
   
   if ( _store == nullptr ) {
     throw NvdException("No constraint store to attach.");
