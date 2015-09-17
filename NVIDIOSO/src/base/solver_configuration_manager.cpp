@@ -22,6 +22,8 @@ const std::string SolverConfigManager::PARAM_SEP_KWD = "_";
 const std::string SolverConfigManager::PARAM_EQ_KWD = "=";
 const std::string SolverConfigManager::PARAM_YES_KWD = "YES";
 const std::string SolverConfigManager::PARAM_NO_KWD  = "NO";
+const std::string SolverConfigManager::PARAMS_DEFAULT_PATH = "config/iNVIDIOSO.params";
+const std::string SolverConfigManager::CONFIG_SCHEME_DEFAULT_PATH = "config/config_scheme.json";
 // =====================================================
 
 Configurable::Configurable ( std::string type, std::string default_val, std::vector<std::string>& options ) :
@@ -87,8 +89,8 @@ Configurable::print () const
 
 SolverConfigManager::SolverConfigManager() :
 	_dbg              ("SolverConfigManager - "),
-	_json_scheme_file ("config/param_data.json"),
-	_params_data_file ("config/iNVIDIOSO.params") {
+	_json_scheme_file ( CONFIG_SCHEME_DEFAULT_PATH) ,
+	_params_data_file ( PARAMS_DEFAULT_PATH ) {
 
 	// Load scheme
 	load_scheme ();
@@ -103,7 +105,7 @@ SolverConfigManager::SolverConfigManager() :
  */
 SolverConfigManager::SolverConfigManager ( std::string param_data_path ) :
 	_dbg			        ( "SolverConfigManager - " ),
-	_json_scheme_file ( "config/param_data.json" ) {
+	_json_scheme_file ( CONFIG_SCHEME_DEFAULT_PATH ) {
 
 	// Set input
 	_params_data_file = param_data_path;

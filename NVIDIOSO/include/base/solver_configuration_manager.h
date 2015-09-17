@@ -70,6 +70,8 @@ class SolverConfigManager {
 	static const std::string PARAM_EQ_KWD;
 	static const std::string PARAM_YES_KWD;
 	static const std::string PARAM_NO_KWD;
+	static const std::string PARAMS_DEFAULT_PATH;
+	static const std::string CONFIG_SCHEME_DEFAULT_PATH;
 	// =====================================================
   
 	//! Debug string
