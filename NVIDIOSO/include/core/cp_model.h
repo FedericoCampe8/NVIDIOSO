@@ -27,6 +27,7 @@
 
 class CPModel;
 typedef std::unique_ptr<CPModel> CPModelUPtr;
+typedef std::shared_ptr<CPModel> CPModelSPtr;
 
 class CPModel {
 protected:

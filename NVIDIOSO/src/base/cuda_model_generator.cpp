@@ -284,10 +284,7 @@ CudaGenerator::get_constraint ( UTokenPtr tkn_ptr )
 		GlobalConstraintPtr glb_constraint = glb_constraint_register.get_global_constraint ( constraint_name );
 		glb_constraint->setup ( var_ptr, par_ptr );
 		
-		if ( solver_params != nullptr )
-		{
-			glb_constraint->set_consistency_level ( solver_params->constraint_get_propagator_class () );
-		}
+		//glb_constraint->set_consistency_level ( solver_params.get_configuration_string ( "CONSTRAINT_PROPAGATOR_CLASS" ) );
 		if ( ptr->is_soft () )
     	{
     		glb_constraint->increase_weight ();
@@ -395,8 +392,8 @@ CudaGenerator::get_search_engine ( UTokenPtr tkn_ptr )
     variables.clear ();
 
     // Set solver parameters
-    if ( solver_params != nullptr )
-    {
+      engine->set_debug ( solver_configurator.get_configuration_bool ( "SEARCH_TREE_DEBUG" ) );  
+       /*
         engine->set_debug               ( solver_params->search_get_debug() );
         engine->set_trail_debug         ( solver_params->search_get_trail_debug () );
         engine->set_time_watcher        ( solver_params->search_get_time_watcher () );
@@ -405,7 +402,7 @@ CudaGenerator::get_search_engine ( UTokenPtr tkn_ptr )
         engine->set_backtrack_out       ( solver_params->search_get_backtrack_limit () );
         engine->set_nodes_out           ( solver_params->search_get_nodes_limit () );
         engine->set_wrong_decisions_out ( solver_params->search_get_wrong_decision_limit () );
-    }
+        */
     
     return engine;
 }//get_search_engine
@@ -431,10 +428,7 @@ CudaGenerator::get_store ( UTokenPtr tkn_ptr )
 #if CUDAON
 
 	on_device = true;
-	if ( solver_params != nullptr )
-    {
-    	cstore_type = solver_params->cstore_type_to_int ( solver_params->cstore_get_dev_propagation () );
-	}
+	//cstore_type = solver_params->cstore_type_to_int ( solver_params->cstore_get_dev_propagation () );
 	
 #endif
 
@@ -442,37 +436,34 @@ CudaGenerator::get_store ( UTokenPtr tkn_ptr )
 	store = FactoryCStore::get_cstore ( on_device, cstore_type, local_search );
 	
     // Set solver parameters
-    if ( solver_params != nullptr )
-    {
-        store->sat_check ( solver_params->cstore_get_satisfiability () );
-        store->con_check ( solver_params->cstore_get_consistency () );
+    //store->sat_check ( solver_params->cstore_get_satisfiability () );
+    //store->con_check ( solver_params->cstore_get_consistency () );
         
-        if ( local_search )
-        {	
-        	// Set constraints sat type (default: mixed)
-        	if ( solver_params->cstore_constraints_all_soft () )
-        	{
-        		(std::static_pointer_cast<SoftConstraintStore>( store ))->impose_all_soft ();
-        	}
-        	else if ( solver_params->cstore_constraints_all_hard () )
-        	{
-        		(std::static_pointer_cast<SoftConstraintStore>( store ))->impose_all_hard ();
-        	}
-        }
+  if ( local_search )
+  {	
+    // Set constraints sat type (default: mixed)
+    /*
+    if ( solver_params->cstore_constraints_all_soft () )
+    {
+      (std::static_pointer_cast<SoftConstraintStore>( store ))->impose_all_soft ();
+    }
+    else if ( solver_params->cstore_constraints_all_hard () )
+    {
+      (std::static_pointer_cast<SoftConstraintStore>( store ))->impose_all_hard ();
+    }*/
+  }
         
 #if CUDAON
 
-		(std::static_pointer_cast<CudaSimpleConstraintStore>( store ))->
-		set_max_block_size ( solver_params->cuda_get_max_block_size () );
+		//(std::static_pointer_cast<CudaSimpleConstraintStore>( store ))->
+		//set_max_block_size ( solver_params->cuda_get_max_block_size () );
 		
-		(std::static_pointer_cast <CudaSimpleConstraintStore> ( store ))->
-		set_prop_loop_out ( solver_params->cstore_get_dev_loop_out () );
+		//(std::static_pointer_cast <CudaSimpleConstraintStore> ( store ))->
+		//set_prop_loop_out ( solver_params->cstore_get_dev_loop_out () );
 		
 #endif
-
-    }
-    
-    return store;
+  
+  return store;
 }//get_store
 
 

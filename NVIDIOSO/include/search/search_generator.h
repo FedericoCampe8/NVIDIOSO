@@ -217,16 +217,13 @@ public:
       		
       		solution_manager  = new LocalSearchSolutionManager ( variables, obj_var ); 
       		
-      		if ( solver_params != nullptr )
-    		{
-      			(std::dynamic_pointer_cast<SimpleLocalSearch> (engine))->
-      			set_restarts_limit ( solver_params->ls_get_restarts () );
-      			(std::dynamic_pointer_cast<SimpleLocalSearch> (engine))->
-      			set_restarts_limit ( solver_params->ls_get_II_steps () ); 
+      		(std::dynamic_pointer_cast<SimpleLocalSearch> (engine))->
+      		set_restarts_limit ( solver_configurator.get_configuration_size_t ( "LS_RESTARTS" ) );
+      		(std::dynamic_pointer_cast<SimpleLocalSearch> (engine))->
+      		set_restarts_limit ( solver_configurator.get_configuration_size_t ( "LS_ITERATIVE_IMPROVING" ) );
       			
-      			(dynamic_cast<LocalSearchSolutionManager*> (solution_manager))->
-      			use_satisfiability_obj (); 
-      		}
+      		(dynamic_cast<LocalSearchSolutionManager*> (solution_manager))->
+      		use_satisfiability_obj (); 
       		
       	}
       	else

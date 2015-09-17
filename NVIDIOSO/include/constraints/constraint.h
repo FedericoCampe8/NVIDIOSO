@@ -1,6 +1,6 @@
 //
 //  constraint.h
-//  NVIDIOSO
+//  iNVIDIOSO
 //
 //  Created by Federico Campeotto on 08/07/14.
 //  Copyright (c) 2014-2015 Federico Campeotto. All rights reserved.

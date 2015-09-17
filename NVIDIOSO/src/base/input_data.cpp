@@ -28,13 +28,6 @@ InputData::init () {
   _in_file   = "";
   _out_file  = "";
   _help_file = "config/.idata_help.txt";
-
-  // Parameters for solver
-  solver_params = new ParamData ();
-  if ( solver_params != nullptr )
-  {
-      solver_params->set_parameters ();
-  }
 }//init
 
 InputData::InputData ( int argc, char* argv[] ) {
@@ -155,10 +148,7 @@ InputData::InputData ( int argc, char* argv[] ) {
   }
 }//-
 
-InputData::~InputData () 
-{
-    // Delete (pointer to) parameters class
-    delete solver_params;
+InputData::~InputData () {
 }
 
 void

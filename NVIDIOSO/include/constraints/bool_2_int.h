@@ -15,7 +15,11 @@
 #include "base_constraint.h"
 #include "int_variable.h"
 
-class Bool2Int : public BaseConstraint {  
+class Bool2Int : public BaseConstraint {
+private:
+	IntVariablePtr _var_x = nullptr;
+	IntVariablePtr _var_y = nullptr;
+
 public:
     /**
      * Basic constructor.
@@ -24,8 +28,6 @@ public:
      *       and parameters needed by this constraint.
      */
     Bool2Int ( std::string& constraint_name );
-
-    ~Bool2Int ();
 
     //! Setup method, see fzn_constraint.h
     void setup ( std::vector<VariablePtr> vars, std::vector<std::string> args ) override;

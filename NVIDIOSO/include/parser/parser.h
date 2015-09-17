@@ -23,6 +23,10 @@
 #include "tokenization.h"
 #include "token.h"
 
+class Parser;
+typedef std::unique_ptr<Parser> ParserUPtr;
+typedef std::shared_ptr<Parser> ParserSPtr;
+
 //! Add other modeling languages here if needed
 enum class ParserType {
   FLATZINC,

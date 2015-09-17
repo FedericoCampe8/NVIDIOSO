@@ -16,6 +16,7 @@ The following is a list of the current available base constraints.
 | Constraint   |  Semantic  | 
 ----------------- | ------------------
 | array_bool_element  | $as[b] = c$ | 
+| bool_2_int  | $a = b$ |
 | int_eq  | $a = b$ | 
 | int_le  | $a \leq b$ | 
 | int_lin_eq  | $\sum_{i \in 1..n} as[i].bs[i] = c$ | 

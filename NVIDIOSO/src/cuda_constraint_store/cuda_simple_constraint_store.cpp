@@ -21,15 +21,7 @@ CudaSimpleConstraintStore::CudaSimpleConstraintStore () :
     _d_constraint_queue   ( nullptr ),
     _cp_model_ptr         ( nullptr ) {
     _dbg = "CudaSimpleConstraintStore - ";
-    if ( solver_params != nullptr )
-    {
-    	_shared_limit = solver_params->cuda_get_shared_mem_size ();
-    }
-    else
-    {
-    	// Minimum of 16KB of shared memory
-    	_shared_limit = 16000;
-    }
+    _shared_limit = solver_configurator.get_configuration_size_t ( "SHARED_MEM" ) * 1000;
 }//CudaSimpleConstraintStore
 
 CudaSimpleConstraintStore::~CudaSimpleConstraintStore () {

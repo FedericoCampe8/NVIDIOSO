@@ -42,22 +42,31 @@ public:
   				return std::make_shared<SimpleConstraintStore> ();
   			}
   		}
-  		CudaPropParam dev_cstore_type = solver_params->cstore_int_to_type ( type );
-    	switch ( dev_cstore_type ) 
-    	{
-      		case CudaPropParam::SEQUENTIAL:
-        		return std::make_shared<CudaSimpleConstraintStoreSeq> ();
-        	case CudaPropParam::BLOCK_PER_CON:
-        		return std::make_shared<CudaSimpleConstraintStore1b1c> ();
-        	case CudaPropParam::BLOCK_PER_VAR:
-        		return std::make_shared<CudaSimpleConstraintStore1b1v> ();
-        	case CudaPropParam::BLOCK_K_CON:
-        		return std::make_shared<CudaSimpleConstraintStore1bKc> ();
-        	case CudaPropParam::BLOCK_K_VAR:
-        		return std::make_shared<CudaSimpleConstraintStore1bKv> ();
-      		default:
-        		return std::make_shared<CudaSimpleConstraintStoreSeq> ();
-    	}
+  		std::string dev_cstore_type = solver_configurator.get_configuration_string ( "CSTORE_CUDA_PROP" );
+      if ( dev_cstore_type == "sequential" )
+      {
+        return std::make_shared<CudaSimpleConstraintStoreSeq> ();
+      }
+      else if ( dev_cstore_type == "block_per_constraint" )
+      {
+        return std::make_shared<CudaSimpleConstraintStore1b1c> ();
+      }
+      else if ( dev_cstore_type == "block_per_variable" )
+      {
+        return std::make_shared<CudaSimpleConstraintStore1b1v> ();
+      }
+      else if ( dev_cstore_type == "block_per_k_constraint"  )
+      {
+        return std::make_shared<CudaSimpleConstraintStore1bKc> ();
+      }
+      else if ( dev_cstore_type == "block_per_k_variable" )
+      {
+        return std::make_shared<CudaSimpleConstraintStore1bKv> ();
+      }
+      else
+      {
+        return std::make_shared<CudaSimpleConstraintStoreSeq> (); 
+      }
   	}//get_cstore
 };
 

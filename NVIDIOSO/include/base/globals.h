@@ -63,8 +63,8 @@
 #include "statistics.h"
 #include "id_generator.h"
 #include "nvd_exception.h"
-#include "param_data.h"
 #include "random_generator.h"
+#include "solver_configuration_manager.h"
 
 /* Cuda */
 #if CUDAON

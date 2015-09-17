@@ -179,7 +179,7 @@ void run_analysis ( const char * const in_file_str )
 		}
     }
 	
-	std::cout << "ANALYSIS RESULT:" << std::endl;
+	std::cout << "ANALYSIS RESULTS:" << std::endl;
 	if ( utest_pass )
 	{
 		std::cout << "- UNIT TEST COMPLETED SUCCESSFULLY" << std::endl;

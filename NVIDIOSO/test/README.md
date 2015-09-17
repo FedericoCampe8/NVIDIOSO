@@ -20,20 +20,21 @@ $ ./run_test.sh
  At the end it will output something like the following:
 
 ```
-============= iNVIDIOSO-1.0 Unit Test =============
+============= iNVIDIOSO1.0 Unit Test =============
 ===================================================
-Architecture: Darwin Federicos-iMac.local 14.5.0 Darwin Kernel Version 14.5.0: Wed Jul 29 02:26:53 PDT 2015; root:xnu-2782.40.9~1/RELEASE_X86_64 x86_64
+Architecture: Darwin Federicos-iMac.local 14.5.0 Darwin Kernel Version 14.5.0: Wed Jul 29 02:26:53 PDT 2015; 
+root:xnu-2782.40.9~1/RELEASE_X86_64 x86_64
 ===================================================
 Running unit tests...
 ...
-ANALYSIS RESULT:
+ANALYSIS RESULTS:
 - UNIT TEST COMPLETED SUCCESSFULLY
 - ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 21 from 21)
 ===================================================
 ===================================================
 ```
 Indicating that unit test is completed without errors and there are 0 memory errors (in the above example).
- 
+
 > **Note:**
 
 > - To run the unit test script it is necessary to install iNVIDIOSO1.0 in *unit_test* mode. This can be achieved by re-installing iNVIDIOSO using the *install.sh* script with the  keyword *unit_test*;
@@ -96,9 +97,7 @@ UnitTestRegister::fill_register()
 	
 > **Note:**
 
-> - It is possibile to run a single unit test by either giving the name of the test to run as parameter to the script or by invoking the unit test tool with the *-t* option:
-		> ./run_utest.sh my_test
-		> ./invidioso -t my_test
+> - It is possibile to run a single unit test by either giving the name of the test to run as parameter to the script or by invoking the unit test tool with the *-t* option.
 
 
 Currently implemented unit test classes:

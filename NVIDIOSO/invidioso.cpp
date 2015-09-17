@@ -8,7 +8,7 @@
 
 #include "globals.h"
 #include "input_data.h"
-#include "cp_store.h"
+#include "cp_model_engine.h"
 #include "cp_solver.h"
 
 int main( int argc, char * argv[] ) 
@@ -28,19 +28,21 @@ int main( int argc, char * argv[] )
   	statistics.set_timer ( Statistics::TIMING::ALL );
   	statistics.set_timer ( Statistics::TIMING::PREPROCESS );
 	
+		// Instantiate a model engine
+		CPModelEngine data_engine;
+		
   	// Load model
-  	DataStore& d_store = CPStore::get_store ( i_data.get_in_file() );
-  	if ( !d_store.load_model() )
+  	if ( !data_engine.load_model ( i_data.get_in_file() ) )
   	{
-  		LogMsg << dbg << "Failed to load the Model"<< std::endl; 
+  		LogMsg << dbg << "Failed to load the model " << i_data.get_in_file() << std::endl; 
   		exit ( 2 );
   	}
   	
   	// Init store (variables, domains, and constraints)
   	try 
   	{
-  		LogMsg << dbg + "Model Initialization" << std::endl;
-  		d_store.init_model();
+  		LogMsg << dbg << "Model Initialization" << std::endl;
+  		data_engine.initialize_model ();
   	} 
   	catch ( std::exception& e ) 
   	{
@@ -53,7 +55,7 @@ int main( int argc, char * argv[] )
    	 ***************************************/
 		LogMsg << dbg + "Instantiate CP solver" << std::endl;
   
-		std::unique_ptr<CPSolver> cp_solver ( new CPSolver ( CPModelUPtr ( d_store.get_model() ) ) );
+		std::unique_ptr<CPSolver> cp_solver ( new CPSolver ( std::move ( data_engine.get_model() ) ) );
   	if ( cp_solver == nullptr ) 
   	{
   		LogMsg << dbg << "Failed to create the constraint model" << std::endl;
