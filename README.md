@@ -13,6 +13,11 @@ Based on parallel and distributed computation iNVIDIOSO1.0 is able to solve larg
 DISCLAIMER
 -------------
 
+Update 1/26/2016
+iNVIDIOSO1.0 is almost done! We are currently finishing to implement the last features for the upcoming release
+and performing indeep testing.
+We are almost there.
+
 The source code of iNVIDIOSO1.0 has been removed from github.
 We are implementing new features, search strategies and parallel algorithms to improve iNVIDIOSO performance 
 and enhance user experience.
