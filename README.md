@@ -14,6 +14,7 @@ DISCLAIMER
 -------------
 
 Update 1/26/2016
+-----------------
 iNVIDIOSO1.0 is almost done! We are currently finishing to implement the last features for the upcoming release
 and performing indeep testing.
 We are almost there.
