@@ -3,11 +3,12 @@
 iNVIDIa-based cOnstraint SOlver v. 1.0 
 ===============================
 
-iNVIDIOSO1.0 is a constraint solver for optimization problems.
+iNVIDIOSO1.0 is the back-end solver for optimization problems.
 It takes advantage of the GPU architecture -- if available -- to speedup exploration of the search space and propagation of constraints.
 The solver allows the user to choose between complete (e.g., DFS), and incomplete search strategies, e.g., (e.g., local search, MCMC sampling, etc.).
 iNVIDIOSO1.0 is written in C++ and uses the CUDA programming model (developer.nvidia.com) for GPU computation.  
 Based on parallel and distributed computation iNVIDIOSO1.0 is able to solve large scale real-world problems.
+The back end solver has a front end language and a GUI to easily create models and run them interactively.
 
 
 DISCLAIMER
@@ -16,7 +17,7 @@ DISCLAIMER
 Update 1/26/2016
 -----------------
 iNVIDIOSO1.0 is almost ready for its first beta-release! We are currently finishing to implement the last features for the upcoming release
-and performing indeep testing.
+and testing both the language and the back-end.
 We are almost there.
 
 
