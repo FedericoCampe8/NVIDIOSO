@@ -33,6 +33,7 @@ New features we will implement in the next future:
 > - Allow the user to define different local search strategies
      in a declarative way as input for the solver.
      The solver will automatically run the local search strategy in parallel on the GPU;
+> - Allow the user to model dynamic problems, i.e., add/remove constraints and variables at run-time; 
 > - Use a multi-GPU environment to scale horizontally when 
      searching for sub-optimal solutions for optimization problems;
 >- Implement the Simplex algorithm (sequential and parallel version) for solving LP problems;
