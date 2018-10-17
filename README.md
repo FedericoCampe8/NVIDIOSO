@@ -1,3 +1,15 @@
+Update Oct. 17 2018
+-----------------
+This project is no longer in progress.
+iNVIDIOSO was the base line for a new and exciting combinatorial optimization framework.
+All the information can be found at www.optilabtech.com.
+
+See you there!
+
+The Optilab team
+
+
+
 **iNVIDIOSO**
 ===================
 iNVIDIa-based cOnstraint SOlver v. 1.0 
